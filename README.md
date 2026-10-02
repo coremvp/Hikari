@@ -19,7 +19,7 @@ bunx supabase start
 bun run dev
 ```
 
-Open [localhost:3000](http://localhost:3000), create an account, and confirm your email in the local Supabase mailbox at [127.0.0.1:55424](http://127.0.0.1:55424). You can then open Dashboard and Account. Password recovery uses the same mailbox.
+Open [localhost:3000](http://localhost:3000) and create an account. Signup signs you in immediately and opens Dashboard. Email confirmation is disabled. Password recovery emails arrive in the local Supabase mailbox at [127.0.0.1:55424](http://127.0.0.1:55424).
 
 `env sync` writes the local Supabase connection settings to ignored `.env.local` and preserves existing Stripe settings. `./coremvp env list` reports whether each required variable is set, without displaying values. Authentication works before you configure Stripe; subscription features require the billing settings below.
 
@@ -65,7 +65,7 @@ bun run test:integration
 ./coremvp e2e billing:subscription
 ```
 
-The Auth journey uses the running local application, Supabase Auth, and confirmation/recovery emails in the local mailbox. It checks the protected dashboard/account and API, signin, logout, and password recovery.
+The Auth journey uses the running local application, Supabase Auth, and recovery emails in the local mailbox. It checks immediate signup, the protected dashboard/account and API, signin, logout, and password recovery.
 
 Unit tests cover subscription access and controlled provider-state convergence. Database integration uses the real local database and application service/repository/API with signed Stripe fixtures. It also checks that anonymous and authenticated Supabase clients cannot read or write billing tables. No Stripe API is called by those tests.
 
@@ -91,9 +91,9 @@ Use a fresh Supabase project and one Vercel Next.js project. Hosted deployment a
    https://<your-app>/auth/confirm
    ```
 
-   Keep email confirmation enabled. For an initial test with Supabase's default email templates, open confirmation and recovery links in the same browser and device where you started the flow. Hikari's callback exchanges the PKCE code for a session. When your Supabase configuration permits custom templates, use the corresponding files in `supabase/templates/`; their links use `SiteURL` and `TokenHash`.
+   In the Email provider settings, turn **Confirm email** off so signup signs users in immediately, as it does locally. For an initial test with Supabase's default recovery email template, open the recovery link in the same browser and device where you started the flow. Hikari's callback exchanges the PKCE code for a session. When your Supabase configuration permits custom templates, use `supabase/templates/recovery.html`; its link uses `SiteURL` and `TokenHash`.
 
-   The default hosted email service sends only to your Supabase organization's members and has a low rate limit. Free projects using that service may reject template edits. Configure [Auth SMTP delivery in Supabase](https://supabase.com/docs/guides/auth/auth-smtp) and validate delivery to your intended users before opening signup. Supabase Auth continues to own the email flow.
+   The default hosted email service sends recovery emails only to your Supabase organization's members and has a low rate limit. Free projects using that service may reject template edits. Configure [Auth SMTP delivery in Supabase](https://supabase.com/docs/guides/auth/auth-smtp) and validate password recovery delivery to your intended users before releasing your application. Supabase Auth continues to own the email flow.
 
 3. Create or link the Vercel project from the Hikari root:
 
@@ -127,7 +127,7 @@ Use a fresh Supabase project and one Vercel Next.js project. Hosted deployment a
    ./coremvp prod e2e smoke https://<your-app>
    ```
 
-   Smoke checks the hosted page, application liveness, and anonymous account rejection. It does not prove hosted authentication or billing. On the deployed application, confirm a fresh account, sign in, recover its password, complete Stripe test Checkout, verify active access in Dashboard, and open Customer Portal. Check successful signed delivery and the durable subscription row in your selected providers.
+   Smoke checks the hosted page, application liveness, and anonymous account rejection. It does not prove hosted authentication or billing. On the deployed application, create a fresh account and verify immediate Dashboard access, sign in, recover its password, complete Stripe test Checkout, verify active access in Dashboard, and open Customer Portal. Check successful signed delivery and the durable subscription row in your selected providers.
 
 The schema transition refuses to discard nonempty legacy Hikari tables. Existing deployments need a backup and a separately planned data migration. Do not reset a hosted project to bypass that guard. The relaunch quickstart and deployment path target fresh projects.
 

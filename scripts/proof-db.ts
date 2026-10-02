@@ -40,25 +40,7 @@ const auth = createClient(
 const { data, error } = await auth.auth.signUp({ email, password });
 assert.equal(error, null);
 assert.ok(data.user);
-let token: string | undefined;
-for (let attempt = 0; attempt < 40 && !token; attempt++) {
-  const messages = (await (
-    await fetch('http://127.0.0.1:55424/api/v1/messages')
-  ).json()) as { messages: { ID: string; To: { Address: string }[] }[] };
-  for (const message of messages.messages ?? [])
-    if (message.To.some((to) => to.Address === email)) {
-      const full = (await (
-        await fetch('http://127.0.0.1:55424/api/v1/message/' + message.ID)
-      ).json()) as { HTML: string };
-      token = full.HTML.match(/token_hash=([^&"]+)/)?.[1];
-    }
-  if (!token) await Bun.sleep(250);
-}
-assert.ok(token, 'Confirmation email did not arrive.');
-assert.equal(
-  (await auth.auth.verifyOtp({ token_hash: token, type: 'signup' })).error,
-  null,
-);
+assert.ok(data.session, 'Signup must immediately establish a session.');
 const userId = data.user.id;
 const approved = 'price_dbapproved';
 const customerId = 'cus_db' + crypto.randomUUID().replaceAll('-', '');

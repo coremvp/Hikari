@@ -34,10 +34,7 @@ minimum_password_length = 8
 [auth.email]
 enable_signup = true
 double_confirm_changes = true
-enable_confirmations = true
-[auth.email.template.confirmation]
-subject = "Confirm your Hikari account"
-content_path = "./supabase/templates/confirmation.html"
+enable_confirmations = false
 [auth.email.template.recovery]
 subject = "Reset your Hikari password"
 content_path = "./supabase/templates/recovery.html"

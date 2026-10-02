@@ -32,7 +32,6 @@ test('email account, session, logout and recovery enforce the protected boundary
   await page
     .getByRole('button', { name: 'Create account', exact: true })
     .click();
-  await page.goto(await localEmailLink(email, 'signup'));
   await expect(page).toHaveURL(/\/dashboard/);
   expect((await page.request.get('/api/account')).status()).toBe(200);
   await page.goto('/account');
@@ -51,7 +50,7 @@ test('email account, session, logout and recovery enforce the protected boundary
   await page.getByLabel('Email', { exact: true }).fill(email);
   await page.getByRole('button', { name: 'Send recovery email' }).click();
   await expect(page.getByRole('status')).toBeVisible();
-  await page.goto(await localEmailLink(email, 'recovery'));
+  await page.goto(await localEmailLink(email));
   await expect(page).toHaveURL(/\/reset-password/);
   const updated = 'Hikari-updated-' + crypto.randomUUID();
   await page.getByLabel('Password', { exact: true }).fill(updated);

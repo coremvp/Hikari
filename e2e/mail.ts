@@ -1,9 +1,6 @@
 import { expect } from '@playwright/test';
 const origin = 'http://127.0.0.1:55424';
-export async function localEmailLink(
-  email: string,
-  type: 'signup' | 'recovery',
-) {
+export async function localEmailLink(email: string) {
   let link: string | undefined;
   await expect
     .poll(
@@ -18,7 +15,7 @@ export async function localEmailLink(
             await fetch(origin + '/api/v1/message/' + message.ID)
           ).json()) as { HTML: string };
           const match = full.HTML.match(/href="([^"]+)"/g)?.find((value) =>
-            value.includes('type=' + type),
+            value.includes('type=recovery'),
           );
           if (match) {
             link = match.slice(6, -1).replaceAll('&amp;', '&');
@@ -30,6 +27,6 @@ export async function localEmailLink(
       { timeout: 20000 },
     )
     .toBe(true);
-  if (!link) throw new Error('Local confirmation email did not arrive.');
+  if (!link) throw new Error('Local recovery email did not arrive.');
   return link;
 }

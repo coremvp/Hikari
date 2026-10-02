@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test';
 import Stripe from 'stripe';
 import postgres from 'postgres';
-import { localEmailLink } from './mail';
 test('real test subscription reaches signed webhook, durable access and Customer Portal', async ({
   page,
 }) => {
@@ -42,8 +41,6 @@ test('real test subscription reaches signed webhook, durable access and Customer
     await page
       .getByRole('button', { name: 'Create account', exact: true })
       .click();
-    await expect(page.getByRole('status')).toBeVisible();
-    await page.goto(await localEmailLink(email, 'signup'));
     await expect(page).toHaveURL(/\/dashboard/);
     const account = (await (await page.request.get('/api/account')).json()) as {
       id: string;

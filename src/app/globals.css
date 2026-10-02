@@ -1,4 +1,8 @@
 @import 'tailwindcss';
+
+@theme {
+  --color-primary: oklch(0.65 0.2 45);
+}
 @layer base {
   body {
     background: #fafaf9;
@@ -18,13 +22,13 @@
     opacity: 0.6;
   }
   :focus-visible {
-    outline: 3px solid #7c3aed;
+    outline: 3px solid #c2410c;
     outline-offset: 4px;
   }
 }
 @layer components {
   .button {
-    @apply inline-flex items-center justify-center rounded-md bg-violet-700 px-5 py-3 text-sm font-semibold text-white hover:bg-violet-800;
+    @apply inline-flex items-center justify-center rounded-md bg-primary px-5 py-3 text-sm font-semibold text-slate-950 hover:bg-primary/90;
   }
   .button-secondary {
     @apply inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50;
@@ -33,6 +37,6 @@
     @apply block w-full rounded-md border border-slate-300 bg-white px-3 py-3 text-base;
   }
   .eyebrow {
-    @apply text-xs font-semibold tracking-widest text-violet-700;
+    @apply text-xs font-semibold tracking-widest text-orange-700;
   }
 }
