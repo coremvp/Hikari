@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { SiteShell } from '@/components/site-shell';
+import { Testimonials } from '@/components/testimonials';
 import {
   ApplicationPreview,
   DocumentationPreview,
@@ -120,6 +121,7 @@ export default function Home() {
           ))}
         </ol>
       </section>
+      <Testimonials />
       <section aria-labelledby="content-title" className="hikari-section">
         <div className="grid items-center gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
           <div>
