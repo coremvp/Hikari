@@ -4,7 +4,13 @@ import Link from 'next/link';
 import { request } from '@/lib/client';
 export type AuthMode = 'signin' | 'signup' | 'recovery' | 'password';
 const subscribe = () => () => {};
-export function AuthForm({ mode }: { mode: AuthMode }) {
+export function AuthForm({
+  mode,
+  confirmationFailed = false,
+}: {
+  mode: AuthMode;
+  confirmationFailed?: boolean;
+}) {
   const hydrated = useSyncExternalStore(
     subscribe,
     () => true,
@@ -12,7 +18,11 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   );
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(
+    confirmationFailed
+      ? 'This confirmation link is invalid or expired. Request a new email.'
+      : '',
+  );
   const title = {
     signin: 'Welcome back',
     signup: 'Create your account',
