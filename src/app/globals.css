@@ -49,76 +49,124 @@
   }
 }
 
-.hikari-landing {
-  --hikari-paper: #fffaf4;
-}
 .hikari-canvas {
-  position: relative;
-  isolation: isolate;
   margin-inline: -24px;
   overflow: hidden;
-  background-color: var(--hikari-paper);
-  background-image: radial-gradient(#dfcdbb 0.7px, transparent 0.7px);
-  background-size: 24px 24px;
-  border-bottom: 1px solid #eedfd1;
+  background: white;
 }
-.hikari-canvas::before {
+.hikari-product-stage {
+  position: relative;
+  isolation: isolate;
+  height: 440px;
+}
+.hikari-sun-shape {
   position: absolute;
-  inset: 0;
   z-index: -1;
-  content: '';
-  background: linear-gradient(
-    #fffaf4 0%,
-    #fffaf4e8 30%,
-    #fffaf400 65%,
-    #fffaf4 100%
+  top: 0;
+  right: 16px;
+  width: 460px;
+  height: 400px;
+  border-radius: 50% 50% 45% 45%;
+  transform: rotate(-14deg);
+  background: radial-gradient(
+    ellipse at 25% 15%,
+    #ffb36a,
+    #f77736 45%,
+    #ee5823 85%
   );
+  box-shadow: inset -12px -12px 30px #bd341520;
 }
-.hikari-orbit {
+.hikari-stage-docs {
   position: absolute;
-  top: 330px;
-  left: 50%;
-  z-index: -1;
-  width: 1080px;
-  height: 1080px;
-  transform: translateX(-50%);
-  border: 1px solid #edbd8b;
-  border-radius: 50%;
-  background: radial-gradient(circle at 50% 25%, #ffdfb366, #fffaf400 60%);
+  top: 28px;
+  right: 60px;
+  left: 292px;
 }
-.hikari-orbit span {
-  position: absolute;
-  inset: -100px;
-  border: 1px solid #edbd8b88;
-  border-radius: 50%;
+.hikari-stage-docs .hikari-docs-layout {
+  grid-template-columns: minmax(0, 1fr);
 }
-.hikari-orbit span:nth-child(2) {
-  inset: -200px;
+.hikari-stage-docs .hikari-docs-nav {
+  display: none;
 }
-.hikari-orbit span:nth-child(3) {
-  inset: -300px;
+.hikari-stage-docs .hikari-docs-guides {
+  max-width: min(320px, calc(100% - 200px));
 }
-.hikari-preview-frame {
+.hikari-docs-preview,
+.hikari-signup-preview,
+.hikari-billing-preview {
   overflow: hidden;
-  border: 1px solid #d9cbbb;
-  border-radius: 14px;
+  border: 1px solid #e2e2e2;
+  border-radius: 12px;
   background: white;
   box-shadow:
-    0 30px 70px -30px #75421d40,
-    0 0 0 7px #ffffff80;
+    0 18px 50px -24px #17171740,
+    0 4px 12px -6px #17171718;
 }
-.hikari-preview-scroll {
-  max-height: 520px;
-  overflow: auto;
+.hikari-window-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #e5e5e5;
+  padding: 14px 20px;
+  font-size: 13px;
 }
-.hikari-preview-image {
-  display: block;
-  width: 100%;
-  min-width: 720px;
-  height: auto;
+.hikari-docs-layout {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+}
+.hikari-docs-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-right: 1px solid #e5e5e5;
+  background: #fafafa;
+  padding: 20px 16px;
+  font-size: 12px;
+  color: #525252;
+}
+.hikari-docs-body {
+  padding: 24px;
+}
+.hikari-docs-guides {
+  display: grid;
+  max-width: 320px;
+  gap: 8px;
+  margin-top: 24px;
+}
+.hikari-signup-preview {
+  position: absolute;
+  top: 4px;
+  left: 12px;
+  width: 290px;
+  padding: 28px;
+}
+.hikari-preview-field {
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 13px;
+  color: #525252;
+  box-shadow: 0 1px 2px #17171706;
+}
+.hikari-billing-preview {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 300px;
+  padding: 24px;
+}
+.hikari-preview-caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 28px 12px 0;
+  font-size: 12px;
+  color: #525252;
 }
 .hikari-section {
-  padding-block: 80px;
+  padding-block: 72px;
 }
 .hikari-foundation {
   padding-inline: 24px;
@@ -126,22 +174,62 @@
 .hikari-foundation + .hikari-foundation {
   border-left: 1px solid #e5e5e5;
 }
-.hikari-docs-window {
-  overflow: hidden;
-  border: 1px solid #e5e5e5;
-  border-radius: 12px;
-  background: white;
-  box-shadow: 0 20px 50px -30px #17171740;
-}
 .hikari-source {
-  background-color: var(--hikari-paper);
-  background-image: radial-gradient(#dfcdbb 0.7px, transparent 0.7px);
-  background-size: 24px 24px;
-  border: 1px solid #eedfd1;
+  background: #fafafa;
+  border: 1px solid #e5e5e5;
+}
+@media (max-width: 1023px) {
+  .hikari-stage-docs {
+    display: none;
+  }
+  .hikari-product-stage {
+    height: auto;
+    display: grid;
+    grid-template-columns: 290px 300px;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    padding-block: 16px;
+  }
+  .hikari-signup-preview,
+  .hikari-billing-preview {
+    position: relative;
+    inset: auto;
+    width: auto;
+  }
+  .hikari-sun-shape {
+    right: 0;
+    width: 340px;
+    height: 340px;
+    top: 24px;
+  }
+  .hikari-preview-caption {
+    justify-content: center;
+    text-align: center;
+  }
+  .hikari-docs-guides {
+    max-width: none;
+  }
 }
 @media (max-width: 767px) {
+  .hikari-product-stage {
+    grid-template-columns: minmax(0, 340px);
+    gap: 20px;
+  }
+  .hikari-signup-preview {
+    padding: 28px;
+  }
+  .hikari-billing-preview {
+    padding: 24px 28px;
+  }
+  .hikari-sun-shape {
+    right: -80px;
+    width: 320px;
+    height: 420px;
+    top: 90px;
+  }
   .hikari-section {
-    padding-block: 56px;
+    padding-block: 48px;
   }
   .hikari-foundation {
     padding-inline: 0;
@@ -149,9 +237,13 @@
   .hikari-foundation + .hikari-foundation {
     border-left: 0;
   }
-  .hikari-orbit {
-    top: 390px;
-    width: 760px;
-    height: 760px;
+  .hikari-docs-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hikari-docs-nav {
+    display: none;
+  }
+  .hikari-docs-body {
+    padding: 24px;
   }
 }
