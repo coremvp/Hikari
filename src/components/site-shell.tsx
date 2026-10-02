@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
+import { SiteFooter } from '@/components/site-footer';
 
 export function SiteShell({
   children,
@@ -44,23 +45,27 @@ export function SiteShell({
       >
         {children}
       </main>
-      <footer className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 border-t border-neutral-200 px-6 py-8 text-sm text-neutral-500">
-        <p>
-          Hikari by{' '}
-          <a
-            href="https://coremvp.com"
-            className="underline underline-offset-4"
-          >
-            CoreMVP
-          </a>{' '}
-          · Open source under MIT
-        </p>
-        <nav aria-label="Footer navigation" className="flex gap-5">
-          <Link href="/docs">Docs</Link>
-          <Link href="/blog">Blog</Link>
-          <a href="https://github.com/coremvp/hikari">Source on GitHub</a>
-        </nav>
-      </footer>
+      {variant === 'public' ? (
+        <SiteFooter />
+      ) : (
+        <footer className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 border-t border-neutral-200 px-6 py-8 text-sm text-neutral-500">
+          <p>
+            Hikari by{' '}
+            <a
+              href="https://coremvp.com"
+              className="underline underline-offset-4"
+            >
+              CoreMVP
+            </a>{' '}
+            · Open source under MIT
+          </p>
+          <nav aria-label="Footer navigation" className="flex gap-5">
+            <Link href="/docs">Docs</Link>
+            <Link href="/blog">Blog</Link>
+            <a href="https://github.com/coremvp/hikari">Source on GitHub</a>
+          </nav>
+        </footer>
+      )}
     </>
   );
 }
