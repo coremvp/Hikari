@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { SiteShell } from '@/components/site-shell';
-import { BlogCard } from '@/components/blog-card';
+import { ApplicationPreview } from '@/components/application-preview';
 import { getBlogPages } from '@/lib/blog-source';
 import { publicMetadata } from '@/lib/public-metadata';
 
@@ -11,217 +11,236 @@ export const metadata = publicMetadata(
   '/',
 );
 
+const foundations = [
+  {
+    number: '01',
+    title: 'Give users a home.',
+    description:
+      'Email and password signup opens a protected Dashboard. Supabase Auth handles sessions and recovery.',
+    href: '/docs/features/authentication',
+    link: 'Accounts and authentication',
+  },
+  {
+    number: '02',
+    title: 'Connect payments to access.',
+    description:
+      'Stripe Checkout, verified webhooks, and stored subscription state. Customer Portal handles subscription management.',
+    href: '/docs/features/payments',
+    link: 'Subscription billing',
+  },
+  {
+    number: '03',
+    title: 'Make it your application.',
+    description:
+      'Build your product in one Next.js runtime. Hono owns the API, and Drizzle owns database access.',
+    href: '/docs/getting-started/project-structure',
+    link: 'Explore the source',
+  },
+];
+
 export default function Home() {
   const posts = getBlogPages().slice(0, 2);
   return (
     <SiteShell variant="public">
-      <section className="mx-auto flex max-w-4xl flex-col items-center py-20 text-center md:py-28">
-        <p className="eyebrow">Open source · MIT licensed</p>
-        <h1 className="mt-6 text-balance text-5xl font-normal leading-[1.06] tracking-[-0.04em] sm:text-6xl lg:text-7xl">
-          A brighter start for
-          <br className="hidden sm:block" /> your next application.
-        </h1>
-        <p className="mt-7 max-w-2xl text-balance text-lg leading-8 text-neutral-600 sm:text-xl">
-          Accounts, a protected dashboard, and subscription billing in one
-          Next.js application. Build your product on Hikari.
-        </p>
-        <div className="mt-9 flex flex-wrap justify-center gap-3">
-          <Link
-            className="button rounded-full px-7"
-            href="/docs/getting-started"
-          >
-            Start building{' '}
-            <span className="ml-2" aria-hidden="true">
-              →
-            </span>
-          </Link>
-          <a
-            className="button-secondary rounded-full px-7"
-            href="https://github.com/coremvp/hikari"
-          >
-            View on GitHub
-          </a>
-        </div>
-        <Link
-          href="/signup"
-          className="mt-6 text-sm text-neutral-600 underline underline-offset-4"
-        >
-          Create an account
-        </Link>
-      </section>
-
-      <section
-        aria-labelledby="included"
-        className="grid grid-cols-1 gap-5 md:grid-cols-2"
-      >
-        <h2 id="included" className="sr-only">
-          Build on a working application
-        </h2>
-        <div className="rounded-3xl border border-neutral-200 p-7 sm:p-10">
-          <p className="eyebrow">Accounts</p>
-          <h3 className="mt-4 text-3xl font-normal tracking-tight">
-            A place for your users.
-          </h3>
-          <p className="mt-4 max-w-lg leading-7 text-neutral-600">
-            Email and password signup, sign in, and recovery through Supabase
-            Auth. Protected pages check the session on the server.
-          </p>
-          <div className="mt-8 rounded-xl bg-neutral-50 p-6">
-            <div className="flex items-center gap-3">
-              <Image src="/icon.svg" alt="" width={32} height={32} />
-              <div>
-                <p className="font-medium">Welcome to Hikari</p>
-                <p className="mt-1 text-sm text-neutral-500">
-                  Your account. Your application.
-                </p>
-              </div>
-            </div>
-            <div className="mt-6 flex flex-wrap gap-2 text-sm">
-              <span className="rounded-md border border-neutral-200 bg-white px-3 py-2">
-                Dashboard
-              </span>
-              <span className="rounded-md border border-neutral-200 bg-white px-3 py-2">
-                Account
-              </span>
-            </div>
+      <div className="hikari-landing">
+        <section className="hikari-canvas" aria-labelledby="hero-title">
+          <div className="hikari-orbit" aria-hidden="true">
+            <span />
+            <span />
+            <span />
           </div>
-          <Link
-            className="mt-7 inline-block text-sm font-medium underline underline-offset-4"
-            href="/signup"
-          >
-            Explore signup
-          </Link>
-        </div>
-        <div className="rounded-3xl border border-neutral-200 p-7 sm:p-10">
-          <p className="eyebrow">Subscriptions</p>
-          <h3 className="mt-4 text-3xl font-normal tracking-tight">
-            Payments connected to access.
-          </h3>
-          <p className="mt-4 max-w-lg leading-7 text-neutral-600">
-            Stripe Checkout, verified webhooks, and persisted subscription
-            state. Your users manage their subscription in Customer Portal.
-          </p>
-          <ol
-            className="mt-8 grid gap-3 rounded-xl bg-neutral-50 p-6 text-sm sm:grid-cols-3"
-            aria-label="Subscription flow"
-          >
-            {['Checkout', 'Webhook', 'Access'].map((step, index) => (
-              <li
-                key={step}
-                className={`rounded-lg border px-4 py-5 ${index === 2 ? 'border-orange-200 bg-orange-50 text-orange-950' : 'border-neutral-200 bg-white'}`}
+          <div className="relative mx-auto flex max-w-4xl flex-col items-center px-6 pb-12 pt-16 text-center sm:pt-20">
+            <p className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white/90 px-3 py-1.5 text-xs font-medium text-orange-800">
+              <Image src="/icon.svg" alt="" width={16} height={16} /> Open
+              source. Yours to build on.
+            </p>
+            <h1
+              id="hero-title"
+              className="mt-6 text-balance text-5xl font-semibold leading-[1.03] tracking-[-0.055em] sm:text-6xl lg:text-7xl"
+            >
+              A brighter start for
+              <br className="hidden sm:block" /> your next application.
+            </h1>
+            <p className="mt-6 max-w-xl text-balance text-lg leading-7 text-neutral-600">
+              Accounts, subscriptions, and content. Connected in one open-source
+              Next.js application, ready for your ideas.
+            </p>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <Link
+                className="button rounded-full px-7"
+                href="/docs/getting-started"
               >
-                <span className="block text-xs text-neutral-500">
-                  0{index + 1}
+                Start building{' '}
+                <span className="ml-2" aria-hidden="true">
+                  →
                 </span>
-                <span className="mt-2 block font-medium">{step}</span>
+              </Link>
+              <a
+                className="button-secondary rounded-full px-7"
+                href="https://github.com/coremvp/hikari"
+              >
+                View on GitHub
+              </a>
+            </div>
+            <p className="mt-5 text-xs text-neutral-600">
+              MIT licensed{' '}
+              <span className="mx-2 text-neutral-400" aria-hidden="true">
+                /
+              </span>{' '}
+              One repository{' '}
+              <span className="mx-2 text-neutral-400" aria-hidden="true">
+                /
+              </span>{' '}
+              Your source code
+            </p>
+          </div>
+          <div className="relative px-6 pb-12 sm:px-10 sm:pb-16">
+            <ApplicationPreview />
+          </div>
+        </section>
+        <section aria-labelledby="foundation-title" className="hikari-section">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="eyebrow">A working foundation</p>
+            <h2
+              id="foundation-title"
+              className="mt-4 text-balance text-3xl font-semibold tracking-tight sm:text-4xl"
+            >
+              Start where your product begins.
+            </h2>
+            <p className="mt-5 text-lg leading-7 text-neutral-600">
+              The account-to-subscription path is already connected. Give the
+              rest of your application your attention.
+            </p>
+          </div>
+          <ol className="mt-12 grid gap-8 md:grid-cols-3 md:gap-0">
+            {foundations.map((item) => (
+              <li key={item.number} className="hikari-foundation">
+                <span className="inline-flex size-9 items-center justify-center rounded-full border border-orange-200 bg-orange-50 font-mono text-xs text-orange-800">
+                  {item.number}
+                </span>
+                <h3 className="mt-5 text-xl font-semibold tracking-tight">
+                  {item.title}
+                </h3>
+                <p className="mt-3 leading-7 text-neutral-600">
+                  {item.description}
+                </p>
+                <Link
+                  href={item.href}
+                  className="mt-5 inline-block text-sm font-medium underline underline-offset-4"
+                >
+                  {item.link} <span aria-hidden="true">→</span>
+                </Link>
               </li>
             ))}
           </ol>
-          <Link
-            className="mt-7 inline-block text-sm font-medium underline underline-offset-4"
-            href="/docs/features/payments"
-          >
-            Connect your Stripe account
-          </Link>
-        </div>
-        <div className="rounded-3xl border border-neutral-200 p-7 sm:p-10">
-          <p className="eyebrow">Content</p>
-          <h3 className="mt-4 text-3xl font-normal tracking-tight">
-            Explain what you build.
-          </h3>
-          <p className="mt-4 max-w-lg leading-7 text-neutral-600">
-            Publish documentation and articles from local MDX. Navigation,
-            search, code blocks, and page metadata are part of the application.
-          </p>
-          <div className="mt-8 grid gap-3 rounded-xl bg-neutral-50 p-6 text-sm sm:grid-cols-2">
-            <Link
-              href="/docs"
-              className="rounded-lg border border-neutral-200 bg-white p-4 font-medium"
+        </section>
+        <section
+          aria-labelledby="content-title"
+          className="hikari-section border-t border-neutral-200"
+        >
+          <div className="grid items-center gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+            <div>
+              <p className="eyebrow">Your application, explained</p>
+              <h2
+                id="content-title"
+                className="mt-4 text-balance text-3xl font-semibold tracking-tight sm:text-4xl"
+              >
+                The docs belong
+                <br className="hidden lg:block" /> with the code.
+              </h2>
+              <p className="mt-5 max-w-lg text-lg leading-7 text-neutral-600">
+                Local MDX, searchable documentation, and an engineering blog.
+                Publish what you build from the same repository.
+              </p>
+              <div className="mt-7 flex flex-wrap gap-6 text-sm font-medium">
+                <Link href="/docs" className="underline underline-offset-4">
+                  Explore the Docs <span aria-hidden="true">→</span>
+                </Link>
+                <Link href="/blog" className="underline underline-offset-4">
+                  Read the Blog <span aria-hidden="true">→</span>
+                </Link>
+              </div>
+            </div>
+            <div className="hikari-docs-window">
+              <Image
+                src="/previews/docs.jpg"
+                unoptimized
+                alt="The included Hikari Docs, with searchable navigation and guides for building and deploying the application."
+                width={1120}
+                height={700}
+                className="w-full"
+              />
+            </div>
+          </div>
+          {posts.length > 0 && (
+            <div className="mt-14 border-t border-neutral-200 pt-8">
+              <p className="eyebrow">From the source</p>
+              <div className="mt-5 grid gap-5 sm:grid-cols-2">
+                {posts.map((post) => (
+                  <Link
+                    key={post.url}
+                    href={post.url}
+                    className="group rounded-xl border border-neutral-200 bg-white p-6 transition-colors hover:border-orange-300"
+                  >
+                    <h3 className="text-xl font-semibold tracking-tight group-hover:text-orange-800">
+                      {post.data.title} <span aria-hidden="true">↗</span>
+                    </h3>
+                    <p className="mt-3 text-sm leading-6 text-neutral-600">
+                      {post.data.description}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+        <section
+          aria-labelledby="source-title"
+          className="hikari-source mb-12 grid items-center gap-10 rounded-3xl p-7 sm:p-10 lg:grid-cols-2 lg:p-14"
+        >
+          <div>
+            <Image src="/icon.svg" alt="" width={40} height={40} />
+            <p className="eyebrow mt-6">Your source code</p>
+            <h2
+              id="source-title"
+              className="mt-4 text-balance text-3xl font-semibold tracking-tight sm:text-4xl"
             >
-              Documentation
-              <span className="mt-2 block font-normal text-neutral-500">
-                From first run to deployment.
-              </span>
-            </Link>
+              Clone it.
+              <br />
+              Make it yours.
+            </h2>
+            <p className="mt-5 max-w-md leading-7 text-neutral-600">
+              Hikari is MIT licensed. Run it locally, connect your providers,
+              and build your product on top.
+            </p>
             <Link
-              href="/blog"
-              className="rounded-lg border border-neutral-200 bg-white p-4 font-medium"
+              href="/docs/getting-started"
+              className="button mt-7 rounded-full px-7"
             >
-              Engineering notes
-              <span className="mt-2 block font-normal text-neutral-500">
-                Decisions behind the source.
+              Follow the quickstart{' '}
+              <span className="ml-2" aria-hidden="true">
+                →
               </span>
             </Link>
           </div>
-          <Link
-            className="mt-7 inline-block text-sm font-medium underline underline-offset-4"
-            href="/docs/features/documentation"
-          >
-            Make the content your own
-          </Link>
-        </div>
-        <div className="rounded-3xl border border-neutral-200 p-7 sm:p-10">
-          <p className="eyebrow">Your code</p>
-          <h3 className="mt-4 text-3xl font-normal tracking-tight">
-            Clone it. Make it yours.
-          </h3>
-          <p className="mt-4 max-w-lg leading-7 text-neutral-600">
-            One repository and one deployable Next.js runtime. Hono handles the
-            API, Drizzle handles persistence, and you own the product.
-          </p>
-          <div className="mt-8 overflow-x-auto rounded-xl bg-neutral-50 p-6">
-            <p className="mb-4 text-xs font-medium uppercase tracking-widest text-neutral-500">
-              Run locally
+          <div className="min-w-0 rounded-xl border border-neutral-800 bg-neutral-950 text-neutral-100 shadow-xl">
+            <p className="border-b border-neutral-800 px-5 py-3 font-mono text-xs text-neutral-400">
+              hikari / run locally
             </p>
-            <pre className="text-sm leading-7">
+            <pre className="overflow-x-auto p-5 text-xs leading-7 sm:text-sm">
               <code>
                 {
                   'git clone https://github.com/coremvp/hikari.git\ncd hikari\nbun install\nbunx supabase start\n./coremvp env sync\nbun run dev'
                 }
               </code>
             </pre>
-          </div>
-          <Link
-            className="mt-7 inline-block text-sm font-medium underline underline-offset-4"
-            href="/docs/getting-started"
-          >
-            Follow the quickstart
-          </Link>
-        </div>
-      </section>
-
-      {posts.length > 0 && (
-        <section
-          aria-labelledby="latest-posts"
-          className="mx-auto max-w-4xl py-20 md:py-28"
-        >
-          <div className="mb-9 flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="eyebrow">From the source</p>
-              <h2
-                id="latest-posts"
-                className="mt-4 text-3xl font-normal tracking-tight sm:text-4xl"
-              >
-                Notes for your next build.
-              </h2>
-            </div>
-            <Link href="/blog" className="text-sm underline underline-offset-4">
-              View all articles
-            </Link>
-          </div>
-          <div className="grid gap-10 sm:grid-cols-2">
-            {posts.map((post) => (
-              <BlogCard
-                key={post.url}
-                href={post.url}
-                title={post.data.title}
-                description={post.data.description}
-                date={post.data.date}
-              />
-            ))}
+            <p className="border-t border-neutral-800 px-5 py-3 text-xs leading-5 text-neutral-400">
+              Requires Bun, Node.js 20.19+, and Docker. The quickstart covers
+              local setup and provider configuration.
+            </p>
           </div>
         </section>
-      )}
+      </div>
     </SiteShell>
   );
 }

@@ -48,3 +48,110 @@
     @apply text-xs font-semibold tracking-widest text-orange-700;
   }
 }
+
+.hikari-landing {
+  --hikari-paper: #fffaf4;
+}
+.hikari-canvas {
+  position: relative;
+  isolation: isolate;
+  margin-inline: -24px;
+  overflow: hidden;
+  background-color: var(--hikari-paper);
+  background-image: radial-gradient(#dfcdbb 0.7px, transparent 0.7px);
+  background-size: 24px 24px;
+  border-bottom: 1px solid #eedfd1;
+}
+.hikari-canvas::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: '';
+  background: linear-gradient(
+    #fffaf4 0%,
+    #fffaf4e8 30%,
+    #fffaf400 65%,
+    #fffaf4 100%
+  );
+}
+.hikari-orbit {
+  position: absolute;
+  top: 330px;
+  left: 50%;
+  z-index: -1;
+  width: 1080px;
+  height: 1080px;
+  transform: translateX(-50%);
+  border: 1px solid #edbd8b;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 25%, #ffdfb366, #fffaf400 60%);
+}
+.hikari-orbit span {
+  position: absolute;
+  inset: -100px;
+  border: 1px solid #edbd8b88;
+  border-radius: 50%;
+}
+.hikari-orbit span:nth-child(2) {
+  inset: -200px;
+}
+.hikari-orbit span:nth-child(3) {
+  inset: -300px;
+}
+.hikari-preview-frame {
+  overflow: hidden;
+  border: 1px solid #d9cbbb;
+  border-radius: 14px;
+  background: white;
+  box-shadow:
+    0 30px 70px -30px #75421d40,
+    0 0 0 7px #ffffff80;
+}
+.hikari-preview-scroll {
+  max-height: 520px;
+  overflow: auto;
+}
+.hikari-preview-image {
+  display: block;
+  width: 100%;
+  min-width: 720px;
+  height: auto;
+}
+.hikari-section {
+  padding-block: 80px;
+}
+.hikari-foundation {
+  padding-inline: 24px;
+}
+.hikari-foundation + .hikari-foundation {
+  border-left: 1px solid #e5e5e5;
+}
+.hikari-docs-window {
+  overflow: hidden;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 20px 50px -30px #17171740;
+}
+.hikari-source {
+  background-color: var(--hikari-paper);
+  background-image: radial-gradient(#dfcdbb 0.7px, transparent 0.7px);
+  background-size: 24px 24px;
+  border: 1px solid #eedfd1;
+}
+@media (max-width: 767px) {
+  .hikari-section {
+    padding-block: 56px;
+  }
+  .hikari-foundation {
+    padding-inline: 0;
+  }
+  .hikari-foundation + .hikari-foundation {
+    border-left: 0;
+  }
+  .hikari-orbit {
+    top: 390px;
+    width: 760px;
+    height: 760px;
+  }
+}
