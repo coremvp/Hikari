@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { currentUser } from '@/services/auth';
+import { SiteShell } from '@/components/site-shell';
 export const metadata = { robots: { index: false, follow: false } };
 export default async function Layout({
   children,
@@ -8,5 +9,5 @@ export default async function Layout({
 }) {
   const user = await currentUser();
   if (!user || user.is_anonymous) redirect('/signin');
-  return children;
+  return <SiteShell>{children}</SiteShell>;
 }

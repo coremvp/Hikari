@@ -54,81 +54,136 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
     }
   }
   return (
-    <div className="mx-auto max-w-md py-12">
-      <p className="eyebrow">YOUR ACCOUNT</p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight">{title}</h1>
-      <p className="mt-3 text-slate-600">
-        {mode === 'signup'
-          ? 'Start building with Hikari.'
-          : 'Continue to your application.'}
-      </p>
-      <form method="post" onSubmit={submit} className="mt-8 space-y-5">
-        {mode !== 'password' && (
-          <label className="block text-sm font-medium">
-            Email
-            <input
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              maxLength={254}
-              className="field mt-2"
-            />
-          </label>
-        )}
-        {mode !== 'recovery' && (
-          <div className="text-sm font-medium">
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              aria-describedby="password-help"
-              name="password"
-              type="password"
-              autoComplete={
-                mode === 'signin' ? 'current-password' : 'new-password'
-              }
-              required
-              minLength={8}
-              maxLength={128}
-              className="field mt-2"
-            />
-            <span
-              id="password-help"
-              className="mt-1 block text-xs text-slate-500"
-            >
-              At least 8 characters.
-            </span>
+    <div className="flex min-h-svh flex-col p-6 md:p-10">
+      <Link
+        href="/"
+        aria-label="Hikari home"
+        className="w-fit text-xl font-semibold tracking-tight"
+      >
+        Hikari{' '}
+        <span className="text-xs font-normal text-neutral-500">by CoreMVP</span>
+      </Link>
+      <div className="flex flex-1 items-center justify-center py-10">
+        <form
+          method="post"
+          onSubmit={submit}
+          className="flex w-full max-w-sm flex-col gap-7"
+        >
+          <div className="flex flex-col items-center gap-2 text-center">
+            <h1 className="text-2xl font-bold">{title}</h1>
+            <p className="text-balance text-neutral-500">
+              {mode === 'signup'
+                ? 'Start building with Hikari.'
+                : mode === 'recovery'
+                  ? 'Enter your email to reset your password.'
+                  : mode === 'password'
+                    ? 'Set a new password for your account.'
+                    : 'Sign in to your account'}
+            </p>
           </div>
-        )}
-        {error && (
-          <p role="alert" className="text-sm text-red-700">
-            {error}
+          {mode !== 'password' && (
+            <label className="flex flex-col gap-3 text-sm font-medium">
+              Email
+              <input
+                name="email"
+                type="email"
+                autoComplete="email"
+                placeholder="m@example.com"
+                required
+                maxLength={254}
+                className="h-9 w-full rounded-lg border border-neutral-200 bg-white px-3 text-base font-normal shadow-xs placeholder:text-neutral-500 md:text-sm"
+              />
+            </label>
+          )}
+          {mode !== 'recovery' && (
+            <div className="flex flex-col gap-3 text-sm font-medium">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <label htmlFor="password">Password</label>
+                {mode === 'signin' && (
+                  <Link
+                    href="/forgot-password"
+                    className="text-xs font-normal text-neutral-600 underline underline-offset-4"
+                  >
+                    Forgot password?
+                  </Link>
+                )}
+              </div>
+              <input
+                id="password"
+                aria-describedby={
+                  mode === 'signin' ? undefined : 'password-help'
+                }
+                name="password"
+                type="password"
+                autoComplete={
+                  mode === 'signin' ? 'current-password' : 'new-password'
+                }
+                required
+                minLength={8}
+                maxLength={128}
+                className="h-9 w-full rounded-lg border border-neutral-200 bg-white px-3 text-base font-normal shadow-xs md:text-sm"
+              />
+              {mode !== 'signin' && (
+                <span
+                  id="password-help"
+                  className="text-sm font-normal text-neutral-500"
+                >
+                  At least 8 characters.
+                </span>
+              )}
+            </div>
+          )}
+          {error && (
+            <p role="alert" className="text-sm text-red-700">
+              {error}
+            </p>
+          )}
+          {message && (
+            <p role="status" className="text-sm text-emerald-700">
+              {message}
+            </p>
+          )}
+          <button
+            disabled={busy || !hydrated}
+            className="button h-9 w-full rounded-lg py-2 font-medium"
+          >
+            {busy
+              ? 'Please wait…'
+              : {
+                  signin: 'Sign in',
+                  signup: 'Create account',
+                  recovery: 'Send recovery email',
+                  password: 'Update password',
+                }[mode]}
+          </button>
+          <p className="text-center text-sm text-neutral-500">
+            {mode === 'signin'
+              ? "Don't have an account? "
+              : mode === 'signup'
+                ? 'Already have an account? '
+                : ''}
+            <Link
+              href={mode === 'signin' ? '/signup' : '/signin'}
+              className="underline underline-offset-4"
+            >
+              {mode === 'signin'
+                ? 'Sign up'
+                : mode === 'signup'
+                  ? 'Sign in'
+                  : 'Back to sign in'}
+            </Link>
           </p>
-        )}
-        {message && (
-          <p role="status" className="text-sm text-emerald-700">
-            {message}
-          </p>
-        )}
-        <button disabled={busy || !hydrated} className="button w-full">
-          {busy
-            ? 'Please wait…'
-            : {
-                signin: 'Sign in',
-                signup: 'Create account',
-                recovery: 'Send recovery email',
-                password: 'Update password',
-              }[mode]}
-        </button>
-      </form>
-      <div className="mt-6 flex flex-wrap justify-between gap-4 text-sm text-slate-600">
-        <Link href={mode === 'signin' ? '/signup' : '/signin'}>
-          {mode === 'signin' ? 'Create an account' : 'Back to sign in'}
-        </Link>
-        {mode === 'signin' && (
-          <Link href="/forgot-password">Forgot password?</Link>
-        )}
+        </form>
       </div>
+      <p className="mx-auto max-w-sm text-center text-sm text-neutral-500">
+        Hikari is open source under MIT.{' '}
+        <a
+          href="https://github.com/coremvp/hikari"
+          className="underline underline-offset-4"
+        >
+          Source on GitHub
+        </a>
+      </p>
     </div>
   );
 }
