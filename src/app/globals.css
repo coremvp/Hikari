@@ -62,19 +62,12 @@
 .hikari-sun-shape {
   position: absolute;
   z-index: -1;
-  top: 0;
-  right: 16px;
-  width: 460px;
-  height: 400px;
-  border-radius: 50% 50% 45% 45%;
-  transform: rotate(-14deg);
-  background: radial-gradient(
-    ellipse at 25% 15%,
-    #ffb36a,
-    #f77736 45%,
-    #ee5823 85%
-  );
-  box-shadow: inset -12px -12px 30px #bd341520;
+  top: -56px;
+  right: -8px;
+  width: 520px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: url('/sun.svg') center / cover;
 }
 .hikari-stage-docs {
   position: absolute;
@@ -199,9 +192,8 @@
   }
   .hikari-sun-shape {
     right: 0;
-    width: 340px;
-    height: 340px;
-    top: 24px;
+    width: 400px;
+    top: 0;
   }
   .hikari-preview-caption {
     justify-content: center;
@@ -223,10 +215,9 @@
     padding: 24px 28px;
   }
   .hikari-sun-shape {
-    right: -80px;
-    width: 320px;
-    height: 420px;
-    top: 90px;
+    right: -100px;
+    width: 400px;
+    top: 80px;
   }
   .hikari-section {
     padding-block: 48px;
