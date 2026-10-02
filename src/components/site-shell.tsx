@@ -1,11 +1,17 @@
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
 
-export function SiteShell({ children }: { children: React.ReactNode }) {
+export function SiteShell({
+  children,
+  variant = 'app',
+}: {
+  children: React.ReactNode;
+  variant?: 'app' | 'public';
+}) {
   return (
     <>
       <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 py-5">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-5">
           <Link
             href="/"
             aria-label="Hikari home"
@@ -13,23 +19,47 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
           >
             <Logo />
           </Link>
-          <nav aria-label="Main navigation" className="flex gap-5 text-sm">
-            <Link href="/dashboard">Dashboard</Link>
-            <Link href="/account">Account</Link>
+          <nav
+            aria-label="Main navigation"
+            className="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm"
+          >
+            <Link href="/docs">Docs</Link>
+            <Link href="/blog">Blog</Link>
+            {variant === 'app' ? (
+              <>
+                <Link href="/dashboard">Dashboard</Link>
+                <Link href="/account">Account</Link>
+              </>
+            ) : (
+              <>
+                <a href="https://github.com/coremvp/hikari">GitHub</a>
+                <Link href="/signin">Sign in</Link>
+              </>
+            )}
           </nav>
         </div>
       </header>
-      <main className="mx-auto min-h-[75vh] max-w-5xl px-6 py-10">
+      <main
+        className={`mx-auto min-h-[75vh] px-6 ${variant === 'public' ? 'max-w-7xl' : 'max-w-5xl py-10'}`}
+      >
         {children}
       </main>
-      <footer className="mx-auto max-w-5xl border-t border-slate-200 px-6 py-6 text-sm text-slate-500">
-        Hikari by CoreMVP · Open source under MIT ·{' '}
-        <a
-          href="https://github.com/coremvp/hikari"
-          className="underline underline-offset-4"
-        >
-          Source on GitHub
-        </a>
+      <footer className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 border-t border-neutral-200 px-6 py-8 text-sm text-neutral-500">
+        <p>
+          Hikari by{' '}
+          <a
+            href="https://coremvp.com"
+            className="underline underline-offset-4"
+          >
+            CoreMVP
+          </a>{' '}
+          · Open source under MIT
+        </p>
+        <nav aria-label="Footer navigation" className="flex gap-5">
+          <Link href="/docs">Docs</Link>
+          <Link href="/blog">Blog</Link>
+          <a href="https://github.com/coremvp/hikari">Source on GitHub</a>
+        </nav>
       </footer>
     </>
   );

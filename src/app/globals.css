@@ -1,13 +1,21 @@
 @import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
 
 @theme {
   --color-primary: oklch(0.65 0.2 45);
+  --color-fd-background: white;
+  --color-fd-card: white;
+  --color-fd-popover: white;
+  --color-fd-secondary: #f5f5f5;
+  --color-fd-primary: #c2410c;
+  --color-fd-primary-foreground: white;
+  --color-fd-ring: #c2410c;
 }
 @layer base {
   body {
-    background: #fafaf9;
-    color: #0f172a;
-    font-family: Arial, Helvetica, sans-serif;
+    background: white;
+    color: #171717;
   }
   button,
   a,

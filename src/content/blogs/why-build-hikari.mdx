@@ -1,0 +1,31 @@
+---
+title: One application, clear boundaries
+description: Why Hikari keeps the API inside Next.js while separating application behavior from HTTP and persistence.
+date: 2026-10-02
+author: CoreMVP
+index: true
+---
+
+A page that creates a subscription needs more than a form and an API call. It needs an authenticated account, a consistent Stripe Customer mapping, and a database record that the rest of the product can trust. Splitting those responsibilities into separate deployments adds another boundary to configure before the first useful feature exists.
+
+In Hikari, we keep that path in one deployable [Next.js](https://nextjs.org) application. The API runs through [Hono](https://hono.dev), while services, providers, and repositories retain distinct jobs in the source. You can trace the account-to-subscription path without operating a separate API service.
+
+## Keep the runtime together
+
+Browser requests use the same-origin `/api/*` surface. `src/app/api/[[...route]]/route.ts` delegates to Hono. That gives pages and application APIs one origin and deployment, while Supabase and Stripe continue to own their provider state.
+
+For a first individual-account product, this removes the need to choose an API host, configure cross-origin browser credentials, and synchronize separate application releases. The application still needs correctly configured providers; one runtime does not make those boundaries disappear.
+
+## Separate behavior in the source
+
+The subscription routes in `src/api/billing.ts` authenticate the request and return an HTTP response. `BillingService` in `src/services/billing.ts` decides whether to create Checkout, reuse an open session, or open Customer Portal. `BillingRepository` owns Drizzle queries and transaction locks. `StripeProvider` owns calls to Stripe and subscription mapping.
+
+That separation matters when you add your own subscriber feature. You can put its access rule in a service and call it from a page or API without copying HTTP behavior into the rule. You can inspect the persisted subscription through the repository without moving database credentials into a component.
+
+The tests follow these boundaries: unit tests use controlled provider/store state; database integration exercises real local persistence; the subscription journey crosses Checkout, a signed webhook, durable state, and the final access reader. Each answers a different question.
+
+## Accept the deployment tradeoff
+
+The UI and API ship together. A change to either produces one application release, and they share its runtime capacity. If your product later needs an independently scaled service or a separate release lifecycle, that is a reason to introduce another deployable boundary.
+
+For the supported Hikari application, we keep the operational path together and the code responsibilities explicit. Choose a new service when its independent job requires one. Start your feature at the [source boundary that owns its behavior](/docs/getting-started/project-structure).

@@ -1,0 +1,99 @@
+---
+title: Deploy to Vercel
+description: Publish Hikari with fresh Supabase and Vercel projects, then verify your hosted account and subscription.
+---
+
+Use a fresh Supabase project and one [Vercel Next.js project](https://vercel.com/docs/frameworks/full-stack/nextjs). Have a working local account and Stripe test subscription before starting. Keep the selected Supabase project, Vercel project, and Stripe account consistent throughout setup.
+
+<Callout type="warn">
+  The schema transition refuses to discard nonempty legacy Hikari tables. Back
+  up an existing deployment and plan its data migration separately. Do not reset
+  a hosted project to bypass this guard.
+</Callout>
+
+<Steps>
+<Step>
+## Apply the schema to Supabase
+
+Create a project in the [Supabase Dashboard](https://supabase.com/dashboard). From your Hikari clone:
+
+```bash
+bunx supabase login
+bunx supabase link --project-ref <your-project-ref>
+bunx supabase db push
+```
+
+Verify that the project reference matches the fresh project you selected before applying migrations. The final database contains Hikari’s `customers` and `subscriptions` tables.
+
+</Step>
+<Step>
+## Configure hosted Auth
+
+In Supabase Authentication → URL Configuration, set **Site URL** to your final HTTPS origin and add these **Redirect URLs**, replacing `your-app.example` with your hostname:
+
+```text
+https://your-app.example/auth/callback
+https://your-app.example/auth/callback?next=/reset-password
+https://your-app.example/auth/confirm
+```
+
+Turn **Confirm email** off in the Email provider settings. Signup then opens Dashboard immediately, matching local behavior. Configure [Supabase custom SMTP](https://supabase.com/docs/guides/auth/auth-smtp) and verify password recovery delivery to your intended users before release. The default hosted service restricts delivery to project-team addresses. Read [Authentication](/docs/features/authentication) for the recovery-template paths.
+
+</Step>
+<Step>
+## Link Vercel and add environment values
+
+```bash
+bunx vercel login
+bunx vercel whoami
+bunx vercel teams ls
+bunx vercel project ls
+bunx vercel link --project <your-project-name>
+```
+
+Confirm the intended account and project; stop if they are wrong. For a team project, append `--scope <team-slug>` to both `project ls` and `link`. For a personal project, omit `--scope` and select your personal account in the link prompts. Select the listed project or create a fresh project with your chosen name. Use the Next.js preset. The checked-in `vercel.json` uses Bun and the locked install/build commands.
+
+Add the seven values in the [environment reference](/docs/reference/environment) to **Production** in the selected project. Set `APP_URL` to your final HTTPS origin, without a path or query. Use this Supabase project’s API URL, publishable key, and TLS-enabled transaction-pooler URL. Follow the [Supabase connection guide](https://supabase.com/docs/guides/database/connecting-to-postgres); Hikari’s Drizzle connection disables prepared statements for transaction pooling.
+
+Use Vercel Dashboard fields or these [interactive environment prompts](https://vercel.com/docs/cli/env). Enter values only when prompted; do not put secrets in command arguments. Mark database credentials and Stripe secrets as sensitive. The only public settings are the two `NEXT_PUBLIC_SUPABASE_*` values.
+
+```bash
+bunx vercel env add APP_URL production
+bunx vercel env add NEXT_PUBLIC_SUPABASE_URL production
+bunx vercel env add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY production
+bunx vercel env add DATABASE_URL production --sensitive
+bunx vercel env add STRIPE_SECRET_KEY production --sensitive
+bunx vercel env add STRIPE_PRICE_ID production
+bunx vercel env add STRIPE_WEBHOOK_SECRET production --sensitive
+bunx vercel env ls production
+```
+
+Verify that all seven names target Production in the linked project before deploying. If a value already exists, use `env update` with the same target and sensitive flag.
+
+</Step>
+<Step>
+## Register the hosted Stripe endpoint
+
+In your selected Stripe test account, register `https://your-app.example/api/webhooks/stripe` for the five subscription events listed in [Subscriptions](/docs/features/payments). Save this endpoint’s signing secret as the hosted `STRIPE_WEBHOOK_SECRET`. It differs from the local listener’s secret. Configure Customer Portal in the same account.
+
+</Step>
+<Step>
+## Deploy and verify
+
+```bash
+bunx vercel deploy --prod
+./coremvp prod e2e smoke https://your-app.example
+```
+
+The smoke command checks the deployed page, application liveness, and anonymous account rejection. It does not prove hosted signup, recovery email delivery, or billing.
+
+On the deployed application, create a disposable account, verify immediate Dashboard access, sign out and in, recover its password, and complete Stripe test Checkout. Check subscriber access in Dashboard, successful signed webhook delivery, and the durable subscription row in your selected providers. Open Customer Portal and cancel the test subscription.
+
+After cancellation reaches your application, delete only that test Customer in the Stripe test Dashboard → Customers. Hikari has no account-deletion UI, and its billing foreign keys restrict user deletion while related rows exist.
+
+To also remove the disposable account, record its Supabase user ID and Stripe Customer ID. In the selected Supabase project's Table Editor, delete only `subscriptions` rows whose `customer_id` matches that test Customer, then its `customers` mapping with the matching `stripe_customer_id` and `user_id`. Finally, delete that same user in Authentication → Users. Keep records for every other account.
+
+</Step>
+</Steps>
+
+Release only after these checks pass for your deployment and intended email recipients. Use the [testing reference](/docs/reference/testing) for local regression coverage while building your product.

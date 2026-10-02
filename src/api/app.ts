@@ -6,6 +6,9 @@ import { z } from 'zod';
 import { appUrl } from '@/lib/config';
 import { AppError } from '@/lib/errors';
 import * as auth from '@/services/auth';
+import { createFromSource } from 'fumadocs-core/search/server';
+import { source } from '@/lib/source';
+const search = createFromSource(source, { language: 'english' });
 const credentials = z
   .object({ email: z.email().max(254), password: z.string().min(8).max(128) })
   .strict();
@@ -31,6 +34,7 @@ api.onError((error, c) => {
   return c.json({ error: 'The service is temporarily unavailable.' }, 503);
 });
 api.get('/health', (c) => c.json({ status: 'ok' }));
+api.get('/search', (c) => search.GET(c.req.raw));
 api.post('/auth/signup', zValidator('json', credentials), async (c) => {
   const { email, password } = c.req.valid('json');
   return c.json(await auth.signUp(email, password));

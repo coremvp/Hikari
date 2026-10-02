@@ -2,13 +2,15 @@
 
 CoreMVP's open-source Next.js application foundation.
 
+Embedded Docs and Blog use local MDX and Fumadocs. The landing page links the quickstart, source repository, and account creation. See `src/content/docs` and `src/content/blogs` to customize the included content.
+
 Build an individual-account application with email/password authentication, a protected dashboard, and one recurring Stripe subscription. Checkout, verified webhooks, persisted subscription state, and server access checks are connected so you can build your product on top of them.
 
 Hikari is MIT licensed and independently maintained. [CoreMVP](https://coremvp.com) provides the commercial startup application foundation for company-level capabilities.
 
 ## Run locally
 
-Install [Bun 1.3.14](https://bun.sh), Node.js 20.9 or later, and a running Docker-compatible daemon. Start in a fresh clone:
+Install [Bun 1.3.14](https://bun.sh), Node.js 20.19 or later, and a running Docker-compatible daemon. Start in a fresh clone:
 
 ```bash
 git clone https://github.com/coremvp/hikari.git
@@ -48,7 +50,7 @@ Copy the listener's signing secret into `.env.local` and restart `bun run dev`. 
 
 Subscription access requires persisted `active` or `trialing` state on your configured price. Scheduled cancellation keeps access until Stripe changes that status. Other statuses and other prices deny access. Returning from Checkout does not grant access.
 
-Existing subscriptions open Customer Portal instead of another Checkout. Open sessions are reused during repeated Checkout requests. Portal price changes must remain on the approved price if you want them to keep application access.
+Existing subscriptions that still need management open Customer Portal instead of another Checkout. If only `canceled` or `incomplete_expired` subscriptions remain, you can start a new Checkout. Open sessions are reused during repeated Checkout requests. Portal price changes must remain on the approved price if you want them to keep application access.
 
 The webhook accepts the five subscription lifecycle events listed above. It verifies the original request body, retrieves the current subscription from Stripe, and upserts its state. Updates for each subscription are serialized with a Postgres transaction lock. Failed retrieval or persistence returns an error so Stripe can retry; inspect failed deliveries in Stripe Workbench. Events for customers outside this application's customer mapping are acknowledged without creating access.
 
@@ -73,7 +75,7 @@ The subscription E2E needs a configured Stripe test account, the running listene
 
 ## Deploy on Vercel and Supabase
 
-Use a fresh Supabase project and one Vercel Next.js project. Hosted deployment and live Stripe verification must be completed for your configuration before you release your application.
+Use a fresh Supabase project and one Vercel Next.js project. Hosted authentication and provider-backed Stripe test verification must be completed for your configuration before you release your application.
 
 1. Create a Supabase project. Link this clone to that exact project and apply the migrations:
 
@@ -99,12 +101,15 @@ Use a fresh Supabase project and one Vercel Next.js project. Hosted deployment a
 
    ```bash
    bunx vercel login
-   bunx vercel link
+   bunx vercel whoami
+   bunx vercel teams ls
+   bunx vercel project ls
+   bunx vercel link --project <your-project-name>
    ```
 
-   Use the Next.js preset. The checked-in `vercel.json` selects Bun 1.x and the locked Bun install/build commands.
+   Confirm the intended account and project; stop if they are wrong. For a team project, append `--scope <team-slug>` to both `project ls` and `link`; for a personal project, omit `--scope` and select your personal account in the link prompts. Select the listed project or create a fresh project with your chosen name. Use the Next.js preset. The checked-in `vercel.json` selects Bun 1.x and the locked Bun install/build commands.
 
-4. Add these environment variables through the Vercel Dashboard or interactive `bunx vercel env add <name>` prompts. Add them to the deployment environment you will use.
+4. Add these variables to **Production** in the selected Vercel project's Dashboard, or use interactive `bunx vercel env add <name> production` prompts. Add `--sensitive` for `DATABASE_URL`, `STRIPE_SECRET_KEY`, and `STRIPE_WEBHOOK_SECRET`. Enter values only in the prompts or Dashboard fields.
 
    | Variable                               | Configuration                                     |
    | -------------------------------------- | ------------------------------------------------- |
@@ -117,6 +122,8 @@ Use a fresh Supabase project and one Vercel Next.js project. Hosted deployment a
    | `STRIPE_WEBHOOK_SECRET`                | Signing secret for the hosted endpoint            |
 
    Only the two `NEXT_PUBLIC_SUPABASE_*` values are public. Never put database credentials or Stripe secrets in a public variable. Follow [Supabase's connection guide](https://supabase.com/docs/guides/database/connecting-to-postgres) for the pooler and TLS settings. Drizzle uses `prepare: false` for transaction pooling.
+
+   Verify all seven names target Production with `bunx vercel env ls production` before deploying. The [deployment guide](src/content/docs/deployment/vercel.mdx) includes the complete prompt sequence.
 
 5. Register `https://<your-app>/api/webhooks/stripe` in the same Stripe account for the five lifecycle events listed above. Use this endpoint's signing secret, rather than the local listener secret. Configure Customer Portal in that account.
 
@@ -147,7 +154,7 @@ Use `requireUser()` for authenticated operations and `billing.requireAccess(user
 
 `customers` stores the account-to-Stripe mapping. `subscriptions` stores subscription ID, customer, status, recurring price, cancellation flag, and period end. Supabase browser roles have no table privileges or client policies. Add your application's tables through migrations and update the Drizzle schema alongside them. App tables that remain server-owned should keep that same boundary.
 
-Hikari includes an individual account and one subscription path. Organizations, memberships/roles, Projects, lifetime payments, guest checkout, admin, AI/RAG, monitoring, and analytics belong to the commercial CoreMVP product. Hikari does not include embedded Docs/Blog, a newsletter, or an app-level email provider.
+Hikari includes an individual account, one subscription path, and embedded Docs/Blog. Organizations, memberships/roles, Projects, lifetime payments, guest checkout, admin, AI/RAG, monitoring, and analytics belong to the commercial CoreMVP product. Hikari does not include a newsletter or an app-level email provider.
 
 ## License
 

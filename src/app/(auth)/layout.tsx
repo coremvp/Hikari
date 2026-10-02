@@ -1,13 +1,7 @@
-import { Geist } from 'next/font/google';
-
-const geist = Geist({ subsets: ['latin'] });
-
 export const metadata = { robots: { index: false, follow: false } };
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <main
-      className={`${geist.className} grid min-h-svh bg-white text-neutral-950 md:grid-cols-2`}
-    >
+    <main className="grid min-h-svh bg-white text-neutral-950 md:grid-cols-2">
       {children}
       <div className="relative hidden min-h-svh bg-neutral-100 p-8 md:block lg:p-10">
         <div className="max-w-xs">
