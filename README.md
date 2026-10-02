@@ -83,7 +83,17 @@ Use a fresh Supabase project and one Vercel Next.js project. Hosted deployment a
    bunx supabase db push
    ```
 
-2. In Supabase Auth, set Site URL to your final HTTPS application origin. Allow `/auth/callback` and `/auth/confirm` on that origin. Keep email confirmation enabled. Set the confirmation and recovery templates to the corresponding files in `supabase/templates/`; their links use `SiteURL` and `TokenHash`. Check [Supabase Auth email delivery](https://supabase.com/docs/guides/auth/auth-email-templates): the default service has recipient and rate restrictions. Validate delivery to your intended users before opening signup.
+2. In Supabase Auth, set Site URL to your final HTTPS application origin. Add these Redirect URLs, replacing `<your-app>` with your application's hostname:
+
+   ```text
+   https://<your-app>/auth/callback
+   https://<your-app>/auth/callback?next=/reset-password
+   https://<your-app>/auth/confirm
+   ```
+
+   Keep email confirmation enabled. For an initial test with Supabase's default email templates, open confirmation and recovery links in the same browser and device where you started the flow. Hikari's callback exchanges the PKCE code for a session. When your Supabase configuration permits custom templates, use the corresponding files in `supabase/templates/`; their links use `SiteURL` and `TokenHash`.
+
+   The default hosted email service sends only to your Supabase organization's members and has a low rate limit. Free projects using that service may reject template edits. Configure [Auth SMTP delivery in Supabase](https://supabase.com/docs/guides/auth/auth-smtp) and validate delivery to your intended users before opening signup. Supabase Auth continues to own the email flow.
 
 3. Create or link the Vercel project from the Hikari root:
 

@@ -27,7 +27,7 @@ enabled = false
 [auth]
 enabled = true
 site_url = "http://localhost:3000"
-additional_redirect_urls = ["http://localhost:3000/auth/callback", "http://localhost:3000/auth/confirm"]
+additional_redirect_urls = ["http://localhost:3000/auth/callback", "http://localhost:3000/auth/callback?next=/reset-password", "http://localhost:3000/auth/confirm"]
 jwt_expiry = 3600
 enable_signup = true
 minimum_password_length = 8
