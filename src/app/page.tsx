@@ -45,7 +45,7 @@ const foundations = [
 export default function Home() {
   const posts = getBlogPages().slice(0, 2);
   return (
-    <SiteShell variant="public">
+    <SiteShell>
       <section className="hikari-canvas" aria-labelledby="hero-title">
         <div className="relative mx-auto flex max-w-4xl flex-col items-center px-6 pb-9 pt-12 text-center sm:pt-16">
           <p className="inline-flex items-center gap-2 text-xs font-medium tracking-wide text-neutral-600">

@@ -1,9 +1,33 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
 
 @theme {
   --color-primary: oklch(0.65 0.2 45);
+  --color-primary-foreground: #171717;
+  --color-background: white;
+  --color-foreground: #171717;
+  --color-card: white;
+  --color-card-foreground: #171717;
+  --color-popover: white;
+  --color-popover-foreground: #171717;
+  --color-secondary: #f5f5f5;
+  --color-secondary-foreground: #171717;
+  --color-muted: #f5f5f5;
+  --color-muted-foreground: #666;
+  --color-accent: #f5f5f5;
+  --color-accent-foreground: #171717;
+  --color-destructive: #b91c1c;
+  --color-border: #e5e5e5;
+  --color-input: #e5e5e5;
+  --color-ring: #c2410c;
+  --color-sidebar: #fafafa;
+  --color-sidebar-foreground: #171717;
+  --color-sidebar-accent: #f0f0f0;
+  --color-sidebar-accent-foreground: #171717;
+  --color-sidebar-border: #e5e5e5;
+  --color-sidebar-ring: #c2410c;
   --color-fd-background: white;
   --color-fd-card: white;
   --color-fd-popover: white;
@@ -13,6 +37,13 @@
   --color-fd-ring: #c2410c;
 }
 @layer base {
+  .hikari-dashboard *,
+  [data-slot='sheet-content'],
+  [data-slot='sheet-content'] *,
+  [data-slot='dropdown-menu-content'],
+  [data-slot='dropdown-menu-content'] * {
+    @apply border-border;
+  }
   body {
     background: white;
     color: #171717;

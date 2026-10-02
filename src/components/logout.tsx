@@ -1,13 +1,14 @@
 'use client';
 import { useState } from 'react';
 import { request } from '@/lib/client';
+import { Button } from '@/components/ui/button';
 export function Logout() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   return (
     <div>
-      <button
-        className="button-secondary"
+      <Button
+        variant="outline"
         disabled={busy}
         onClick={async () => {
           setBusy(true);
@@ -23,9 +24,9 @@ export function Logout() {
         }}
       >
         {busy ? 'Signing out…' : 'Sign out'}
-      </button>
+      </Button>
       {error && (
-        <p role="alert" className="mt-2 text-sm text-red-700">
+        <p role="alert" className="mt-2 text-sm text-destructive">
           {error}
         </p>
       )}
