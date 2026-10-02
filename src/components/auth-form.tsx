@@ -2,6 +2,7 @@
 import { useState, useSyncExternalStore, type FormEvent } from 'react';
 import Link from 'next/link';
 import { request } from '@/lib/client';
+import { Logo } from '@/components/logo';
 export type AuthMode = 'signin' | 'signup' | 'recovery' | 'password';
 const subscribe = () => () => {};
 export function AuthForm({
@@ -68,10 +69,9 @@ export function AuthForm({
       <Link
         href="/"
         aria-label="Hikari home"
-        className="w-fit text-xl font-semibold tracking-tight"
+        className="inline-flex w-fit items-center gap-2 text-xl font-semibold tracking-tight"
       >
-        Hikari{' '}
-        <span className="text-xs font-normal text-neutral-500">by CoreMVP</span>
+        <Logo />
       </Link>
       <div className="flex flex-1 items-center justify-center py-10">
         <form

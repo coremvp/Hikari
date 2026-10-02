@@ -1,15 +1,17 @@
 import Link from 'next/link';
+import { Logo } from '@/components/logo';
 
 export function SiteShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-5">
-          <Link href="/" className="text-xl font-semibold tracking-tight">
-            Hikari{' '}
-            <span className="text-xs font-normal text-slate-500">
-              by CoreMVP
-            </span>
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 py-5">
+          <Link
+            href="/"
+            aria-label="Hikari home"
+            className="inline-flex items-center gap-2 text-xl font-semibold tracking-tight"
+          >
+            <Logo />
           </Link>
           <nav aria-label="Main navigation" className="flex gap-5 text-sm">
             <Link href="/dashboard">Dashboard</Link>
