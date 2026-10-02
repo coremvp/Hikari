@@ -30,8 +30,7 @@ export function mapSubscription(
   const validItem =
     !subscription.items.has_more &&
     subscription.items.data.length === 1 &&
-    item?.price.type === 'recurring' &&
-    item.quantity === 1;
+    item?.price.type === 'recurring';
   return {
     id: subscription.id,
     customerId:

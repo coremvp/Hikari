@@ -271,10 +271,10 @@ test('webhook verification rejects tampered bytes before provider retrieval', as
     else delete process.env.STRIPE_WEBHOOK_SECRET;
   }
 });
-test('subscription items must describe one recurring unit to grant access', () => {
+test('subscription items must describe one recurring item to grant access', () => {
   const item = {
     price: { id: approved, type: 'recurring' },
-    quantity: 1,
+    quantity: 2,
     current_period_end: 1893542400,
   };
   const raw = {
@@ -284,7 +284,14 @@ test('subscription items must describe one recurring unit to grant access', () =
     cancel_at_period_end: true,
     items: { data: [item], has_more: false },
   } as unknown as Stripe.Subscription;
-  expect(mapSubscription(raw).priceId).toBe(approved);
+  for (const status of ['active', 'trialing'] as const) {
+    const mapped = mapSubscription({ ...raw, status });
+    expect(mapped.priceId).toBe(approved);
+    expect(mapped.currentPeriodEnd?.toISOString()).toBe(
+      '2030-01-02T00:00:00.000Z',
+    );
+    expect(hasSubscriptionAccess([mapped], approved)).toBe(true);
+  }
   expect(mapSubscription(raw).cancelAtPeriodEnd).toBe(true);
   expect(
     mapSubscription({

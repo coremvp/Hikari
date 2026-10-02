@@ -140,6 +140,10 @@ try {
   const reader = await (await api.request('/api/billing/subscription')).json();
   assert.equal(reader.access, true);
   assert.equal(reader.subscriptions[0].cancelAtPeriodEnd, true);
+  assert.equal(
+    reader.subscriptions[0].currentPeriodEnd,
+    '2030-01-02T03:04:05.000Z',
+  );
   current = { ...current, status: 'canceled' };
   assert.equal((await deliver('evt_dbold')).status, 200);
   assert.equal((await api.request('/api/subscription/access')).status, 403);

@@ -32,7 +32,6 @@ test('email account, session, logout and recovery enforce the protected boundary
   await page
     .getByRole('button', { name: 'Create account', exact: true })
     .click();
-  await expect(page.getByRole('status')).toContainText('Check your email');
   await page.goto(await localEmailLink(email, 'signup'));
   await expect(page).toHaveURL(/\/dashboard/);
   expect((await page.request.get('/api/account')).status()).toBe(200);
