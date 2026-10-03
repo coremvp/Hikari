@@ -3,7 +3,7 @@ title: Subscriptions
 description: Connect one recurring Stripe price to Checkout, persisted access, and Customer Portal.
 ---
 
-Start with a running [local application](/docs/getting-started) and your own Stripe test account. Your users subscribe from Account and manage billing through Customer Portal. Hikari grants subscriber access after a verified webhook persists an eligible subscription.
+Connect one recurring Stripe price to your running [local application](/docs/getting-started). Account already starts Checkout and opens Customer Portal; verified subscription events keep access current after payment, renewal, and cancellation.
 
 <Steps>
 <Step>
@@ -33,7 +33,9 @@ Verify the listener is using your selected test account. Copy its signing secret
 <Step>
 ## Complete a test subscription
 
-Sign in, open Account, and select **Start subscription**. Use Stripe’s `4242 4242 4242 4242` test card, a future expiry, and any three-digit CVC. After returning, refresh the subscription display and check that Dashboard shows subscriber access. Open Customer Portal from Account to manage the subscription.
+Sign in, open Account, and select **Start subscription**. Use Stripe’s `4242 4242 4242 4242` test card, a future expiry, and any three-digit CVC. After returning, select **Refresh subscription**. Account should show **Your subscription access is active.** and the subscription status; Dashboard should also show subscriber access.
+
+Select **Billing portal** to open Customer Portal. Cancel the disposable subscription there, keep the listener running, and refresh Account after Stripe delivers the change. Immediate cancellation should remove access. A scheduled cancellation keeps access while the subscription remains `active` or `trialing`.
 
 The browser’s return from Checkout is not the access decision. If access has not appeared, check successful delivery to `/api/webhooks/stripe`, your selected price, and the persisted subscription status. The [Stripe webhook guide](https://docs.stripe.com/billing/subscriptions/webhooks) explains provider delivery behavior.
 
@@ -52,6 +54,28 @@ Hikari supports one recurring item on the configured price. Checkout starts with
 
 ## Extend subscriber features
 
-Use `billing.requireAccess(user.id)` on the server before returning subscriber-only data. `src/api/billing.ts` contains the included route. The webhook verifies the raw body, retrieves current subscription state from Stripe, and upserts the row while serializing updates for that subscription. Failed retrieval or persistence returns an error for Stripe to retry. Customers outside Hikari’s account mapping do not gain access.
+Use the included access endpoint as the pattern for your own subscriber-only operations:
+
+```ts title="src/api/billing.ts (excerpt)"
+.get('/subscription/access', async (c) => {
+  await service.requireAccess((await user()).id);
+  return c.json({ access: true });
+})
+```
+
+The route checks the signed-in user before `BillingService.requireAccess()` reads the persisted subscription. An anonymous request returns HTTP 401; a signed-in account without eligible access receives HTTP 403. Put this check before returning subscriber-only data or performing a paid operation. A Checkout return URL cannot grant access.
+
+## Keep subscription state current
+
+The five configured subscription events use the same synchronization path. The webhook verifies the raw body and signature before the service retrieves Stripe's current Subscription and saves it:
+
+```ts title="src/services/billing.ts (excerpt, inside the subscription lock)"
+const state = await this.provider.currentSubscription(event.subscriptionId!);
+if (!(await store.customerForStripe(state.customerId)))
+  return { received: true, outcome: 'ignored' as const };
+await store.saveSubscription(state);
+```
+
+Retrieval and persistence run under a per-subscription database lock. Repeated or out-of-order events therefore refresh current provider state instead of overwriting it with an older event snapshot. Failed retrieval or persistence returns HTTP 503 so Stripe can retry; an unmapped Customer is ignored and gains no access. Read [Stripe's subscription webhook guide](https://docs.stripe.com/billing/subscriptions/webhooks) for provider delivery behavior.
 
 Next, run the real [subscription E2E](/docs/reference/testing), cancel your disposable test subscription, and [configure the hosted endpoint](/docs/deployment/vercel) before deploying.

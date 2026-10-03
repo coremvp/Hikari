@@ -17,11 +17,17 @@ Add a page in `src/app`, an application API in `src/api`, a business rule in `sr
 
 ## Add a protected operation
 
-Start from `src/api/billing.ts`: its authenticated routes call `requireUser()` before selecting account data or creating a Stripe session. Subscriber operations also call `billing.requireAccess(user.id)` before returning the result.
+For an account operation, start from `GET /api/account` in `src/api/app.ts`: it calls `auth.requireUser()` before returning the signed-in identity. Put resource-specific decisions in `src/services` and use the verified user ID in repository queries.
 
 The browser calls the same-origin `/api/*` surface. Hono owns application APIs through `src/app/api/[[...route]]/route.ts`; the Next.js `/auth/callback` and `/auth/confirm` routes handle Auth provider protocols.
 
 Keep credentials and access checks on the server. A successful redirect or browser cache does not authorize an operation. Read [Authentication](/docs/features/authentication) and [Subscriptions](/docs/features/payments) before adding your own protected routes.
+
+## Customize the dashboard
+
+Edit `src/app/(protected)/dashboard/page.tsx` for the overview and `src/components/dashboard-shell.tsx` for the shared navigation, account menu, and organization/project pickers. The chart composition is in `src/components/dashboard-analytics.tsx`.
+
+Organization/project selection and chart data are visual examples. They do not persist organizations, projects, or analytics. Keep their example labels until you connect your own data and server authorization. Account and subscription summaries read the real signed-in account and stored subscription.
 
 ## Add application data
 

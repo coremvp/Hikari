@@ -34,6 +34,7 @@ title: Your article
 description: The decision or lesson your article teaches.
 date: 2026-10-02
 author: Your name
+cover: /blog/your-cover.svg
 index: true
 ---
 
@@ -42,7 +43,15 @@ index: true
 Explain the problem, the implementation, and the tradeoff.
 ```
 
-Use the article’s actual publication date. The filename owns its single-segment URL, such as `/blog/your-article`. Articles with `index: true` appear on Blog, the landing page, and the sitemap. `index: false` hides them from discovery and emits `noindex`; it does not make their URL private. Keep confidential drafts outside the published content directory.
+Put the example cover at `public/blog/your-cover.svg`, or replace the path with your own asset. `cover` is optional; omit it for an article without a cover. Use the article's actual publication date.
+
+The filename owns its single-segment URL, such as `/blog/your-article`. Articles with `index: true` appear on Blog, the landing page, and the sitemap. `index: false` hides them from discovery and emits `noindex`; it does not make their URL private. Keep confidential drafts outside the published content directory.
+
+## Customize the listings
+
+Edit `src/components/blog-card.tsx` to change the shared cover, date, and title presentation on Blog and the landing page. `src/app/blog/page.tsx` composes the full listing; `src/app/page.tsx` selects the latest two articles for the landing page. Both use `getBlogPages()` from `src/lib/blog-source.ts`, which filters published articles and sorts their dates newest first.
+
+Change shared MDX components in `mdx-components.tsx` and collection schemas in `source.config.ts`. For branding, edit `src/components/logo.tsx`, `src/app/icon.svg`, and `src/app/globals.css`. The hero and footer share `public/sun.svg`.
 
 ## Verify your content
 
@@ -54,4 +63,4 @@ bun run build
 
 Open your page and check its sidebar link, heading anchors, code blocks, and internal links. Restart the production server after rebuilding. Missing content returns HTTP 404.
 
-Change shared MDX components in `mdx-components.tsx` and collection schemas in `source.config.ts`. For application branding, edit `src/components/logo.tsx`, `src/app/icon.svg`, and `src/app/globals.css`. The [project structure](/docs/getting-started/project-structure) shows the other feature owners.
+Use [Project structure](/docs/getting-started/project-structure) to find the application edit points outside content.
