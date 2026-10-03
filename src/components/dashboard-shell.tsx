@@ -128,7 +128,7 @@ function WorkspaceSidebar({
   ];
   return (
     <Sidebar collapsible="offcanvas">
-      <SidebarHeader className="h-14 justify-center px-3">
+      <SidebarHeader className="h-14 justify-center px-3 pr-10 md:pr-3">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
