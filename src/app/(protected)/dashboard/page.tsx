@@ -1,9 +1,10 @@
 import { SubscriberArea } from '@/components/subscriber-area';
 import { DashboardProjects } from '@/components/dashboard-shell';
+import { DashboardAnalytics } from '@/components/dashboard-analytics';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, Code2, CreditCard, UserRound } from 'lucide-react';
 import Link from 'next/link';
 import { requireUser } from '@/services/auth';
 export default async function Dashboard() {
@@ -11,32 +12,89 @@ export default async function Dashboard() {
   return (
     <>
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight">
-          Your workspace
-        </h1>
+        <h1 className="text-3xl font-semibold tracking-tight">Welcome back</h1>
         <p className="text-muted-foreground">
-          Your account is ready. Build from here.
+          Your account, subscriptions, and application at a glance.
         </p>
       </div>
-      <div className="grid gap-4 lg:grid-cols-2">
+      <Card>
+        <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="font-semibold">Your access</h2>
+              <Badge variant="secondary">Individual account</Badge>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Manage your account and subscription in one place.
+            </p>
+          </div>
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="self-start sm:self-auto"
+          >
+            <Link href="/account">Manage account</Link>
+          </Button>
+        </CardContent>
+      </Card>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between gap-3">
             <CardTitle role="heading" aria-level={2}>
               Account
             </CardTitle>
-            <Badge variant="secondary">Signed in</Badge>
+            <UserRound
+              className="size-4 text-muted-foreground"
+              aria-hidden="true"
+            />
           </CardHeader>
-          <CardContent className="flex flex-col gap-4">
+          <CardContent className="flex flex-col gap-1">
+            <p className="text-2xl font-semibold tracking-tight">Active</p>
             <p className="break-all text-sm text-muted-foreground">
               {user.email}
             </p>
-            <Button asChild variant="outline" size="sm" className="self-start">
-              <Link href="/account">Manage account</Link>
-            </Button>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between gap-3">
+            <CardTitle role="heading" aria-level={2}>
+              Source code
+            </CardTitle>
+            <Code2
+              className="size-4 text-muted-foreground"
+              aria-hidden="true"
+            />
+          </CardHeader>
+          <CardContent className="flex flex-col gap-1">
+            <p className="text-2xl font-semibold tracking-tight">
+              MIT licensed
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Free and open source
+            </p>
           </CardContent>
         </Card>
         <SubscriberArea userId={user.id} />
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between gap-3">
+            <CardTitle role="heading" aria-level={2}>
+              Billing
+            </CardTitle>
+            <CreditCard
+              className="size-4 text-muted-foreground"
+              aria-hidden="true"
+            />
+          </CardHeader>
+          <CardContent className="flex flex-col gap-1">
+            <p className="text-2xl font-semibold tracking-tight">Stripe</p>
+            <p className="text-sm text-muted-foreground">
+              Checkout and Customer Portal
+            </p>
+          </CardContent>
+        </Card>
       </div>
+      <DashboardAnalytics />
       <DashboardProjects />
       <section aria-labelledby="build-title" className="flex flex-col gap-3">
         <h2 id="build-title" className="text-lg font-semibold">

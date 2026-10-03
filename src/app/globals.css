@@ -22,6 +22,8 @@
   --color-border: #e5e5e5;
   --color-input: #e5e5e5;
   --color-ring: #c2410c;
+  --color-chart-1: var(--color-primary);
+  --color-chart-2: #164e63;
   --color-sidebar: #fafafa;
   --color-sidebar-foreground: #171717;
   --color-sidebar-accent: #f0f0f0;

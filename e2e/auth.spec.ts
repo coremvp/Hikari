@@ -35,7 +35,9 @@ test('email account, session, logout and recovery enforce the protected boundary
   await expect(page).toHaveURL(/\/dashboard/);
   expect((await page.request.get('/api/account')).status()).toBe(200);
   await page.goto('/account');
-  await expect(page.getByText(email, { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('main').getByText(email, { exact: true }),
+  ).toBeVisible();
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();
   await expect(page).toHaveURL(/\/signin/);
   expect((await page.request.get('/api/account')).status()).toBe(401);

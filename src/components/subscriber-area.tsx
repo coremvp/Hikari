@@ -1,7 +1,6 @@
 import { billing } from '@/services/billing';
 import Link from 'next/link';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Box } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 export async function SubscriberArea({ userId }: { userId: string }) {
   let access: boolean;
@@ -20,22 +19,23 @@ export async function SubscriberArea({ userId }: { userId: string }) {
         <CardTitle role="heading" aria-level={2}>
           Subscription
         </CardTitle>
-        <Badge variant={access ? 'default' : 'secondary'}>
-          {access ? 'Access active' : 'No access'}
-        </Badge>
+        <Box className="size-4 text-muted-foreground" aria-hidden="true" />
       </CardHeader>
-      <CardContent className="flex flex-col gap-4">
+      <CardContent className="flex flex-col gap-1">
+        <p className="text-2xl font-semibold tracking-tight">
+          {access ? 'Active' : 'No access'}
+        </p>
         <p className="text-sm text-muted-foreground">
           {access
-            ? 'Your subscription is active. You can use the subscriber workspace.'
-            : 'An active subscription is required to use the subscriber workspace.'}
+            ? 'Subscription access granted'
+            : 'An active subscription is required.'}
         </p>
-        {access && (
-          <p className="text-sm font-medium">Subscription access granted</p>
-        )}
-        <Button asChild variant="outline" size="sm" className="self-start">
-          <Link href="/account#subscription">Manage subscription</Link>
-        </Button>
+        <Link
+          href="/account#subscription"
+          className="mt-2 text-sm underline underline-offset-4"
+        >
+          Manage subscription
+        </Link>
       </CardContent>
     </Card>
   );
