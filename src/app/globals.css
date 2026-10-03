@@ -194,16 +194,6 @@
 .hikari-section {
   padding-block: 72px;
 }
-.hikari-foundation {
-  padding-inline: 24px;
-}
-.hikari-foundation + .hikari-foundation {
-  border-left: 1px solid #e5e5e5;
-}
-.hikari-source {
-  background: #fafafa;
-  border: 1px solid #e5e5e5;
-}
 @media (max-width: 1023px) {
   .hikari-stage-docs {
     display: none;
@@ -254,12 +244,6 @@
   }
   .hikari-section {
     padding-block: 48px;
-  }
-  .hikari-foundation {
-    padding-inline: 0;
-  }
-  .hikari-foundation + .hikari-foundation {
-    border-left: 0;
   }
   .hikari-docs-layout {
     grid-template-columns: minmax(0, 1fr);

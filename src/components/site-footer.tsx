@@ -4,11 +4,7 @@ import { Logo } from '@/components/logo';
 export function SiteFooter() {
   return (
     <footer id="footer" className="relative isolate overflow-hidden bg-white">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-0 left-1/2 -z-10 aspect-square w-[min(900px,115vw)] -translate-x-1/2 translate-y-1/2 rounded-full bg-[url('/sun.svg')] bg-cover opacity-20 md:w-[min(900px,85vw)]"
-      />
-      <div className="mx-auto max-w-7xl px-6 pb-8 pt-16 sm:pt-20">
+      <div className="mx-auto max-w-7xl px-6 pt-16 sm:pt-20">
         <div className="grid gap-12 md:grid-cols-2 md:gap-20">
           <div>
             <Link
@@ -83,13 +79,18 @@ export function SiteFooter() {
             </div>
           </nav>
         </div>
-        <div
-          aria-hidden="true"
-          className="pointer-events-none mt-16 select-none py-4 text-center text-[clamp(6rem,28vw,24rem)] font-medium leading-[0.85] tracking-[-0.075em] text-neutral-900 sm:mt-20"
-        >
+      </div>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none relative isolate mt-16 overflow-hidden px-6 pb-10 pt-12 sm:mt-20 sm:pb-12"
+      >
+        <div className="absolute left-1/2 top-0 -z-10 aspect-square w-[min(900px,115vw)] -translate-x-1/2 rounded-full bg-[url('/sun.svg')] bg-cover md:w-[min(900px,85vw)]" />
+        <div className="mx-auto max-w-7xl select-none text-center text-[clamp(6rem,28vw,24rem)] font-medium leading-[0.85] tracking-[-0.075em] text-neutral-950">
           hikari
         </div>
-        <div className="mt-10 flex flex-wrap items-center justify-between gap-x-8 gap-y-5 text-sm sm:mt-12">
+      </div>
+      <div className="mx-auto max-w-7xl px-6 pb-8 pt-8">
+        <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-5 text-sm">
           <Link
             href="/"
             aria-label="Hikari home"
