@@ -1,0 +1,54 @@
+---
+title: Verify your application
+description: Run the checks that exercise your account, database, subscription, or hosted application.
+---
+
+For source changes, run:
+
+```bash
+bun run lint
+bun run typecheck
+bun run test
+bun run build
+```
+
+Expect a zero exit code from each command. Typecheck generates the MDX collection types first; build compiles the public content and application routes. Unit tests use controlled provider state for billing rules and do not call Stripe.
+
+## Verify the account flow
+
+With local Supabase and the application running at `http://localhost:3000`:
+
+```bash
+bunx playwright install chromium
+./coremvp e2e auth
+```
+
+The journey creates a disposable account through Supabase Auth, verifies Dashboard/Account and the API session, signs out and in, and recovers the password using the local mailbox. It also exercises the native form POST path. Both tests must pass. A missing mailbox or local Auth service is a failed prerequisite.
+
+## Verify database and access boundaries
+
+```bash
+bun run test:integration
+```
+
+This uses your real local Postgres database, Hikari’s services/repositories/API, and signed Stripe fixtures. It checks subscription state and verifies that Supabase anonymous/authenticated clients cannot read or write the billing tables. The Stripe payloads are fixtures; no Stripe API is called by this command.
+
+## Verify a real test subscription
+
+Configure a Stripe test account, recurring price, Customer Portal, and running local listener as described in [Subscriptions](/docs/features/payments), then run:
+
+```bash
+./coremvp e2e billing:subscription
+```
+
+The journey completes real Stripe test Checkout, waits for webhook-backed subscriber access, opens Customer Portal, and cancels the test subscription during cleanup. Missing provider settings fail the journey instead of skipping it. Use a test key and disposable customers.
+
+If access fails, check the listener’s selected account and signing secret, successful subscription-event delivery, the configured price, and the durable subscription row. A successful Checkout return alone is insufficient.
+
+## Check a hosted deployment
+
+```bash
+./coremvp prod e2e smoke https://your-app.example
+```
+
+Use the exact HTTPS origin you deployed. This checks liveness and anonymous account rejection, not hosted Auth or billing. Complete the provider-backed walkthrough in [Deploy to Vercel](/docs/deployment/vercel), including recovery delivery to the users you intend to support.

@@ -1,0 +1,57 @@
+---
+title: Docs and Blog
+description: Publish your application’s documentation and articles from local MDX.
+---
+
+Edit `src/content/docs` for documentation and `src/content/blogs` for articles. Hikari uses the same Fumadocs collection and layout approach as the CoreMVP Next.js template. Your content is compiled with the application and rendered into public HTML.
+
+## Add a documentation page
+
+Create `src/content/docs/features/your-feature.mdx`:
+
+```mdx title="src/content/docs/features/your-feature.mdx"
+---
+title: Your feature
+description: Explain the task this page helps your users complete.
+---
+
+## Start here
+
+Describe the starting state, the next action, and what shows it worked.
+```
+
+Add `features/your-feature` to the `pages` list in `src/content/docs/meta.json`. The page appears at `/docs/features/your-feature`. Use folder-level `meta.json` files to group pages when a topic has several related tasks.
+
+Fumadocs supplies the sidebar, table of contents, heading anchors, highlighted code blocks, and search. The Hono `/api/search` route builds its index from the Docs collection; it does not call an external search service.
+
+## Add a Blog article
+
+Create one MDX file under `src/content/blogs`, with these fields:
+
+```mdx title="src/content/blogs/your-article.mdx"
+---
+title: Your article
+description: The decision or lesson your article teaches.
+date: 2026-10-02
+author: Your name
+index: true
+---
+
+## The decision
+
+Explain the problem, the implementation, and the tradeoff.
+```
+
+Use the article’s actual publication date. The filename owns its single-segment URL, such as `/blog/your-article`. Articles with `index: true` appear on Blog, the landing page, and the sitemap. `index: false` hides them from discovery and emits `noindex`; it does not make their URL private. Keep confidential drafts outside the published content directory.
+
+## Verify your content
+
+```bash
+bun run content:generate
+bun run typecheck
+bun run build
+```
+
+Open your page and check its sidebar link, heading anchors, code blocks, and internal links. Restart the production server after rebuilding. Missing content returns HTTP 404.
+
+Change shared MDX components in `mdx-components.tsx` and collection schemas in `source.config.ts`. For application branding, edit `src/components/logo.tsx`, `src/app/icon.svg`, and `src/app/globals.css`. The [project structure](/docs/getting-started/project-structure) shows the other feature owners.

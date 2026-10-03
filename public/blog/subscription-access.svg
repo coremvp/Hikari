@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="525" viewBox="0 0 1000 525">
+  <defs>
+    <linearGradient id="field" x2="1" y2="1">
+      <stop stop-color="#9a3412"/>
+      <stop offset=".55" stop-color="#c2410c"/>
+      <stop offset="1" stop-color="#ffb56e"/>
+    </linearGradient>
+    <radialGradient id="light">
+      <stop stop-color="#ffdcad" stop-opacity=".75"/>
+      <stop offset="1" stop-color="#ffdcad" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <path fill="url(#field)" d="M0 0h1000v525H0z"/>
+  <circle cx="875" cy="440" r="480" fill="url(#light)"/>
+  <g fill="none" stroke="#fff" stroke-opacity=".14">
+    <circle cx="840" cy="263" r="170"/>
+    <circle cx="840" cy="263" r="225"/>
+    <circle cx="840" cy="263" r="280"/>
+  </g>
+  <g fill="#fff" font-family="Arial, sans-serif">
+    <text x="62" y="82" font-size="28">Hikari</text>
+    <text x="62" y="267" font-size="58" letter-spacing="-2">Subscription access.</text>
+    <text x="62" y="320" font-size="26">Owned by the server.</text>
+  </g>
+</svg>

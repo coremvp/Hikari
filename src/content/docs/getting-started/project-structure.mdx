@@ -1,0 +1,32 @@
+---
+title: Project structure
+description: Place your next feature at the boundary that owns its behavior.
+---
+
+Add a page in `src/app`, an application API in `src/api`, a business rule in `src/services`, and database access in `src/repositories`. Hikari deploys them together in one Next.js runtime.
+
+| Location                           | Job                                                           |
+| ---------------------------------- | ------------------------------------------------------------- |
+| `src/app`                          | Pages, layouts, and Next.js Auth callbacks                    |
+| `src/api`                          | Same-origin Hono routes, input validation, and HTTP responses |
+| `src/services`                     | Application behavior and access decisions                     |
+| `src/repositories`                 | Drizzle queries and transactions                              |
+| `src/providers`                    | Supabase Auth and Stripe calls                                |
+| `src/db` and `supabase/migrations` | TypeScript schema and database migrations                     |
+| `src/content`                      | Docs and Blog MDX                                             |
+
+## Add a protected operation
+
+Start from `src/api/billing.ts`: its authenticated routes call `requireUser()` before selecting account data or creating a Stripe session. Subscriber operations also call `billing.requireAccess(user.id)` before returning the result.
+
+The browser calls the same-origin `/api/*` surface. Hono owns application APIs through `src/app/api/[[...route]]/route.ts`; the Next.js `/auth/callback` and `/auth/confirm` routes handle Auth provider protocols.
+
+Keep credentials and access checks on the server. A successful redirect or browser cache does not authorize an operation. Read [Authentication](/docs/features/authentication) and [Subscriptions](/docs/features/payments) before adding your own protected routes.
+
+## Add application data
+
+Hikari’s `customers` table maps a Supabase user to a Stripe Customer. `subscriptions` records current subscription state. These tables are server-owned: Supabase browser roles have no privileges or client policies for them.
+
+Add your own SQL migration under `supabase/migrations` and update `src/db/schema.ts` with the corresponding Drizzle model. Choose and implement authorization for your new tables before exposing them through an API. The billing tables’ permissions do not automatically protect unrelated application data.
+
+Next, use the [testing reference](/docs/reference/testing) to verify the boundary your feature changes.

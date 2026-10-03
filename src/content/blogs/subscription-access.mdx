@@ -1,0 +1,34 @@
+---
+title: Subscription access belongs on the server
+description: Connect successful payment to persisted subscription state before granting product access.
+date: 2026-10-02
+author: CoreMVP
+cover: /blog/subscription-access.svg
+index: true
+---
+
+A user can return from Checkout before your webhook has finished. They can also refresh a bookmarked success URL after their subscription has ended. If the page treats either return as permission, it grants access without consulting the subscription you meant to sell.
+
+Hikari checks subscriber access on the server against persisted subscription state. The browser can start Checkout and display the result; it cannot grant itself access.
+
+## Give each boundary one job
+
+[Stripe Checkout](https://docs.stripe.com/payments/checkout) collects the payment and creates the subscription. The verified webhook retrieves the current subscription from Stripe and upserts its state in Postgres. The access reader accepts `active` or `trialing` on Hikari’s configured recurring price.
+
+The return page therefore remains a place to display progress and refresh the status. It is not a second writer of subscription truth. A delayed webhook may briefly delay access, which is preferable to treating an editable URL as proof of payment.
+
+## Read current state when events arrive
+
+Subscription events can be repeated or arrive after a later change. In `src/services/billing.ts`, Hikari verifies the raw request body, then retrieves the current subscription instead of persisting the event snapshot as the latest state. A transaction lock serializes updates for that subscription while the repository upserts its row.
+
+If retrieval or persistence fails, Hikari returns an error so Stripe can retry delivery. An unknown Stripe Customer cannot acquire application access through the webhook: the subscription must belong to Hikari’s account-to-Customer mapping.
+
+This design adds a Stripe retrieval to each accepted lifecycle event and depends on provider delivery. Inspect failed deliveries in Stripe Workbench and retry them after correcting the cause. The application does not hide a failed update behind a successful webhook response.
+
+## Keep the access rule explicit
+
+Hikari supports one recurring item on one approved price. A different price or unsupported item layout denies access. Scheduled cancellation preserves access while the subscription remains `active` or `trialing`; cancellation takes effect for access when the persisted status changes.
+
+An existing subscription that still needs management sends the user to Customer Portal instead of creating another Checkout. If only `canceled` or `incomplete_expired` subscriptions remain, the user can subscribe again. Repeated Checkout requests reuse an open session. These decisions live beside the access rule rather than in a client-side button flag.
+
+Before returning a subscriber-only result, call `billing.requireAccess(user.id)` on the server. Check both the successful subscription and the denied states when extending this rule. The [subscription guide](/docs/features/payments) connects your provider configuration to the included journey, and the [testing reference](/docs/reference/testing) distinguishes controlled tests from real Stripe test Checkout.

@@ -1,0 +1,28 @@
+---
+title: Authentication
+description: Use Supabase sessions for signup, protected pages, and password recovery.
+---
+
+Create an account at `/signup` to open Dashboard immediately. Hikari uses [Supabase Auth](https://supabase.com/docs/guides/auth) for email/password accounts, sessions, and recovery emails. Local email confirmation is disabled; use the same setting in your hosted project.
+
+## Protect pages and APIs
+
+The layout in `src/app/(protected)/layout.tsx` checks the current user before rendering Dashboard or Account. Application API routes call `requireUser()` from `src/services/auth.ts`. Anonymous Supabase users do not satisfy that check.
+
+Use the returned user ID to select that account’s data. Do not authorize from a browser flag, editable user metadata, or cookie presence. Supabase verifies the session; your server owns the application’s access decision.
+
+Signup with email confirmation disabled establishes a session without proving ownership of the email address. Treat the address as unverified in features where email ownership matters. Hikari’s individual-account and billing access checks use the authenticated user ID.
+
+## Recover a password
+
+Start at `/forgot-password`. The form requests a Supabase recovery email. The link opens `/auth/callback?next=/reset-password`, where Hikari exchanges the PKCE code for a session. Use the same browser and device where you started recovery when using Supabase’s default email template.
+
+Where your Supabase project permits custom templates, `supabase/templates/recovery.html` uses `SiteURL` and `TokenHash` with `/auth/confirm`. The reset page requires a verified session before updating the password.
+
+Local emails appear in the mailbox at [127.0.0.1:55424](http://127.0.0.1:55424). Hosted delivery belongs to your Supabase project. Configure [custom SMTP](https://supabase.com/docs/guides/auth/auth-smtp) before releasing to users: Supabase’s default service limits delivery to project-team addresses and is not intended for production.
+
+## Configure hosted Auth
+
+In Supabase Auth, set **Site URL** to your application’s HTTPS origin. Add the callback and confirmation URLs listed in [Deploy to Vercel](/docs/deployment/vercel). Turn **Confirm email** off in the Email provider settings to preserve immediate signup.
+
+Run `./coremvp e2e auth` against your local application to check signup, sessions, logout, signin, and password recovery. The [testing reference](/docs/reference/testing) explains its prerequisites and limits.

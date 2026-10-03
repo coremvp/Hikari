@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="525" viewBox="0 0 1000 525">
+  <defs>
+    <radialGradient id="glow">
+      <stop stop-color="#e97635"/>
+      <stop offset=".46" stop-color="#a74316"/>
+      <stop offset="1" stop-color="#16191d"/>
+    </radialGradient>
+    <radialGradient id="sun" cx=".3" cy=".2" r=".9">
+      <stop stop-color="#ffcf9b"/>
+      <stop offset=".45" stop-color="#ef873e"/>
+      <stop offset="1" stop-color="#9a3412"/>
+    </radialGradient>
+  </defs>
+  <path fill="#16191d" d="M0 0h1000v525H0z"/>
+  <circle cx="790" cy="260" r="380" fill="url(#glow)"/>
+  <circle cx="790" cy="260" r="205" fill="url(#sun)"/>
+  <g fill="#fff" font-family="Arial, sans-serif">
+    <text x="62" y="82" font-size="28">Hikari</text>
+    <text x="62" y="267" font-size="58" letter-spacing="-2">One application.</text>
+    <text x="62" y="320" font-size="26" fill="#c8c8c8">Clear boundaries.</text>
+  </g>
+</svg>
