@@ -2,6 +2,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { SiteShell } from '@/components/site-shell';
 import { Testimonials } from '@/components/testimonials';
+import { BlogCard } from '@/components/blog-card';
+import { SectionHeading } from '@/components/section-heading';
 import {
   ApplicationPreview,
   DocumentationPreview,
@@ -57,7 +59,9 @@ export default function Home() {
             className="mt-5 text-balance text-[2.75rem] font-semibold leading-[1.07] tracking-[-0.045em] sm:text-6xl lg:text-[4rem]"
           >
             A brighter start for
-            <br className="hidden sm:block" /> your next application.
+            <span className="block text-neutral-500">
+              your next application.
+            </span>
           </h1>
           <p className="mt-5 max-w-xl text-balance text-lg leading-7 text-neutral-600">
             Accounts, subscriptions, and content. Connected in one open-source
@@ -87,16 +91,13 @@ export default function Home() {
       </section>
       <section aria-labelledby="foundation-title" className="hikari-section">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="eyebrow">A working foundation</p>
-          <h2
+          <SectionHeading
             id="foundation-title"
-            className="mt-4 text-balance text-3xl font-semibold tracking-tight sm:text-4xl"
-          >
-            Start where your product begins.
-          </h2>
+            title="Start where your product begins."
+            subtitle="Accounts and subscriptions, connected."
+          />
           <p className="mt-5 text-lg leading-7 text-neutral-600">
-            The account-to-subscription path is already connected. Give the rest
-            of your application your attention.
+            Give the rest of your application your attention.
           </p>
         </div>
         <ol className="mt-12 grid gap-8 md:grid-cols-3 md:gap-0">
@@ -125,17 +126,13 @@ export default function Home() {
       <section aria-labelledby="content-title" className="hikari-section">
         <div className="grid items-center gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
           <div>
-            <p className="eyebrow">Your application, explained</p>
-            <h2
+            <SectionHeading
               id="content-title"
-              className="mt-4 text-balance text-3xl font-semibold tracking-tight sm:text-4xl"
-            >
-              The docs belong
-              <br className="hidden lg:block" /> with the code.
-            </h2>
+              title="The docs belong with the code."
+              subtitle="Publish from the same repository."
+            />
             <p className="mt-5 max-w-lg text-lg leading-7 text-neutral-600">
               Local MDX, searchable documentation, and an engineering blog.
-              Publish what you build from the same repository.
             </p>
             <div className="mt-7 flex flex-wrap gap-6 text-sm font-medium">
               <Link href="/docs" className="underline underline-offset-4">
@@ -149,25 +146,30 @@ export default function Home() {
           <DocumentationPreview />
         </div>
         {posts.length > 0 && (
-          <div className="mt-14 border-t border-neutral-200 pt-8">
-            <p className="eyebrow">From the source</p>
-            <div className="mt-5 grid gap-5 sm:grid-cols-2">
+          <section aria-labelledby="news-title" className="mt-20">
+            <div className="flex flex-wrap items-end justify-between gap-6">
+              <SectionHeading
+                id="news-title"
+                title="Latest notes."
+                subtitle="From the source."
+              />
+              <Link href="/blog" className="text-sm font-medium">
+                All posts <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+            <div className="mt-10 grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2">
               {posts.map((post) => (
-                <Link
+                <BlogCard
                   key={post.url}
                   href={post.url}
-                  className="group rounded-xl border border-neutral-200 bg-white p-6 transition-colors hover:border-orange-300"
-                >
-                  <h3 className="text-xl font-semibold tracking-tight group-hover:text-orange-800">
-                    {post.data.title} <span aria-hidden="true">↗</span>
-                  </h3>
-                  <p className="mt-3 text-sm leading-6 text-neutral-600">
-                    {post.data.description}
-                  </p>
-                </Link>
+                  title={post.data.title}
+                  date={post.data.date}
+                  cover={post.data.cover}
+                  heading="h3"
+                />
               ))}
             </div>
-          </div>
+          </section>
         )}
       </section>
       <section
@@ -176,15 +178,12 @@ export default function Home() {
       >
         <div>
           <Image src="/icon.svg" alt="" width={40} height={40} />
-          <p className="eyebrow mt-6">Your source code</p>
-          <h2
+          <SectionHeading
             id="source-title"
-            className="mt-4 text-balance text-3xl font-semibold tracking-tight sm:text-4xl"
-          >
-            Clone it.
-            <br />
-            Make it yours.
-          </h2>
+            title="Clone it."
+            subtitle="Make it yours."
+            className="mt-6"
+          />
           <p className="mt-5 max-w-md leading-7 text-neutral-600">
             Hikari is MIT licensed. Run it locally, connect your providers, and
             build your product on top.

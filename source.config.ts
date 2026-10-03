@@ -14,6 +14,7 @@ export const blog = defineDocs({
       description: z.string().min(1),
       date: z.coerce.date().transform((date) => date.toISOString()),
       author: z.string().min(1),
+      cover: z.string().optional(),
       index: z.boolean(),
     }),
   },

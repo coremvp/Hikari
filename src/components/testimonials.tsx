@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { SectionHeading } from '@/components/section-heading';
 
 const testimonials = [
   {
@@ -67,15 +68,11 @@ export function Testimonials() {
   return (
     <section aria-labelledby="testimonials-title" className="hikari-section">
       <div className="mx-auto max-w-5xl text-center">
-        <h2
+        <SectionHeading
           id="testimonials-title"
-          className="text-balance text-4xl font-semibold leading-tight tracking-[-0.035em] sm:text-5xl"
-        >
-          What people are saying on Twitter.
-        </h2>
-        <p className="mt-4 leading-7 text-neutral-500">
-          Feedback from Hikari&apos;s first launch in 2024.
-        </p>
+          title="What people are saying on Twitter."
+          subtitle="Feedback from Hikari’s first launch in 2024."
+        />
       </div>
       <div className="mt-12 columns-1 gap-5 sm:columns-2 lg:columns-3 xl:columns-4">
         {testimonials.map((testimonial) => (

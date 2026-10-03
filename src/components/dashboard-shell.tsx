@@ -4,11 +4,11 @@ import { createContext, useContext, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  ArrowUpRight,
   BookOpen,
   Building2,
   ChartArea,
   ChevronsUpDown,
+  CircleHelp,
   CreditCard,
   FileText,
   FolderKanban,
@@ -17,6 +17,7 @@ import {
   UserRound,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
+import { Logout } from '@/components/logout';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
@@ -128,25 +130,28 @@ function WorkspaceSidebar({
   ];
   return (
     <Sidebar collapsible="offcanvas">
-      <SidebarHeader className="h-14 justify-center px-3 pr-10 md:pr-3">
+      <SidebarHeader className="h-16 justify-center px-2 pr-10 md:pr-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
+                  className="gap-3"
                   aria-label={`Organization preview: ${organization}`}
                 >
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-sm border bg-background">
-                    <Building2 />
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-md border bg-background">
+                    <Building2 className="size-5" aria-hidden="true" />
                   </span>
-                  <span className="grid min-w-0 flex-1 gap-0.5">
-                    <span className="truncate font-medium">{organization}</span>
+                  <span className="grid min-w-0 flex-1 gap-1 leading-tight">
+                    <span className="truncate font-semibold">
+                      {organization}
+                    </span>
                     <span className="text-xs text-muted-foreground">
                       Organization preview
                     </span>
                   </span>
-                  <ChevronsUpDown />
+                  <ChevronsUpDown aria-hidden="true" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -213,22 +218,49 @@ function WorkspaceSidebar({
       <SidebarFooter className="gap-3 p-4">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild size="lg">
-              <Link href="/account" onClick={closeMobile}>
-                <Avatar>
-                  <AvatarFallback>
-                    {email.slice(0, 1).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="grid min-w-0 gap-0.5">
-                  <span>My account</span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    {email}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton size="lg" aria-label="My account">
+                  <Avatar>
+                    <AvatarFallback>
+                      {email.slice(0, 1).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="grid min-w-0 gap-0.5">
+                    <span>My account</span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      {email}
+                    </span>
                   </span>
-                </span>
-                <ArrowUpRight className="ml-auto" />
-              </Link>
-            </SidebarMenuButton>
+                  <ChevronsUpDown className="ml-auto" aria-hidden="true" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                side={isMobile ? 'top' : 'right'}
+                align="end"
+                sideOffset={8}
+                className="w-64 max-w-[calc(100vw-2rem)]"
+              >
+                <DropdownMenuLabel className="break-all font-normal text-muted-foreground">
+                  {email}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem asChild>
+                    <Link href="/account" onClick={closeMobile}>
+                      <UserRound aria-hidden="true" /> Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/account#subscription" onClick={closeMobile}>
+                      <CreditCard aria-hidden="true" /> Billing
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <Logout variant="menu" />
+              </DropdownMenuContent>
+            </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
         <Link
@@ -270,7 +302,7 @@ export function DashboardShell({
           }}
         />
         <SidebarInset className="min-w-0">
-          <header className="grid h-14 shrink-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b bg-background px-4 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
+          <header className="grid h-16 shrink-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b bg-background px-4 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
             <div className="flex min-w-0 items-center gap-2">
               <SidebarTrigger />
               <Separator orientation="vertical" className="h-4" />
@@ -320,7 +352,15 @@ export function DashboardShell({
               {pathname === '/account' ? 'Account' : 'Overview'}
             </p>
             <div className="flex items-center justify-end gap-2">
-              <Badge variant="outline">UI preview</Badge>
+              <Badge variant="outline" className="hidden sm:inline-flex">
+                UI preview
+              </Badge>
+              <Button asChild variant="ghost" size="sm" className="shrink-0">
+                <Link href="/docs" aria-label="Help" title="Help">
+                  <CircleHelp aria-hidden="true" />
+                  <span className="hidden sm:inline">Help</span>
+                </Link>
+              </Button>
               <Button
                 asChild
                 variant="ghost"
