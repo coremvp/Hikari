@@ -1,0 +1,54 @@
+---
+title: Authentication
+description: Use Supabase sessions for signup, protected pages, and password recovery.
+---
+
+Create an account at `/signup` to open Dashboard immediately. Your app already has email/password signup, signin, sign-out, and password recovery through [Supabase Auth](https://supabase.com/docs/guides/auth). Email confirmation is disabled locally; use the same setting in your hosted project.
+
+## Protect pages and APIs
+
+Add a signed-in page under `src/app/(protected)` to inherit the existing layout check:
+
+```tsx title="src/app/(protected)/layout.tsx (excerpt)"
+const user = await currentUser();
+if (!user || user.is_anonymous) redirect('/signin');
+return <DashboardShell email={user.email ?? ''}>{children}</DashboardShell>;
+```
+
+`currentUser()` in `src/services/auth.ts` calls Supabase's `getUser()` for the current request. It retrieves the provider's current user record rather than trusting a browser flag or cookie presence. The session proxy in `src/proxy.ts` refreshes cookies on the protected paths; the layout makes the decision to render the page.
+
+For a new URL outside `/dashboard` or `/account`, add its path to the `matcher` in `src/proxy.ts` so refreshed session cookies reach the response.
+
+An API does not inherit a page layout's access check. Call `requireUser()` before returning account data, as the included Account endpoint does:
+
+```ts title="src/api/app.ts (excerpt)"
+api.get('/account', async (c) => c.json(await auth.requireUser()));
+```
+
+`requireUser()` rejects missing sessions and anonymous Supabase identities with HTTP 401. Use the returned user ID to select that account's data, then check any resource-specific permission in the service performing the operation. Signing in does not authorize another user's records.
+
+For subscriber-only operations, also check the [subscription access rule](/docs/features/payments#extend-subscriber-features).
+
+Signup with email confirmation disabled establishes a session without proving ownership of the email address. Treat the address as unverified in features where email ownership matters. Hikari’s individual-account and billing access checks use the authenticated user ID.
+
+## Recover a password
+
+Start at `/forgot-password`. The form requests a Supabase recovery email. The link opens `/auth/callback?next=/reset-password`, where Hikari exchanges the PKCE code for a session. Use the same browser and device where you started recovery when using Supabase’s default email template.
+
+Where your Supabase project permits custom templates, `supabase/templates/recovery.html` uses `SiteURL` and `TokenHash` with `/auth/confirm`. The reset page requires a verified session before updating the password.
+
+Local emails appear in the mailbox at [127.0.0.1:55424](http://127.0.0.1:55424). Hosted delivery belongs to your Supabase project. Configure [custom SMTP](https://supabase.com/docs/guides/auth/auth-smtp) before releasing to users: Supabase’s default service limits delivery to project-team addresses and is not intended for production.
+
+## Configure hosted Auth
+
+In Supabase Auth, set **Site URL** to your application’s HTTPS origin. Add the callback and confirmation URLs listed in [Deploy to Vercel](/docs/deployment/vercel). Turn **Confirm email** off in the Email provider settings to preserve immediate signup.
+
+## Verify the account flow
+
+With local Supabase and the app running at `http://localhost:3000`:
+
+```bash
+./coremvp e2e auth
+```
+
+Both tests should pass. The account journey creates an account and opens Dashboard, rejects anonymous requests, signs out, and completes password recovery through the local mailbox. The second test checks that native sign-in form submission keeps credentials out of the URL before hydration. The [testing reference](/docs/reference/testing) covers prerequisites; hosted recovery delivery must be checked on your own deployment.

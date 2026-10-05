@@ -1,0 +1,257 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+
+@theme {
+  --color-primary: oklch(0.65 0.2 45);
+  --color-primary-foreground: #171717;
+  --color-background: white;
+  --color-foreground: #171717;
+  --color-card: white;
+  --color-card-foreground: #171717;
+  --color-popover: white;
+  --color-popover-foreground: #171717;
+  --color-secondary: #f5f5f5;
+  --color-secondary-foreground: #171717;
+  --color-muted: #f5f5f5;
+  --color-muted-foreground: #666;
+  --color-accent: #f5f5f5;
+  --color-accent-foreground: #171717;
+  --color-destructive: #b91c1c;
+  --color-border: #e5e5e5;
+  --color-input: #e5e5e5;
+  --color-ring: #c2410c;
+  --color-chart-1: var(--color-primary);
+  --color-chart-2: #164e63;
+  --color-sidebar: #fafafa;
+  --color-sidebar-foreground: #171717;
+  --color-sidebar-accent: #f0f0f0;
+  --color-sidebar-accent-foreground: #171717;
+  --color-sidebar-border: #e5e5e5;
+  --color-sidebar-ring: #c2410c;
+  --color-fd-background: white;
+  --color-fd-card: white;
+  --color-fd-popover: white;
+  --color-fd-secondary: #f5f5f5;
+  --color-fd-primary: #c2410c;
+  --color-fd-primary-foreground: white;
+  --color-fd-ring: #c2410c;
+}
+@layer base {
+  .hikari-dashboard *,
+  [data-slot='sheet-content'],
+  [data-slot='sheet-content'] *,
+  [data-slot='dropdown-menu-content'],
+  [data-slot='dropdown-menu-content'] * {
+    @apply border-border;
+  }
+  body {
+    background: white;
+    color: #171717;
+  }
+  button,
+  a,
+  input {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: wait;
+    opacity: 0.6;
+  }
+  :focus-visible {
+    outline: 3px solid #c2410c;
+    outline-offset: 4px;
+  }
+}
+@layer components {
+  .button {
+    @apply inline-flex items-center justify-center rounded-md bg-primary px-5 py-3 text-sm font-semibold text-slate-950 hover:bg-primary/90;
+  }
+  .button-secondary {
+    @apply inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50;
+  }
+  .field {
+    @apply block w-full rounded-md border border-slate-300 bg-white px-3 py-3 text-base;
+  }
+  .eyebrow {
+    @apply text-xs font-semibold tracking-widest text-orange-700;
+  }
+}
+
+.hikari-canvas {
+  margin-inline: -24px;
+  overflow: hidden;
+  background: white;
+}
+.hikari-product-stage {
+  position: relative;
+  isolation: isolate;
+  height: 440px;
+}
+.hikari-sun-shape {
+  position: absolute;
+  z-index: -1;
+  top: -56px;
+  right: -8px;
+  width: 520px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: url('/sun.svg') center / cover;
+}
+.hikari-stage-docs {
+  position: absolute;
+  top: 28px;
+  right: 60px;
+  left: 292px;
+}
+.hikari-stage-docs .hikari-docs-layout {
+  grid-template-columns: minmax(0, 1fr);
+}
+.hikari-stage-docs .hikari-docs-nav {
+  display: none;
+}
+.hikari-stage-docs .hikari-docs-guides {
+  max-width: min(320px, calc(100% - 200px));
+}
+.hikari-docs-preview,
+.hikari-signup-preview,
+.hikari-billing-preview {
+  overflow: hidden;
+  border: 1px solid #e2e2e2;
+  border-radius: 12px;
+  background: white;
+  box-shadow:
+    0 18px 50px -24px #17171740,
+    0 4px 12px -6px #17171718;
+}
+.hikari-window-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #e5e5e5;
+  padding: 14px 20px;
+  font-size: 13px;
+}
+.hikari-docs-layout {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+}
+.hikari-docs-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-right: 1px solid #e5e5e5;
+  background: #fafafa;
+  padding: 20px 16px;
+  font-size: 12px;
+  color: #525252;
+}
+.hikari-docs-body {
+  padding: 24px;
+}
+.hikari-docs-guides {
+  display: grid;
+  max-width: 320px;
+  gap: 8px;
+  margin-top: 24px;
+}
+.hikari-signup-preview {
+  position: absolute;
+  top: 4px;
+  left: 12px;
+  width: 290px;
+  padding: 28px;
+}
+.hikari-preview-field {
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 13px;
+  color: #525252;
+  box-shadow: 0 1px 2px #17171706;
+}
+.hikari-billing-preview {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 300px;
+  padding: 24px;
+}
+.hikari-preview-caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 28px 12px 0;
+  font-size: 12px;
+  color: #525252;
+}
+.hikari-section {
+  padding-block: 72px;
+}
+@media (max-width: 1023px) {
+  .hikari-stage-docs {
+    display: none;
+  }
+  .hikari-product-stage {
+    height: auto;
+    display: grid;
+    grid-template-columns: 290px 300px;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    padding-block: 16px;
+  }
+  .hikari-signup-preview,
+  .hikari-billing-preview {
+    position: relative;
+    inset: auto;
+    width: auto;
+  }
+  .hikari-sun-shape {
+    right: 0;
+    width: 400px;
+    top: 0;
+  }
+  .hikari-preview-caption {
+    justify-content: center;
+    text-align: center;
+  }
+  .hikari-docs-guides {
+    max-width: none;
+  }
+}
+@media (max-width: 767px) {
+  .hikari-product-stage {
+    grid-template-columns: minmax(0, 340px);
+    gap: 20px;
+  }
+  .hikari-signup-preview {
+    padding: 28px;
+  }
+  .hikari-billing-preview {
+    padding: 24px 28px;
+  }
+  .hikari-sun-shape {
+    right: -100px;
+    width: 400px;
+    top: 80px;
+  }
+  .hikari-section {
+    padding-block: 48px;
+  }
+  .hikari-docs-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hikari-docs-nav {
+    display: none;
+  }
+  .hikari-docs-body {
+    padding: 24px;
+  }
+}

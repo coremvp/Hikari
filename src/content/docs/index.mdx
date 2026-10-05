@@ -1,0 +1,59 @@
+---
+title: Documentation
+description: Run Hikari locally, connect your subscription, and deploy your application.
+---
+
+Hikari gives you an individual account, a protected Dashboard, and one recurring Stripe subscription in an MIT-licensed Next.js application. Start with a working local account, then configure billing and your hosted providers.
+
+## Start building
+
+<Cards>
+  <Card
+    title="Run locally"
+    href="/docs/getting-started"
+    description="Clone Hikari, start Supabase, and create your first account."
+  />
+  <Card
+    title="Connect subscriptions"
+    href="/docs/features/payments"
+    description="Configure Stripe Checkout, webhooks, and Customer Portal."
+  />
+  <Card
+    title="Deploy to Vercel"
+    href="/docs/deployment/vercel"
+    description="Publish one application with a fresh Supabase project."
+  />
+</Cards>
+
+## Build on the included paths
+
+Signup opens Dashboard immediately. Account holds subscription controls. The server checks the Supabase session before serving protected pages and checks persisted subscription state before granting subscriber access.
+
+Docs and Blog use local MDX with Fumadocs. You can change the content, sidebar, and landing page in the same repository as your application. Read [Project structure](/docs/getting-started/project-structure) to find the right edit point.
+
+Hikari supports individual accounts and a single recurring price. [CoreMVP](https://coremvp.com) provides the commercial startup application foundation for company-level capabilities. Hikari remains independently maintained and MIT licensed.
+
+## Choose your next task
+
+<Cards>
+  <Card
+    title="Authentication"
+    href="/docs/features/authentication"
+    description="Understand signup, sessions, protected routes, and recovery."
+  />
+  <Card
+    title="Publish your content"
+    href="/docs/features/documentation"
+    description="Add Docs and Blog pages from MDX."
+  />
+  <Card
+    title="Environment variables"
+    href="/docs/reference/environment"
+    description="Find each value and keep server credentials private."
+  />
+  <Card
+    title="Verify your application"
+    href="/docs/reference/testing"
+    description="Run the checks for the boundary you changed."
+  />
+</Cards>

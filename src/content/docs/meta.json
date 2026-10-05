@@ -1,0 +1,16 @@
+{
+  "title": "Documentation",
+  "pages": [
+    "index",
+    "---Getting started---",
+    "getting-started",
+    "---Build your application---",
+    "features/authentication",
+    "features/payments",
+    "features/documentation",
+    "---Deploy and verify---",
+    "deployment/vercel",
+    "reference/environment",
+    "reference/testing"
+  ]
+}

@@ -1,0 +1,30 @@
+---
+title: Environment variables
+description: Find Hikari’s seven settings and keep private values on the server.
+---
+
+Use ignored `.env.local` locally and your Vercel deployment environment when hosted. `./coremvp env list` reports whether each setting is present without displaying values. `.env.example` defines the names; never commit actual credentials.
+
+| Variable                               | Source and purpose                                                      |
+| -------------------------------------- | ----------------------------------------------------------------------- |
+| `APP_URL`                              | Application origin used for Auth, billing returns, and canonical URLs   |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Selected Supabase project’s API URL                                     |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Selected Supabase project’s public client key                           |
+| `DATABASE_URL`                         | Server Postgres connection; use TLS and transaction pooling when hosted |
+| `STRIPE_SECRET_KEY`                    | Server key for the selected Stripe account                              |
+| `STRIPE_PRICE_ID`                      | The one approved recurring price                                        |
+| `STRIPE_WEBHOOK_SECRET`                | Signing secret for this environment’s webhook endpoint                  |
+
+## Local values
+
+Start local Supabase, then run `./coremvp env sync` to derive the Supabase and database settings. Existing Stripe values are preserved. The application origin is `http://localhost:3000`; the local E2E requires that exact origin. Keep custom `APP_URL` changes deliberate, because Auth callbacks and return destinations use it.
+
+Authentication can run before Stripe is configured. Checkout, Portal, and subscriber-access checks require the billing settings. [Connect subscriptions](/docs/features/payments) for the local listener and test price.
+
+## Hosted values
+
+Use your final HTTPS origin with no path, query, or embedded credentials as `APP_URL`. Local loopback HTTP is supported for development; hosted origins require HTTPS. The database uses Supabase’s transaction pooler with `prepare: false` and TLS.
+
+Only the two `NEXT_PUBLIC_SUPABASE_*` values may reach the browser. Never prefix a database URL, Stripe secret, signing secret, or privileged provider credential with `NEXT_PUBLIC_`.
+
+The local Stripe listener and hosted Stripe endpoint each have their own signing secret. Do not interchange them. Follow [Deploy to Vercel](/docs/deployment/vercel) to place each value in the correct provider environment.

@@ -1,0 +1,62 @@
+---
+title: Run locally
+description: Start Hikari with local Supabase and reach your first signed-in Dashboard.
+---
+
+Install [Bun 1.3.14](https://bun.sh), Node.js 20.19 or later, and a Docker-compatible runtime. This path starts a fresh local application; it does not migrate an existing Hikari deployment.
+
+<Steps>
+<Step>
+## Clone and install
+
+```bash
+git clone https://github.com/coremvp/hikari.git
+cd hikari
+bun install
+```
+
+Run the following commands from this repository root.
+
+</Step>
+<Step>
+## Start local Supabase
+
+```bash
+bunx supabase start
+./coremvp env sync
+```
+
+Supabase starts the `hikari-oss` project on ports 55420–55424. The template CLI writes the local connection settings to ignored `.env.local`, preserving existing Stripe settings. Keep this file private.
+
+If Supabase cannot start, check that your Docker-compatible runtime is running and these ports are available. Run `env sync` only after Supabase is ready.
+
+</Step>
+<Step>
+## Open your application
+
+```bash
+bun run dev
+```
+
+Open [localhost:3000](http://localhost:3000) and select **Create an account**. Signup creates your Supabase account, signs you in, and opens Dashboard immediately. Open Account to see subscription controls. Billing remains unavailable until you [configure Stripe](/docs/features/payments).
+
+If a required setting is missing, run `./coremvp env list`. It reports names and set/missing status without displaying values.
+
+</Step>
+</Steps>
+
+## Check account recovery
+
+Sign out, select **Forgot password?** on the sign-in page, and submit your account email. Open the local mailbox at [127.0.0.1:55424](http://127.0.0.1:55424). Follow the recovery link, set a new password, and sign in again. This mailbox is local test infrastructure.
+
+## Stop local services
+
+Stop the application with Ctrl+C, then run:
+
+```bash
+bunx supabase stop
+```
+
+Supabase preserves local data. Use `bunx supabase db reset` only when you intend to discard disposable local data and reapply migrations.
+
+Next, [connect a subscription](/docs/features/payments) or [find your feature’s edit point](/docs/getting-started/project-structure).
