@@ -29,7 +29,7 @@ The local Supabase project is `hikari-oss`, using ports 55420–55424. Its servi
 
 ## Connect a subscription
 
-Use a Stripe test account for development. Create one active, fixed-amount recurring price in the [Stripe Dashboard](https://dashboard.stripe.com/test/products). Configure Customer Portal in the same account, enabling the subscription-management actions you want to support.
+Use a Stripe test account for development. Create one active, fixed-amount recurring price in the [Stripe Dashboard](https://dashboard.stripe.com/test/products). In that account's Customer Portal settings, enable payment-method updates, invoice history, and cancellation at the end of the billing period. Leave plan and quantity changes disabled for the included one-price setup. The [Subscriptions guide](src/content/docs/features/payments.mdx) shows the controls and complete setup.
 
 Set these server-only values in ignored `.env.local`:
 
@@ -125,7 +125,7 @@ Use a fresh Supabase project and one Vercel Next.js project. Hosted authenticati
 
    Verify all seven names target Production with `bunx vercel env ls production` before deploying. The [deployment guide](src/content/docs/deployment/vercel.mdx) includes the complete prompt sequence.
 
-5. Register `https://<your-app>/api/webhooks/stripe` in the same Stripe account for the five lifecycle events listed above. Use this endpoint's signing secret, rather than the local listener secret. Configure Customer Portal in that account.
+5. Follow the [hosted destination steps](src/content/docs/features/payments.mdx#create-a-hosted-destination): select Your account, snapshot events, and the five lifecycle events listed above. Match the event API version to your installed Stripe SDK using the guide's credential-free command. Register `https://<your-app>/api/webhooks/stripe` and save this endpoint's signing secret as Production `STRIPE_WEBHOOK_SECRET`. Configure Customer Portal in that account, then deploy to load the credentials.
 
 6. Deploy:
 

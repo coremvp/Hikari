@@ -74,7 +74,9 @@ Verify that all seven names target Production in the linked project before deplo
 <Step>
 ## Register the hosted Stripe endpoint
 
-In your selected Stripe test account, register `https://your-app.example/api/webhooks/stripe` for the five subscription events listed in [Subscriptions](/docs/features/payments). Save this endpoint’s signing secret as the hosted `STRIPE_WEBHOOK_SECRET`. It differs from the local listener’s secret. Configure Customer Portal in the same account.
+Follow [Create a hosted destination](/docs/features/payments#create-a-hosted-destination) in your selected Stripe test account. That section contains the exact five-event list and API-version check. Register `https://your-app.example/api/webhooks/stripe`, save that destination's signing secret as the Production `STRIPE_WEBHOOK_SECRET`, then redeploy to load it. The local listener's secret does not verify hosted deliveries.
+
+Complete [Customer Portal configuration](/docs/features/payments#configure-customer-portal) in the same account. Use the same approved recurring price as `STRIPE_PRICE_ID` throughout setup.
 
 </Step>
 <Step>

@@ -3,6 +3,8 @@ title: Subscriptions
 description: Connect one recurring Stripe price to Checkout, persisted access, and Customer Portal.
 ---
 
+import { ImageZoom } from 'fumadocs-ui/components/image-zoom';
+
 Connect one recurring Stripe price to your running [local application](/docs/getting-started). Account already starts Checkout and opens Customer Portal; verified subscription events keep access current after payment, renewal, and cancellation.
 
 <Steps>
@@ -16,7 +18,7 @@ In the [Stripe test Dashboard](https://dashboard.stripe.com/test/products), crea
 | `STRIPE_SECRET_KEY` | Secret test key from this Stripe account |
 | `STRIPE_PRICE_ID`   | Your approved recurring price ID         |
 
-Configure [Customer Portal](https://docs.stripe.com/customer-management/configure-portal) in the same Stripe account. Enable the subscription-management actions you want your users to have. Keep permitted price changes on Hikari’s configured price when they should retain access.
+Use the same Stripe account for your price, test key, listener, and Customer Portal. Stop if any of them belongs to another account or live mode.
 
 </Step>
 <Step>
@@ -31,6 +33,34 @@ Verify the listener is using your selected test account. Copy its signing secret
 
 </Step>
 <Step>
+## Configure Customer Portal
+
+Open [Customer Portal settings](https://dashboard.stripe.com/test/settings/billing/portal) in the same test account:
+
+- **Payment methods:** enable updates so users can replace their card.
+- **Invoices:** enable invoice history for receipts and downloads.
+- **Cancellations:** enable cancellation and choose **Cancel at end of billing period** to preserve the remaining paid period.
+- **Plan changes and quantities:** leave these disabled for the included one-price setup.
+
+Save the test-mode configuration and preview it. The app creates each Portal session for the signed-in user's stored Stripe Customer and supplies the return URL. Stripe's [Portal settings guide](https://docs.stripe.com/customer-management/configure-portal) explains additional policies.
+
+<figure>
+  <ImageZoom
+    src="/docs/billing/stripe-customer-portal.png"
+    alt="Stripe Customer Portal cancellation enabled at the end of the billing period"
+    unoptimized
+    width={1110}
+    height={940}
+  />
+  <figcaption>
+    Example cancellation policy: at the end of the billing period.
+  </figcaption>
+</figure>
+
+You can choose immediate cancellation instead. Hikari supports one approved recurring price; switching to another price removes subscriber access.
+
+</Step>
+<Step>
 ## Complete a test subscription
 
 Sign in, open Account, and select **Start subscription**. Use Stripe’s `4242 4242 4242 4242` test card, a future expiry, and any three-digit CVC. After returning, select **Refresh subscription**. Account should show **Your subscription access is active.** and the subscription status; Dashboard should also show subscriber access.
@@ -41,6 +71,108 @@ The browser’s return from Checkout is not the access decision. If access has n
 
 </Step>
 </Steps>
+
+## Create a hosted destination
+
+Have your stable HTTPS application origin ready from [Deploy to Vercel](/docs/deployment/vercel). Stay in the same Stripe test account for the first deployment.
+
+<Steps>
+<Step>
+### Select the five subscription events
+
+In [Workbench → Webhooks](https://dashboard.stripe.com/test/webhooks), choose **Create an event destination** and **Your account**. Search for and select each event:
+
+```txt interactive=true
+customer.subscription.created
+customer.subscription.updated
+customer.subscription.deleted
+customer.subscription.paused
+customer.subscription.resumed
+```
+
+<figure>
+  <ImageZoom
+    src="/docs/billing/stripe-webhook-events.png"
+    alt="Stripe event selection with the five Hikari subscription events checked"
+    unoptimized
+    width={1360}
+    height={1100}
+  />
+  <figcaption>
+    Select these five subscription events for your account.
+  </figcaption>
+</figure>
+
+Use **snapshot events**. Choose the API version bundled with your installed Stripe SDK; print it from the Hikari root without supplying credentials:
+
+```bash
+bun -e 'import Stripe from "stripe"; console.log(Stripe.API_VERSION)'
+```
+
+The included handler synchronizes subscription state. Product, Price, invoice, and `checkout.session.completed` events are not part of this webhook path.
+
+</Step>
+<Step>
+### Save the endpoint and its secret
+
+Choose **Continue**, select **Webhook endpoint**, and enter your own application URL:
+
+```txt interactive=true
+https://<app-domain>/api/webhooks/stripe
+```
+
+<figure>
+  <ImageZoom
+    src="/docs/billing/stripe-webhook-destination.png"
+    alt="Stripe destination configured for your account and snapshot events"
+    unoptimized
+    width={800}
+    height={130}
+  />
+  <figcaption>
+    Use your account and snapshot events for this destination.
+  </figcaption>
+</figure>
+
+Save the destination. Open its settings, reveal the signing secret privately, and save it as `STRIPE_WEBHOOK_SECRET` in the selected hosting environment. Redeploy to load it. Each hosted destination has its own secret; the local `stripe listen` secret cannot verify its deliveries.
+
+See [Stripe's destination fields](https://docs.stripe.com/webhooks#create-an-event-destination-for-your-webhook-endpoint) if your Dashboard presents the steps differently. Continue with the [deployment guide](/docs/deployment/vercel#deploy-and-verify) to deploy and verify the application.
+
+</Step>
+</Steps>
+
+## Check delivery and access
+
+Locally, inspect the listener's responses. Hosted, open your destination's **Event deliveries** tab and inspect the HTTP status for the actual subscription event.
+
+<figure>
+  <ImageZoom
+    src="/docs/billing/stripe-webhook-delivery-status.png"
+    alt="A customer.subscription.created delivery marked Delivered"
+    unoptimized
+    width={1370}
+    height={200}
+  />
+  <ImageZoom
+    src="/docs/billing/stripe-webhook-response.png"
+    alt="The same Stripe delivery returned HTTP status code 200"
+    unoptimized
+    width={1340}
+    height={85}
+  />
+  <figcaption>
+    Example from a test subscription: delivered with HTTP 200.
+  </figcaption>
+</figure>
+
+| Result                       | Next action                                                                                                      |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| HTTP `200`                   | Refresh Account and confirm the expected subscription status and access.                                         |
+| HTTP `400`                   | Check test/live mode and the active destination's signing secret; restart or redeploy after correcting settings. |
+| HTTP `503`                   | Inspect application errors and provider/database availability before retrying.                                   |
+| Delivered but access missing | Check the configured Price ID, subscription status, and customer mapping for the same account.                   |
+
+A successful delivery alone does not prove subscriber access. Complete a real test subscription and verify the result in Account and Dashboard. `customer.subscription.updated` records a scheduled cancellation; `customer.subscription.deleted` reports when the subscription actually ends.
 
 ## Understand the access rule
 
