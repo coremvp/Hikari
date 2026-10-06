@@ -51,7 +51,7 @@ bunx vercel project ls
 bunx vercel link --project <your-project-name>
 ```
 
-Confirm the intended account and project; stop if they are wrong. For a team project, append `--scope <team-slug>` to both `project ls` and `link`. For a personal project, omit `--scope` and select your personal account in the link prompts. Select the listed project or create a fresh project with your chosen name. Use the Next.js preset. The checked-in `vercel.json` uses Bun and the locked install/build commands.
+Confirm the intended account and project; stop if they are wrong. For a team project, append `--scope <team-slug>` to both `project ls` and `link`. For a personal project, omit `--scope` and select your personal account in the link prompts. Select the listed project or create a fresh project with your chosen name. Use the Next.js preset. The checked-in `vercel.json` uses `bun install --frozen-lockfile` and `bun run build`; Next.js runs under Node.js.
 
 Add the seven values in the [environment reference](/docs/reference/environment) to **Production** in the selected project. Set `APP_URL` to your final HTTPS origin, without a path or query. Use this Supabase project’s API URL, publishable key, and TLS-enabled transaction-pooler URL. Follow the [Supabase connection guide](https://supabase.com/docs/guides/database/connecting-to-postgres); Hikari’s Drizzle connection disables prepared statements for transaction pooling.
 
