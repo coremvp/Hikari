@@ -107,7 +107,7 @@ Use a fresh Supabase project and one Vercel Next.js project. Hosted authenticati
    bunx vercel link --project <your-project-name>
    ```
 
-   Confirm the intended account and project; stop if they are wrong. For a team project, append `--scope <team-slug>` to both `project ls` and `link`; for a personal project, omit `--scope` and select your personal account in the link prompts. Select the listed project or create a fresh project with your chosen name. Use the Next.js preset. The checked-in `vercel.json` selects Bun 1.x and the locked Bun install/build commands.
+   Confirm the intended account and project; stop if they are wrong. For a team project, append `--scope <team-slug>` to both `project ls` and `link`; for a personal project, omit `--scope` and select your personal account in the link prompts. Select the listed project or create a fresh project with your chosen name. Use the Next.js preset. The checked-in `vercel.json` uses `bun install --frozen-lockfile` and `bun run build`; Next.js runs under Node.js.
 
 4. Add these variables to **Production** in the selected Vercel project's Dashboard, or use interactive `bunx vercel env add <name> production` prompts. Add `--sensitive` for `DATABASE_URL`, `STRIPE_SECRET_KEY`, and `STRIPE_WEBHOOK_SECRET`. Enter values only in the prompts or Dashboard fields.
 
