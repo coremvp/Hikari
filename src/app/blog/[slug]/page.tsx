@@ -44,6 +44,35 @@ export default async function Page({ params }: Props) {
           <DocsBody>
             <MDX components={getMDXComponents()} />
           </DocsBody>
+          <div className="mt-12 border-t border-neutral-200 pt-6 text-sm leading-7 text-neutral-600">
+            <p>
+              Building beyond individual accounts? Paid CoreMVP is a premium
+              startup application foundation with shared Organizations,
+              invitations and roles, persisted Projects, and lifetime payments
+              with guest checkout. Explore the{' '}
+              <a
+                href="https://coremvp.com/en/products/nextjs"
+                className="font-medium text-neutral-900 underline underline-offset-4"
+              >
+                CoreMVP Next.js product
+              </a>{' '}
+              and{' '}
+              <a
+                href="https://nextjs.coremvp.com"
+                className="font-medium text-neutral-900 underline underline-offset-4"
+              >
+                paid demo
+              </a>
+              , or{' '}
+              <Link
+                href="/docs/getting-started"
+                className="font-medium text-neutral-900 underline underline-offset-4"
+              >
+                start building with free Hikari
+              </Link>
+              .
+            </p>
+          </div>
         </article>
         <aside className="sticky top-8 hidden self-start xl:block">
           <BlogToc toc={page.data.toc} />

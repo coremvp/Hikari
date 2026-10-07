@@ -75,6 +75,22 @@ export function SiteFooter() {
                     MIT license
                   </a>
                 </li>
+                <li>
+                  <a
+                    className="hover:text-neutral-950"
+                    href="https://coremvp.com/en/products/nextjs"
+                  >
+                    Paid CoreMVP product
+                  </a>
+                </li>
+                <li>
+                  <a
+                    className="hover:text-neutral-950"
+                    href="https://nextjs.coremvp.com"
+                  >
+                    Paid demo
+                  </a>
+                </li>
               </ul>
             </div>
           </nav>

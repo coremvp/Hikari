@@ -81,8 +81,8 @@ export default function Home() {
             </span>
           </h1>
           <p className="mt-5 max-w-xl text-balance text-lg leading-7 text-neutral-600">
-            Accounts, subscriptions, and content. Connected in one open-source
-            Next.js application, ready for your ideas.
+            Individual accounts, subscriptions, and content. Connected in one
+            open-source Next.js application you run and make your own.
           </p>
           <div className="mt-7 flex flex-wrap justify-center gap-3">
             <Link
@@ -248,6 +248,34 @@ export default function Home() {
             </li>
           ))}
         </ol>
+        <div className="mt-10 border-t border-neutral-200 pt-8">
+          <h3 className="text-xl font-semibold tracking-tight">
+            When to consider CoreMVP
+          </h3>
+          <p className="mt-3 max-w-3xl leading-7 text-neutral-600">
+            Hikari is free MIT source for individual accounts, recurring
+            subscriptions, Docs and Blog. Paid CoreMVP is a premium startup
+            application foundation delivered as source code, adding shared
+            Organizations with invitations and roles, persisted Projects, and
+            lifetime payments with guest checkout. Choose it when those paths
+            fit your product. You operate either application with your own
+            providers.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-x-6 gap-y-3 text-sm font-medium">
+            <a
+              href="https://coremvp.com/en/products/nextjs"
+              className="underline underline-offset-4"
+            >
+              Explore paid CoreMVP <span aria-hidden="true">→</span>
+            </a>
+            <a
+              href="https://nextjs.coremvp.com"
+              className="underline underline-offset-4"
+            >
+              Preview the paid demo <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        </div>
       </section>
       <Testimonials />
       <section aria-labelledby="content-title" className="hikari-section">
@@ -339,8 +367,8 @@ export default function Home() {
             </code>
           </pre>
           <p className="border-t border-neutral-200 bg-white px-5 py-4 text-xs leading-5 text-neutral-600 sm:px-7">
-            Requires Bun, Node.js 20.19+, and Docker. The quickstart covers
-            local setup and provider configuration.
+            Requires Git, Bun 1.3.14, Node.js 20.19+, Bash, and running Docker.
+            The quickstart covers installation and local signup before billing.
           </p>
         </div>
       </section>

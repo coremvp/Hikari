@@ -1,21 +1,39 @@
 # Hikari by CoreMVP
 
-CoreMVP's open-source Next.js application foundation.
+Build an individual-account application with email/password authentication, a protected Dashboard, one recurring Stripe subscription, and embedded Docs and Blog. Hikari connects Checkout, verified webhooks, persisted subscription state, and server access checks in one open-source Next.js application.
 
-Embedded Docs and Blog use local MDX and Fumadocs. The landing page links the quickstart, source repository, and account creation. See `src/content/docs` and `src/content/blogs` to customize the included content.
+Hikari suits builders who can run terminal commands and want a free foundation to customize. You receive source code and operate the application with your own providers. It is independently maintained and [MIT licensed](LICENSE), including commercial use and modification; preserve the copyright and permission notice when redistributing it. Dashboard charts and Organization/Project selectors are visual examples, ready for your own product features and authorization.
 
-Build an individual-account application with email/password authentication, a protected dashboard, and one recurring Stripe subscription. Checkout, verified webhooks, persisted subscription state, and server access checks are connected so you can build your product on top of them.
+**Start here:** [run locally](#run-locally) and create your first account. Stripe and hosted provider accounts can wait.
 
-Hikari is MIT licensed and independently maintained. [CoreMVP](https://coremvp.com) provides the commercial startup application foundation for company-level capabilities.
+Existing guides: [Run locally](src/content/docs/getting-started/index.mdx) · [Subscriptions](src/content/docs/features/payments.mdx) · [Deployment](src/content/docs/deployment/vercel.mdx) · [Project structure](src/content/docs/getting-started/project-structure.mdx) · [Testing](src/content/docs/reference/testing.mdx) · [Help](#get-help).
 
 ## Run locally
 
-Install [Bun 1.3.14](https://bun.sh), Node.js 20.19 or later, and a running Docker-compatible daemon. Start in a fresh clone:
+Install these before cloning:
+
+- [Git](https://git-scm.com/downloads/) and a Bash-capable shell for `./coremvp`.
+- [Bun 1.3.14](https://bun.sh/docs/installation), the version pinned in `package.json`.
+- [Node.js](https://nodejs.org/en/download), satisfying `>=20.19.0`. Choose a [supported LTS release](https://nodejs.org/en/about/previous-releases); Next.js runs under Node.
+- [Docker](https://docs.docker.com/get-started/get-docker/) or a compatible runtime, with its daemon running. Follow the vendors’ OS requirements; an installed Docker CLI alone is insufficient.
+
+Check readiness:
+
+```bash
+git --version
+bun --version
+node --version
+docker info --format '{{.ServerVersion}}'
+```
+
+Start in a fresh clone:
 
 ```bash
 git clone https://github.com/coremvp/hikari.git
 cd hikari
 bun install
+bunx --no-install supabase --version
+bunx --no-install supabase --help
 bunx supabase start
 ./coremvp env sync
 bun run dev
@@ -23,9 +41,25 @@ bun run dev
 
 Open [localhost:3000](http://localhost:3000) and create an account. Signup signs you in immediately and opens Dashboard. Email confirmation is disabled. Password recovery emails arrive in the local Supabase mailbox at [127.0.0.1:55424](http://127.0.0.1:55424).
 
+`bun install` installs Supabase CLI 2.119.0 from this project's dev dependencies. The version/help commands verify that local installation. No global Supabase installation, `supabase init`, provider login, or hosted Supabase project is needed. See the [local Supabase requirements](https://supabase.com/docs/guides/local-development/cli/getting-started).
+
 `env sync` writes the local Supabase connection settings to ignored `.env.local` and preserves existing Stripe settings. `./coremvp env list` reports whether each required variable is set, without displaying values. Authentication works before you configure Stripe; subscription features require the billing settings below.
 
 The local Supabase project is `hikari-oss`, using ports 55420–55424. Its services are separate from other projects on your machine. Stop your development server and run `bunx supabase stop` when finished. Use `bunx supabase db reset` only to reset disposable local data.
+
+## Choose your next step
+
+- **First local account:** the tools above and local Supabase are sufficient. Follow [Run locally](src/content/docs/getting-started/index.mdx).
+- **Optional billing:** add a Stripe test account and Stripe CLI, then follow [Subscriptions](src/content/docs/features/payments.mdx). The guide also explains missing access after Checkout and scheduled cancellation.
+- **Deployment:** use your own hosted Supabase and Vercel accounts, configure recovery email delivery, and add Stripe when enabling billing. Follow [Deploy to Vercel](src/content/docs/deployment/vercel.mdx) and its hosted verification steps.
+
+Free MIT source does not include hosting, database usage, domains, email delivery, or payment processing. Local signup needs no purchased hosted plan. Review current [Supabase](https://supabase.com/pricing), [Vercel](https://vercel.com/pricing), and [Stripe](https://stripe.com/pricing) pricing and terms for your usage and region.
+
+### When to consider CoreMVP
+
+Hikari includes individual accounts, recurring subscriptions, Docs and Blog. Paid CoreMVP is a premium startup application foundation delivered as source code. Consider it when you need shared Organizations with invitations and roles, persisted Projects, or lifetime/one-time payments with guest checkout. Those paths connect collaboration and payment to account ownership so you can build on them.
+
+Compare the [CoreMVP Next.js product](https://coremvp.com/en/products/nextjs) and [paid demo](https://nextjs.coremvp.com). The Product page owns current commercial terms; neither product includes hosting. For a broader map of the work your application still needs, read [A Good Startup Foundation](https://coremvp.com/en/help/good-startup-foundation).
 
 ## Connect a subscription
 
@@ -39,7 +73,7 @@ Set these server-only values in ignored `.env.local`:
 | `STRIPE_PRICE_ID`       | The one approved recurring price, beginning with `price_` |
 | `STRIPE_WEBHOOK_SECRET` | Signing secret from the local listener below              |
 
-Forward subscription events to the application:
+Install the [Stripe CLI](https://docs.stripe.com/cli/install) and check `stripe --version` before continuing. Then forward subscription events to the application:
 
 ```bash
 stripe login
@@ -154,7 +188,18 @@ Use `requireUser()` for authenticated operations and `billing.requireAccess(user
 
 `customers` stores the account-to-Stripe mapping. `subscriptions` stores subscription ID, customer, status, recurring price, cancellation flag, and period end. Supabase browser roles have no table privileges or client policies. Add your application's tables through migrations and update the Drizzle schema alongside them. App tables that remain server-owned should keep that same boundary.
 
-Hikari includes an individual account, one subscription path, and embedded Docs/Blog. Organizations, memberships/roles, Projects, lifetime payments, guest checkout, admin, AI/RAG, monitoring, and analytics belong to the commercial CoreMVP product. Hikari does not include a newsletter or an app-level email provider.
+Hikari includes an individual account, one subscription path, and embedded Docs/Blog. Its Organization/Project selectors and charts are illustrative; it does not implement collaboration, persisted Projects, lifetime payments or guest checkout. See [Project structure](src/content/docs/getting-started/project-structure.mdx) for edit points and example-data limits, and [Testing](src/content/docs/reference/testing.mdx) for proof of your changes. Hikari does not include a newsletter or an app-level email provider. Customize local MDX in `src/content/docs` and `src/content/blogs` to publish your own Docs and Blog.
+
+## Get help
+
+Start with [Run locally](src/content/docs/getting-started/index.mdx) for Docker, ports and environment readiness, or [Subscriptions](src/content/docs/features/payments.mdx#check-delivery-and-access) for billing delivery and access. If you still need help, open a [Hikari issue](https://github.com/coremvp/Hikari/issues) with:
+
+- Your OS and shell.
+- Git, Bun, Node, Docker and Supabase CLI versions; Stripe CLI version for billing problems.
+- The exact failing command and expected versus actual result.
+- A redacted error message.
+
+Never share passwords, keys, tokens, credentials, private customer data, or complete environment files. Remove sensitive values from commands and errors before posting.
 
 ## License
 

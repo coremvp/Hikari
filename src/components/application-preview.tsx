@@ -134,7 +134,7 @@ export function ApplicationPreview() {
             No active subscription
           </p>
           <Link href="/account" className="button mt-5 rounded-lg py-2">
-            Explore billing{' '}
+            Explore billing · sign in required{' '}
             <span className="ml-3" aria-hidden="true">
               →
             </span>
@@ -145,13 +145,64 @@ export function ApplicationPreview() {
         </section>
       </div>
       <div className="hikari-preview-caption">
-        <p>Included interfaces · example account</p>
+        <p>Included interfaces · static examples</p>
         <Link
           href="/dashboard"
           className="font-medium text-neutral-900 underline underline-offset-4"
         >
-          Try the working application <span aria-hidden="true">→</span>
+          Open Dashboard · sign in required <span aria-hidden="true">→</span>
         </Link>
+      </div>
+      <figure className="mt-8 overflow-hidden rounded-xl border border-neutral-200 bg-white">
+        <Image
+          src="/preview/dashboard.png"
+          alt="Local Hikari Dashboard with a signed-in example account, unavailable subscription status, and illustrative charts"
+          width={1425}
+          height={990}
+          sizes="(max-width: 1280px) 100vw, 1152px"
+          className="h-auto w-full"
+        />
+        <figcaption className="border-t border-neutral-200 px-5 py-4 text-sm leading-6 text-neutral-600 sm:px-7">
+          Local example account · Stripe is not configured, so subscription
+          status is unavailable in this screenshot.
+          The image is a preview; the interactive Dashboard requires sign-in.{' '}
+          <a
+            href="/preview/dashboard.png"
+            className="underline underline-offset-4"
+          >
+            View the full-size Dashboard preview
+          </a>
+          .
+        </figcaption>
+      </figure>
+      <div className="mt-6 grid gap-5 text-sm leading-6 text-neutral-600 sm:grid-cols-3">
+        <p>
+          <strong className="font-medium text-neutral-900">
+            Your account.
+          </strong>{' '}
+          Signup opens Dashboard. Signed-in account summaries use your real
+          account state.
+        </p>
+        <p>
+          <strong className="font-medium text-neutral-900">
+            Your subscription.
+          </strong>{' '}
+          Account holds Checkout and Portal controls once Stripe is configured.
+          Access comes from persisted subscription state.
+        </p>
+        <p>
+          <strong className="font-medium text-neutral-900">
+            Your product.
+          </strong>{' '}
+          Charts and Organization/Project selectors are illustrative. See{' '}
+          <Link
+            href="/docs/getting-started/project-structure"
+            className="underline underline-offset-4"
+          >
+            Project structure
+          </Link>{' '}
+          for the features and authorization you add.
+        </p>
       </div>
     </div>
   );
