@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { source } from '@/lib/source';
+import { DashboardPreview } from '@/components/dashboard-preview';
 
 export function DocumentationPreview() {
   const overview = source.getPage([]);
@@ -153,28 +154,7 @@ export function ApplicationPreview() {
           Open Dashboard · sign in required <span aria-hidden="true">→</span>
         </Link>
       </div>
-      <figure className="mt-8 overflow-hidden rounded-xl border border-neutral-200 bg-white">
-        <Image
-          src="/preview/dashboard.png"
-          alt="Local Hikari Dashboard with a signed-in example account, unavailable subscription status, and illustrative charts"
-          width={1425}
-          height={990}
-          sizes="(max-width: 1280px) 100vw, 1152px"
-          className="h-auto w-full"
-        />
-        <figcaption className="border-t border-neutral-200 px-5 py-4 text-sm leading-6 text-neutral-600 sm:px-7">
-          Local example account · Stripe is not configured, so subscription
-          status is unavailable in this screenshot.
-          The image is a preview; the interactive Dashboard requires sign-in.{' '}
-          <a
-            href="/preview/dashboard.png"
-            className="underline underline-offset-4"
-          >
-            View the full-size Dashboard preview
-          </a>
-          .
-        </figcaption>
-      </figure>
+      <DashboardPreview />
       <div className="mt-6 grid gap-5 text-sm leading-6 text-neutral-600 sm:grid-cols-3">
         <p>
           <strong className="font-medium text-neutral-900">
