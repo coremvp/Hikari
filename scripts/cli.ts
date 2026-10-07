@@ -7,6 +7,8 @@ const names = [
   'STRIPE_SECRET_KEY',
   'STRIPE_WEBHOOK_SECRET',
   'STRIPE_PRICE_ID',
+  'STRIPE_PRO_PRICE_ID',
+  'STRIPE_BUSINESS_PRICE_ID',
 ];
 const args = process.argv.slice(2);
 function run(command: string[]) {

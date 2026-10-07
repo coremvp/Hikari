@@ -34,5 +34,10 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 export const config = {
-  matcher: ['/dashboard/:path*', '/account/:path*', '/reset-password'],
+  matcher: [
+    '/dashboard/:path*',
+    '/account/:path*',
+    '/checkout',
+    '/reset-password',
+  ],
 };

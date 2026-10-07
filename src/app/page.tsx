@@ -6,12 +6,15 @@ import { Testimonials } from '@/components/testimonials';
 import { BlogCard } from '@/components/blog-card';
 import { SectionHeading } from '@/components/section-heading';
 import { DashboardPreview } from '@/components/dashboard-preview';
+import { PricingSection } from '@/components/pricing-section';
 import {
   ApplicationPreview,
   DocumentationPreview,
 } from '@/components/application-preview';
 import { getBlogPages } from '@/lib/blog-source';
 import { publicMetadata } from '@/lib/public-metadata';
+
+export const revalidate = 300;
 
 export const metadata = publicMetadata(
   'Hikari by CoreMVP',
@@ -65,7 +68,7 @@ const communityAvatars = [
 export default function Home() {
   const posts = getBlogPages().slice(0, 2);
   return (
-    <SiteShell>
+    <SiteShell home>
       <section className="hikari-canvas" aria-labelledby="hero-title">
         <div className="relative mx-auto flex max-w-4xl flex-col items-center px-6 pb-9 pt-12 text-center sm:pt-16">
           <p className="inline-flex items-center gap-2 text-xs font-medium tracking-wide text-neutral-600">
@@ -280,6 +283,7 @@ export default function Home() {
         </div>
       </section>
       <Testimonials />
+      <PricingSection />
       <section aria-labelledby="content-title" className="hikari-section">
         <div className="grid items-center gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
           <div>

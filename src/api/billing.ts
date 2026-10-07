@@ -1,6 +1,8 @@
 import { Hono } from 'hono';
 import { requireUser } from '@/services/auth';
 import { billing, type BillingService } from '@/services/billing';
+import { zValidator } from '@hono/zod-validator';
+import { checkoutInputSchema } from '@/lib/subscription-plans';
 export function createBillingRoutes(
   service: BillingService = billing,
   user: typeof requireUser = requireUser,
@@ -9,8 +11,13 @@ export function createBillingRoutes(
     .get('/billing/subscription', async (c) =>
       c.json(await service.view((await user()).id)),
     )
-    .post('/billing/checkout', async (c) =>
-      c.json(await service.checkout(await user())),
+    .post(
+      '/billing/checkout',
+      zValidator('json', checkoutInputSchema),
+      async (c) => {
+        const { plan, demo } = c.req.valid('json');
+        return c.json(await service.checkout(await user(), plan, demo));
+      },
     )
     .post('/billing/portal', async (c) =>
       c.json(await service.portal((await user()).id)),

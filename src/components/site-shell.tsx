@@ -2,7 +2,13 @@ import Link from 'next/link';
 import { Logo } from '@/components/logo';
 import { SiteFooter } from '@/components/site-footer';
 
-export function SiteShell({ children }: { children: React.ReactNode }) {
+export function SiteShell({
+  children,
+  home = false,
+}: {
+  children: React.ReactNode;
+  home?: boolean;
+}) {
   return (
     <>
       <header className="border-b border-slate-200 bg-white">
@@ -18,6 +24,11 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
             aria-label="Main navigation"
             className="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm"
           >
+            {home ? (
+              <a href="#pricing">Pricing</a>
+            ) : (
+              <Link href="/#pricing">Pricing</Link>
+            )}
             <Link href="/docs">Docs</Link>
             <Link href="/blog">Blog</Link>
             <a href="https://github.com/coremvp/hikari">GitHub</a>

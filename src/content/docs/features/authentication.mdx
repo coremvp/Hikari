@@ -5,6 +5,8 @@ description: Use Supabase sessions for signup, protected pages, and password rec
 
 Create an account at `/signup` to open Dashboard immediately. Your app already has email/password signup, signin, sign-out, and password recovery through [Supabase Auth](https://supabase.com/docs/guides/auth). Email confirmation is disabled locally; use the same setting in your hosted project.
 
+If you chose a plan in the homepage’s Pricing section, sign-in and signup return directly to that test Checkout. The selection also survives email confirmation when enabled. Only the three configured plan destinations are accepted; other return paths open Dashboard. See [Subscriptions](/docs/features/payments) for setup.
+
 ## Protect pages and APIs
 
 Add a signed-in page under `src/app/(protected)` to inherit the existing layout check:

@@ -56,20 +56,30 @@ let current: SubscriptionState = {
 process.env.STRIPE_SECRET_KEY = 'sk_test_fixture';
 process.env.STRIPE_WEBHOOK_SECRET = 'whsec_fixture';
 const verifier = new StripeProvider();
+let checkoutPrice: string | undefined;
 const provider: BillingProvider = {
   createCustomer: async () => customerId,
   currentSubscriptions: async () => [],
   currentSubscription: async () => current,
-  recurringPrice: async () => {},
+  recurringPrice: async () => ({
+    currency: 'usd',
+    amount: 6500,
+    interval: 'month',
+    intervalCount: 1,
+    livemode: false,
+  }),
   openCheckout: async () => null,
-  checkout: async () => 'https://checkout.stripe.com/fixture',
+  checkout: async (_customer, price) => {
+    checkoutPrice = price;
+    return 'https://checkout.stripe.com/fixture';
+  },
   portal: async () => 'https://billing.stripe.com/fixture',
   verify: (raw, signature) => verifier.verify(raw, signature),
 };
 const service = new BillingService(
   new BillingRepository(),
   provider,
-  () => approved,
+  () => ({ pro: approved }),
   () => 'http://localhost:3000',
 );
 const api = new Hono()
@@ -104,9 +114,16 @@ const deliver = async (eventId: string) => {
 try {
   assert.equal((await api.request('/api/subscription/access')).status, 403);
   assert.equal(
-    (await api.request('/api/billing/checkout', { method: 'POST' })).status,
+    (
+      await api.request('/api/billing/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: 'pro', demo: true }),
+      })
+    ).status,
     200,
   );
+  assert.equal(checkoutPrice, approved);
   assert.equal((await deliver('evt_dbnew')).status, 200);
   assert.equal((await deliver('evt_dbnew')).status, 200);
   const rows = await sql`select * from public.subscriptions where id=${id}`;

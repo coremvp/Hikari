@@ -1,6 +1,6 @@
 ---
 title: Environment variables
-description: Find Hikari’s seven settings and keep private values on the server.
+description: Find Hikari’s settings and keep private values on the server.
 ---
 
 Use ignored `.env.local` locally and your Vercel deployment environment when hosted. `./coremvp env list` reports whether each setting is present without displaying values. `.env.example` defines the names; never commit actual credentials.
@@ -12,14 +12,16 @@ Use ignored `.env.local` locally and your Vercel deployment environment when hos
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Selected Supabase project’s public client key                           |
 | `DATABASE_URL`                         | Server Postgres connection; use TLS and transaction pooling when hosted |
 | `STRIPE_SECRET_KEY`                    | Server key for the selected Stripe account                              |
-| `STRIPE_PRICE_ID`                      | The one approved recurring price                                        |
+| `STRIPE_PRICE_ID`                      | Starter recurring price                                                 |
+| `STRIPE_PRO_PRICE_ID`                  | Pro recurring price                                                     |
+| `STRIPE_BUSINESS_PRICE_ID`             | Business recurring price                                                |
 | `STRIPE_WEBHOOK_SECRET`                | Signing secret for this environment’s webhook endpoint                  |
 
 ## Local values
 
 Start local Supabase, then run `./coremvp env sync` to derive the Supabase and database settings. Existing Stripe values are preserved. The application origin is `http://localhost:3000`; the local E2E requires that exact origin. Keep custom `APP_URL` changes deliberate, because Auth callbacks and return destinations use it.
 
-Authentication can run before Stripe is configured. Checkout, Portal, and subscriber-access checks require the billing settings. [Connect subscriptions](/docs/features/payments) for the local listener and test price.
+Authentication can run before Stripe is configured. Checkout, Portal, and subscriber-access checks require the billing settings. [Connect subscriptions](/docs/features/payments) for the local listener and test prices. A missing plan remains unavailable on the public pricing section; it does not prevent local signup.
 
 ## Hosted values
 

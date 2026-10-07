@@ -1,6 +1,6 @@
 # Hikari by CoreMVP
 
-Build an individual-account application with email/password authentication, a protected Dashboard, one recurring Stripe subscription, and embedded Docs and Blog. Hikari connects Checkout, verified webhooks, persisted subscription state, and server access checks in one open-source Next.js application.
+Build an individual-account application with email/password authentication, a protected Dashboard, recurring Stripe subscriptions, and embedded Docs and Blog. Hikari connects Checkout, verified webhooks, persisted subscription state, and server access checks in one open-source Next.js application.
 
 Hikari suits builders who can run terminal commands and want a free foundation to customize. You receive source code and operate the application with your own providers. It is independently maintained and [MIT licensed](LICENSE), including commercial use and modification; preserve the copyright and permission notice when redistributing it. Dashboard charts and Organization/Project selectors are visual examples, ready for your own product features and authorization.
 
@@ -63,15 +63,17 @@ Compare the [CoreMVP Next.js product](https://coremvp.com/en/products/nextjs) an
 
 ## Connect a subscription
 
-Use a Stripe test account for development. Create one active, fixed-amount recurring price in the [Stripe Dashboard](https://dashboard.stripe.com/test/products). In that account's Customer Portal settings, enable payment-method updates, invoice history, and cancellation at the end of the billing period. Leave plan and quantity changes disabled for the included one-price setup. The [Subscriptions guide](src/content/docs/features/payments.mdx) shows the controls and complete setup.
+Use a Stripe test account for development. Create active, fixed-amount recurring prices for Starter, Pro, and Business in the [Stripe Dashboard](https://dashboard.stripe.com/test/products). In that account's Customer Portal settings, enable payment-method updates, invoice history, and cancellation at the end of the billing period. Leave plan and quantity changes disabled until you deliberately configure upgrades in Customer Portal. The [Subscriptions guide](src/content/docs/features/payments.mdx) shows the controls and complete setup.
 
 Set these server-only values in ignored `.env.local`:
 
-| Variable                | Value source                                              |
-| ----------------------- | --------------------------------------------------------- |
-| `STRIPE_SECRET_KEY`     | Test secret key from the selected Stripe account          |
-| `STRIPE_PRICE_ID`       | The one approved recurring price, beginning with `price_` |
-| `STRIPE_WEBHOOK_SECRET` | Signing secret from the local listener below              |
+| Variable                   | Value source                                        |
+| -------------------------- | --------------------------------------------------- |
+| `STRIPE_SECRET_KEY`        | Test secret key from the selected Stripe account    |
+| `STRIPE_PRICE_ID`          | Starter recurring price, beginning with `price_`    |
+| `STRIPE_PRO_PRICE_ID`      | Pro recurring test price from the same account      |
+| `STRIPE_BUSINESS_PRICE_ID` | Business recurring test price from the same account |
+| `STRIPE_WEBHOOK_SECRET`    | Signing secret from the local listener below        |
 
 Install the [Stripe CLI](https://docs.stripe.com/cli/install) and check `stripe --version` before continuing. Then forward subscription events to the application:
 
@@ -80,11 +82,11 @@ stripe login
 stripe listen --events customer.subscription.created,customer.subscription.updated,customer.subscription.deleted,customer.subscription.paused,customer.subscription.resumed --forward-to localhost:3000/api/webhooks/stripe
 ```
 
-Copy the listener's signing secret into `.env.local` and restart `bun run dev`. Keep the listener running while testing Checkout. Sign in, open Account, and select **Start subscription**. Complete payment using Stripe's `4242 4242 4242 4242` test card, a future expiry, and any three-digit CVC. Refresh the subscription display after returning from Stripe.
+Copy the listener's signing secret into `.env.local` and restart `bun run dev`. Keep the listener running while testing Checkout. Open **Pricing** on the homepage and choose a plan. Sign in or create an account when prompted; the selected test Checkout opens automatically. Account’s **Start subscription** action continues to use Starter. Complete payment using Stripe's `4242 4242 4242 4242` test card, a future expiry, and any three-digit CVC. Refresh the subscription display after returning from Stripe.
 
-Subscription access requires persisted `active` or `trialing` state on your configured price. Scheduled cancellation keeps access until Stripe changes that status. Other statuses and other prices deny access. Returning from Checkout does not grant access.
+Subscription access requires persisted `active` or `trialing` state on one of your configured prices. Scheduled cancellation keeps access until Stripe changes that status. Other statuses and other prices deny access. Returning from Checkout does not grant access.
 
-Existing subscriptions that still need management open Customer Portal instead of another Checkout. If only `canceled` or `incomplete_expired` subscriptions remain, you can start a new Checkout. Open sessions are reused during repeated Checkout requests. Portal price changes must remain on the approved price if you want them to keep application access.
+Existing subscriptions that still need management open Customer Portal instead of another Checkout. If only `canceled` or `incomplete_expired` subscriptions remain, you can start a new Checkout. Open sessions are reused during repeated Checkout requests. Portal price changes must remain on an approved configured price if you want them to keep application access.
 
 The webhook accepts the five subscription lifecycle events listed above. It verifies the original request body, retrieves the current subscription from Stripe, and upserts its state. Updates for each subscription are serialized with a Postgres transaction lock. Failed retrieval or persistence returns an error so Stripe can retry; inspect failed deliveries in Stripe Workbench. Events for customers outside this application's customer mapping are acknowledged without creating access.
 
@@ -105,7 +107,7 @@ The Auth journey uses the running local application, Supabase Auth, and recovery
 
 Unit tests cover subscription access and controlled provider-state convergence. Database integration uses the real local database and application service/repository/API with signed Stripe fixtures. It also checks that anonymous and authenticated Supabase clients cannot read or write billing tables. No Stripe API is called by those tests.
 
-The subscription E2E needs a configured Stripe test account, the running listener, the application, and local Supabase. It creates a real test subscription through Checkout, waits for webhook-backed access, opens Customer Portal, and cancels its test subscription during cleanup. Missing settings fail the journey instead of silently skipping it. Do not use a live Stripe key.
+The subscription E2E needs a configured Stripe test account, the running listener, the application, and local Supabase. It selects Pro on the public pricing section, signs up, automatically opens the selected Checkout, and creates a real test subscription. It then waits for webhook-backed access, opens Customer Portal, and cancels its test subscription during cleanup. Missing settings fail the journey instead of silently skipping it. Do not use a live Stripe key.
 
 ## Deploy on Vercel and Supabase
 
@@ -124,6 +126,9 @@ Use a fresh Supabase project and one Vercel Next.js project. Hosted authenticati
    ```text
    https://<your-app>/auth/callback
    https://<your-app>/auth/callback?next=/reset-password
+   https://<your-app>/auth/callback?next=%2Fcheckout%3Fplan%3Dstarter
+   https://<your-app>/auth/callback?next=%2Fcheckout%3Fplan%3Dpro
+   https://<your-app>/auth/callback?next=%2Fcheckout%3Fplan%3Dbusiness
    https://<your-app>/auth/confirm
    ```
 
@@ -152,7 +157,9 @@ Use a fresh Supabase project and one Vercel Next.js project. Hosted authenticati
    | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | This project's publishable key                    |
    | `DATABASE_URL`                         | Supabase transaction-pooler URL, with TLS enabled |
    | `STRIPE_SECRET_KEY`                    | Secret key for the selected Stripe test account   |
-   | `STRIPE_PRICE_ID`                      | Your one approved recurring test price            |
+   | `STRIPE_PRICE_ID`                      | Starter recurring test price                      |
+   | `STRIPE_PRO_PRICE_ID`                  | Pro recurring test price                          |
+   | `STRIPE_BUSINESS_PRICE_ID`             | Business recurring test price                     |
    | `STRIPE_WEBHOOK_SECRET`                | Signing secret for the hosted endpoint            |
 
    Only the two `NEXT_PUBLIC_SUPABASE_*` values are public. Never put database credentials or Stripe secrets in a public variable. Follow [Supabase's connection guide](https://supabase.com/docs/guides/database/connecting-to-postgres) for the pooler and TLS settings. Drizzle uses `prepare: false` for transaction pooling.

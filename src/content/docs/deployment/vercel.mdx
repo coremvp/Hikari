@@ -34,10 +34,13 @@ In Supabase Authentication → URL Configuration, set **Site URL** to your final
 ```text
 https://your-app.example/auth/callback
 https://your-app.example/auth/callback?next=/reset-password
+https://your-app.example/auth/callback?next=%2Fcheckout%3Fplan%3Dstarter
+https://your-app.example/auth/callback?next=%2Fcheckout%3Fplan%3Dpro
+https://your-app.example/auth/callback?next=%2Fcheckout%3Fplan%3Dbusiness
 https://your-app.example/auth/confirm
 ```
 
-Turn **Confirm email** off in the Email provider settings. Signup then opens Dashboard immediately, matching local behavior. Configure [Supabase custom SMTP](https://supabase.com/docs/guides/auth/auth-smtp) and verify password recovery delivery to your intended users before release. The default hosted service restricts delivery to project-team addresses. Read [Authentication](/docs/features/authentication) for the recovery-template paths.
+Turn **Confirm email** off in the Email provider settings. Signup opens Dashboard immediately unless the visitor selected a plan, in which case it returns to that Checkout. If you later enable email confirmation, preserve these callback URLs to keep the plan selection. Configure [Supabase custom SMTP](https://supabase.com/docs/guides/auth/auth-smtp) and verify password recovery delivery to your intended users before release. The default hosted service restricts delivery to project-team addresses. Read [Authentication](/docs/features/authentication) for the recovery-template paths.
 
 </Step>
 <Step>
@@ -64,6 +67,8 @@ bunx vercel env add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY production
 bunx vercel env add DATABASE_URL production --sensitive
 bunx vercel env add STRIPE_SECRET_KEY production --sensitive
 bunx vercel env add STRIPE_PRICE_ID production
+bunx vercel env add STRIPE_PRO_PRICE_ID production
+bunx vercel env add STRIPE_BUSINESS_PRICE_ID production
 bunx vercel env add STRIPE_WEBHOOK_SECRET production --sensitive
 bunx vercel env ls production
 ```
@@ -76,7 +81,7 @@ Verify that all seven names target Production in the linked project before deplo
 
 Follow [Create a hosted destination](/docs/features/payments#create-a-hosted-destination) in your selected Stripe test account. That section contains the exact five-event list and API-version check. Register `https://your-app.example/api/webhooks/stripe`, save that destination's signing secret as the Production `STRIPE_WEBHOOK_SECRET`, then redeploy to load it. The local listener's secret does not verify hosted deliveries.
 
-Complete [Customer Portal configuration](/docs/features/payments#configure-customer-portal) in the same account. Use the same approved recurring price as `STRIPE_PRICE_ID` throughout setup.
+Complete [Customer Portal configuration](/docs/features/payments#configure-customer-portal) in the same account. Use the same configured Starter, Pro, and Business test prices throughout setup. The public pricing cards read Stripe’s amounts and intervals; a live-mode or unavailable price cannot open test checkout.
 
 </Step>
 <Step>

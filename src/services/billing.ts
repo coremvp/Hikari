@@ -9,6 +9,7 @@ import {
 } from '@/lib/billing-contract';
 import { appUrl } from '@/lib/config';
 import { AppError } from '@/lib/errors';
+import { subscriptionPlans, type PlanId } from '@/lib/subscription-plans';
 const lifecycleEvents = new Set([
   'customer.subscription.created',
   'customer.subscription.updated',
@@ -20,7 +21,7 @@ export class BillingService {
   constructor(
     private store: BillingStore,
     private provider: BillingProvider,
-    private priceId: () => string,
+    private prices: () => Partial<Record<PlanId, string>>,
     private origin: () => string,
   ) {}
   async view(userId: string): Promise<BillingView> {
@@ -29,7 +30,7 @@ export class BillingService {
       ? await this.store.subscriptions(customer.stripeCustomerId)
       : [];
     return {
-      access: hasSubscriptionAccess(states, this.priceId()),
+      access: hasSubscriptionAccess(states, Object.values(this.prices())),
       canManage: !!customer,
       subscriptions: states.map((s) => ({
         status: s.status,
@@ -42,9 +43,42 @@ export class BillingService {
     if (!(await this.view(userId)).access)
       throw new AppError(403, 'An active subscription is required.');
   }
-  async checkout(user: { id: string; email: string }) {
+  async plans() {
+    const configured = this.prices();
+    return Promise.all(
+      subscriptionPlans.map(async (plan) => {
+        const priceId = configured[plan.id];
+        if (!priceId) return { ...plan, price: null };
+        try {
+          const price = await this.provider.recurringPrice(priceId);
+          return { ...plan, price: price.livemode ? null : price };
+        } catch {
+          return { ...plan, price: null };
+        }
+      }),
+    );
+  }
+  async checkout(
+    user: { id: string; email: string },
+    plan: PlanId = 'starter',
+    demo = false,
+  ) {
     return this.store.withLock('hikari:checkout:' + user.id, async (store) => {
-      const approvedPrice = this.priceId();
+      const approvedPrice = this.prices()[plan];
+      if (!approvedPrice)
+        throw new AppError(
+          503,
+          'This subscription plan is not configured yet.',
+        );
+      // Read fresh provider truth before any mutation, even if the pricing card is cached.
+      if (demo) {
+        const price = await this.provider.recurringPrice(approvedPrice);
+        if (price.livemode)
+          throw new AppError(
+            409,
+            'Test checkout is unavailable. No subscription was created.',
+          );
+      }
       let customer = await store.customerForUser(user.id);
       if (!customer) {
         const stripeCustomerId = await this.provider.createCustomer(
@@ -68,7 +102,7 @@ export class BillingService {
           ),
           destination: 'portal' as const,
         };
-      await this.provider.recurringPrice(approvedPrice);
+      if (!demo) await this.provider.recurringPrice(approvedPrice);
       const url =
         (await this.provider.openCheckout(
           customer.stripeCustomerId,
@@ -129,9 +163,14 @@ export const billing = new BillingService(
   new BillingRepository(),
   new StripeProvider(),
   () =>
-    z
-      .string()
-      .regex(/^price_[A-Za-z0-9]+$/)
-      .parse(process.env.STRIPE_PRICE_ID),
+    Object.fromEntries(
+      subscriptionPlans.flatMap((plan) => {
+        const result = z
+          .string()
+          .regex(/^price_[A-Za-z0-9]+$/)
+          .safeParse(process.env[plan.env]);
+        return result.success ? [[plan.id, result.data]] : [];
+      }),
+    ),
   appUrl,
 );

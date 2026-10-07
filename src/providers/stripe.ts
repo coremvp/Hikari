@@ -2,6 +2,7 @@ import 'server-only';
 import Stripe from 'stripe';
 import { z } from 'zod';
 import { AppError } from '@/lib/errors';
+import type { RecurringPrice } from '@/lib/subscription-plans';
 import {
   subscriptionStatus,
   type SubscriptionState,
@@ -10,7 +11,7 @@ export interface BillingProvider {
   createCustomer(userId: string, email: string): Promise<string>;
   currentSubscriptions(customerId: string): Promise<SubscriptionState[]>;
   currentSubscription(id: string): Promise<SubscriptionState>;
-  recurringPrice(id: string): Promise<void>;
+  recurringPrice(id: string): Promise<RecurringPrice>;
   openCheckout(customerId: string, priceId: string): Promise<string | null>;
   checkout(
     customerId: string,
@@ -83,18 +84,36 @@ export class StripeProvider implements BillingProvider {
     return mapSubscription(await this.client.subscriptions.retrieve(id));
   }
   async recurringPrice(id: string) {
-    const price = await this.client.prices.retrieve(id);
+    const price = await this.client.prices.retrieve(id, {
+      expand: ['product'],
+    });
+    const product = price.product;
     if (
       !price.active ||
       price.type !== 'recurring' ||
       !price.recurring ||
       price.billing_scheme !== 'per_unit' ||
-      price.unit_amount === null
+      price.unit_amount === null ||
+      price.recurring.usage_type !== 'licensed' ||
+      price.transform_quantity !== null ||
+      typeof product === 'string' ||
+      product.deleted ||
+      !product.active ||
+      product.livemode !== price.livemode
     )
       throw new AppError(
         503,
         'The subscription plan is not configured correctly.',
       );
+    return {
+      currency: price.currency,
+      amount: price.unit_amount,
+      interval: z
+        .enum(['day', 'week', 'month', 'year'])
+        .parse(price.recurring.interval),
+      intervalCount: price.recurring.interval_count,
+      livemode: price.livemode,
+    };
   }
   async openCheckout(customerId: string, priceId: string) {
     const result = await this.client.checkout.sessions.list({

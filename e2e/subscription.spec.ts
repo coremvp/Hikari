@@ -1,13 +1,15 @@
 import { test, expect } from '@playwright/test';
 import Stripe from 'stripe';
 import postgres from 'postgres';
-test('real test subscription reaches signed webhook, durable access and Customer Portal', async ({
+test('public plan selection survives signup and reaches Stripe test Checkout, durable access and Customer Portal', async ({
   page,
 }) => {
   for (const name of [
     'STRIPE_SECRET_KEY',
     'STRIPE_WEBHOOK_SECRET',
     'STRIPE_PRICE_ID',
+    'STRIPE_PRO_PRICE_ID',
+    'STRIPE_BUSINESS_PRICE_ID',
     'DATABASE_URL',
   ])
     if (!process.env[name])
@@ -35,26 +37,39 @@ test('real test subscription reaches signed webhook, durable access and Customer
   const password = 'Hikari-billing-' + crypto.randomUUID();
   let customerId: string | undefined;
   try {
-    await page.goto('/signup');
+    await page.goto('/#pricing');
+    await page
+      .getByRole('link', { name: 'Try Pro test checkout', exact: true })
+      .click();
+    await expect(page).toHaveURL(/\/signin\?next=/);
+    expect(new URL(page.url()).searchParams.get('next')).toBe(
+      '/checkout?plan=pro',
+    );
+    await page.getByRole('link', { name: 'Sign up', exact: true }).click();
+    expect(new URL(page.url()).searchParams.get('next')).toBe(
+      '/checkout?plan=pro',
+    );
     await page.getByLabel('Email', { exact: true }).fill(email);
     await page.getByLabel('Password', { exact: true }).fill(password);
+    const checkoutResponse = page.waitForResponse(
+      (response) =>
+        response.url().endsWith('/api/billing/checkout') &&
+        response.request().method() === 'POST',
+    );
     await page
       .getByRole('button', { name: 'Create account', exact: true })
       .click();
-    await expect(page).toHaveURL(/\/dashboard/);
-    const account = (await (await page.request.get('/api/account')).json()) as {
-      id: string;
-    };
-    const checkout = await page.request.post('/api/billing/checkout', {
-      headers: { Origin: process.env.APP_URL || 'http://localhost:3000' },
-      data: {},
-    });
+    const checkout = await checkoutResponse;
     expect(checkout.status()).toBe(200);
     const response = (await checkout.json()) as {
       url: string;
       destination: string;
     };
     expect(response.destination).toBe('checkout');
+    await expect(page).toHaveURL(/https:\/\/checkout\.stripe\.com\//);
+    const account = (await (await page.request.get('/api/account')).json()) as {
+      id: string;
+    };
     const customers =
       await sql`select stripe_customer_id from public.customers where user_id=${account.id}`;
     customerId = customers[0].stripe_customer_id;
@@ -66,8 +81,7 @@ test('real test subscription reaches signed webhook, durable access and Customer
     const session = sessions.data.find((s) => s.url === response.url);
     expect(session).toBeDefined();
     const items = await stripe.checkout.sessions.listLineItems(session!.id);
-    expect(items.data[0].price?.id).toBe(process.env.STRIPE_PRICE_ID);
-    await page.goto(response.url);
+    expect(items.data[0].price?.id).toBe(process.env.STRIPE_PRO_PRICE_ID);
     await page.locator('input[name="cardNumber"]').fill('4242424242424242');
     await page.locator('input[name="cardExpiry"]').fill('1235');
     await page.locator('input[name="cardCvc"]').fill('123');
@@ -92,7 +106,7 @@ test('real test subscription reaches signed webhook, durable access and Customer
       rows.some(
         (s) =>
           ['active', 'trialing'].includes(s.status) &&
-          s.price_id === process.env.STRIPE_PRICE_ID,
+          s.price_id === process.env.STRIPE_PRO_PRICE_ID,
       ),
     ).toBe(true);
     await page.reload();

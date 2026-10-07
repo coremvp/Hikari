@@ -2,6 +2,7 @@ import 'server-only';
 import { authClient } from '@/providers/supabase';
 import { appUrl } from '@/lib/config';
 import { AppError } from '@/lib/errors';
+import { checkoutNext } from '@/lib/subscription-plans';
 export async function currentUser() {
   const client = await authClient();
   const { data, error } = await client.auth.getUser();
@@ -19,13 +20,19 @@ export async function requireUser() {
     throw new AppError(401, 'Sign in to continue.');
   return { id: user.id, email: user.email ?? '' };
 }
-export async function signUp(email: string, password: string) {
+export async function signUp(email: string, password: string, next?: string) {
+  const continuation = checkoutNext(next);
   const { data, error } = await (
     await authClient()
   ).auth.signUp({
     email,
     password,
-    options: { emailRedirectTo: appUrl() + '/auth/callback' },
+    options: {
+      emailRedirectTo:
+        appUrl() +
+        '/auth/callback' +
+        (continuation ? '?next=' + encodeURIComponent(continuation) : ''),
+    },
   });
   if (error)
     throw new AppError(
