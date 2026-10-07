@@ -46,7 +46,7 @@ export default async function Page({ params }: Props) {
           </DocsBody>
           <div className="mt-12 border-t border-neutral-200 pt-6 text-sm leading-7 text-neutral-600">
             <p>
-              Building beyond individual accounts? Paid CoreMVP is a premium
+              Building beyond individual accounts? CoreMVP is a premium
               startup application foundation with shared Organizations,
               invitations and roles, persisted Projects, and lifetime payments
               with guest checkout. Explore the{' '}
@@ -61,7 +61,7 @@ export default async function Page({ params }: Props) {
                 href="https://nextjs.coremvp.com"
                 className="font-medium text-neutral-900 underline underline-offset-4"
               >
-                paid demo
+                CoreMVP demo
               </a>
               , or{' '}
               <Link

@@ -254,7 +254,7 @@ export default function Home() {
           </h3>
           <p className="mt-3 max-w-3xl leading-7 text-neutral-600">
             Hikari is free MIT source for individual accounts, recurring
-            subscriptions, Docs and Blog. Paid CoreMVP is a premium startup
+            subscriptions, Docs and Blog. CoreMVP is a premium startup
             application foundation delivered as source code, adding shared
             Organizations with invitations and roles, persisted Projects, and
             lifetime payments with guest checkout. Choose it when those paths
@@ -266,13 +266,13 @@ export default function Home() {
               href="https://coremvp.com/en/products/nextjs"
               className="underline underline-offset-4"
             >
-              Explore paid CoreMVP <span aria-hidden="true">→</span>
+              Explore CoreMVP <span aria-hidden="true">→</span>
             </a>
             <a
               href="https://nextjs.coremvp.com"
               className="underline underline-offset-4"
             >
-              Preview the paid demo <span aria-hidden="true">→</span>
+              Preview the CoreMVP demo <span aria-hidden="true">→</span>
             </a>
           </div>
         </div>

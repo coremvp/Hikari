@@ -41,7 +41,7 @@ Open [Customer Portal settings](https://dashboard.stripe.com/test/settings/billi
 
 - **Payment methods:** enable updates so users can replace their card.
 - **Invoices:** enable invoice history for receipts and downloads.
-- **Cancellations:** enable cancellation and choose **Cancel at end of billing period** to preserve the remaining paid period.
+- **Cancellations:** enable cancellation and choose **Cancel at end of billing period** to preserve the remaining subscription period.
 - **Plan changes and quantities:** leave these disabled for the included one-price setup.
 
 Save the test-mode configuration and preview it. The app creates each Portal session for the signed-in user's stored Stripe Customer and supplies the return URL. Stripe's [Portal settings guide](https://docs.stripe.com/customer-management/configure-portal) explains additional policies.
@@ -197,7 +197,7 @@ Use the included access endpoint as the pattern for your own subscriber-only ope
 })
 ```
 
-The route checks the signed-in user before `BillingService.requireAccess()` reads the persisted subscription. An anonymous request returns HTTP 401; a signed-in account without eligible access receives HTTP 403. Put this check before returning subscriber-only data or performing a paid operation. A Checkout return URL cannot grant access.
+The route checks the signed-in user before `BillingService.requireAccess()` reads the persisted subscription. An anonymous request returns HTTP 401; a signed-in account without eligible access receives HTTP 403. Put this check before returning subscriber-only data or performing a subscriber-only operation. A Checkout return URL cannot grant access.
 
 ## Keep subscription state current
 

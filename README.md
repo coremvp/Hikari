@@ -57,9 +57,9 @@ Free MIT source does not include hosting, database usage, domains, email deliver
 
 ### When to consider CoreMVP
 
-Hikari includes individual accounts, recurring subscriptions, Docs and Blog. Paid CoreMVP is a premium startup application foundation delivered as source code. Consider it when you need shared Organizations with invitations and roles, persisted Projects, or lifetime/one-time payments with guest checkout. Those paths connect collaboration and payment to account ownership so you can build on them.
+Hikari includes individual accounts, recurring subscriptions, Docs and Blog. CoreMVP is a premium startup application foundation delivered as source code. Consider it when you need shared Organizations with invitations and roles, persisted Projects, or lifetime/one-time payments with guest checkout. Those paths connect collaboration and payment to account ownership so you can build on them.
 
-Compare the [CoreMVP Next.js product](https://coremvp.com/en/products/nextjs) and [paid demo](https://nextjs.coremvp.com). The Product page owns current commercial terms; neither product includes hosting. For a broader map of the work your application still needs, read [A Good Startup Foundation](https://coremvp.com/en/help/good-startup-foundation).
+Compare the [CoreMVP Next.js product](https://coremvp.com/en/products/nextjs) and [CoreMVP demo](https://nextjs.coremvp.com). The Product page owns current commercial terms; neither product includes hosting. For a broader map of the work your application still needs, read [A Good Startup Foundation](https://coremvp.com/en/help/good-startup-foundation).
 
 ## Connect a subscription
 

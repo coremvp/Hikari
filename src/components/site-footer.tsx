@@ -80,7 +80,7 @@ export function SiteFooter() {
                     className="hover:text-neutral-950"
                     href="https://coremvp.com/en/products/nextjs"
                   >
-                    Paid CoreMVP product
+                    CoreMVP Next.js product
                   </a>
                 </li>
                 <li>
@@ -88,7 +88,7 @@ export function SiteFooter() {
                     className="hover:text-neutral-950"
                     href="https://nextjs.coremvp.com"
                   >
-                    Paid demo
+                    CoreMVP demo
                   </a>
                 </li>
               </ul>
