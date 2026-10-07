@@ -1,4 +1,5 @@
 import { Box } from 'lucide-react';
+import Link from 'next/link';
 import { DashboardOverview } from '@/components/dashboard-overview';
 import { DashboardShell } from '@/components/dashboard-shell';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,18 +10,18 @@ export function DashboardPreview() {
       id="dashboard-preview"
       aria-labelledby="dashboard-preview-title"
       aria-describedby="dashboard-preview-description"
-      className="mt-8"
+      className="hikari-section"
     >
-      <div className="mb-4 flex flex-col gap-2">
+      <div className="mb-6 flex flex-col gap-4">
         <h2
           id="dashboard-preview-title"
-          className="text-xl font-semibold tracking-tight"
+          className="text-3xl font-medium leading-tight tracking-tight sm:text-4xl"
         >
           Try the Dashboard
         </h2>
         <p
           id="dashboard-preview-description"
-          className="text-sm leading-6 text-neutral-600"
+          className="max-w-3xl text-base leading-7 text-neutral-600"
         >
           Explore chart values and switch example workspaces and projects. No
           account needed. This preview uses sample data; nothing is saved.
@@ -54,6 +55,35 @@ export function DashboardPreview() {
             }
           />
         </DashboardShell>
+      </div>
+      <div className="mt-6 grid gap-5 text-sm leading-6 text-neutral-600 sm:grid-cols-3">
+        <p>
+          <strong className="font-medium text-neutral-900">
+            Your account.
+          </strong>{' '}
+          Signup opens Dashboard. Signed-in account summaries use your real
+          account state.
+        </p>
+        <p>
+          <strong className="font-medium text-neutral-900">
+            Your subscription.
+          </strong>{' '}
+          Account holds Checkout and Portal controls once Stripe is configured.
+          Access comes from persisted subscription state.
+        </p>
+        <p>
+          <strong className="font-medium text-neutral-900">
+            Your product.
+          </strong>{' '}
+          Charts and Organization/Project selectors are illustrative. See{' '}
+          <Link
+            href="/docs/getting-started/project-structure"
+            className="underline underline-offset-4"
+          >
+            Project structure
+          </Link>{' '}
+          for the features and authorization you add.
+        </p>
       </div>
     </section>
   );

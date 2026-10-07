@@ -1,7 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { source } from '@/lib/source';
-import { DashboardPreview } from '@/components/dashboard-preview';
 
 export function DocumentationPreview() {
   const overview = source.getPage([]);
@@ -153,36 +152,6 @@ export function ApplicationPreview() {
         >
           Open Dashboard · sign in required <span aria-hidden="true">→</span>
         </Link>
-      </div>
-      <DashboardPreview />
-      <div className="mt-6 grid gap-5 text-sm leading-6 text-neutral-600 sm:grid-cols-3">
-        <p>
-          <strong className="font-medium text-neutral-900">
-            Your account.
-          </strong>{' '}
-          Signup opens Dashboard. Signed-in account summaries use your real
-          account state.
-        </p>
-        <p>
-          <strong className="font-medium text-neutral-900">
-            Your subscription.
-          </strong>{' '}
-          Account holds Checkout and Portal controls once Stripe is configured.
-          Access comes from persisted subscription state.
-        </p>
-        <p>
-          <strong className="font-medium text-neutral-900">
-            Your product.
-          </strong>{' '}
-          Charts and Organization/Project selectors are illustrative. See{' '}
-          <Link
-            href="/docs/getting-started/project-structure"
-            className="underline underline-offset-4"
-          >
-            Project structure
-          </Link>{' '}
-          for the features and authorization you add.
-        </p>
       </div>
     </div>
   );

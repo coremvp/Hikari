@@ -5,6 +5,7 @@ import { SiteShell } from '@/components/site-shell';
 import { Testimonials } from '@/components/testimonials';
 import { BlogCard } from '@/components/blog-card';
 import { SectionHeading } from '@/components/section-heading';
+import { DashboardPreview } from '@/components/dashboard-preview';
 import {
   ApplicationPreview,
   DocumentationPreview,
@@ -153,6 +154,7 @@ export default function Home() {
           ))}
         </ul>
       </section>
+      <DashboardPreview />
       <section aria-labelledby="foundation-title" className="hikari-section">
         <div className="grid items-end gap-6 lg:grid-cols-[1.5fr_1fr] lg:gap-16">
           <SectionHeading
