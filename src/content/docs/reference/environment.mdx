@@ -24,7 +24,7 @@ Follow [Run locally](/docs/getting-started) to start Supabase and apply the loca
 
 Product and monthly/yearly Price IDs live in `src/config/pricing.config.ts`, outside the environment. Replace the example IDs with your own account’s catalog when following [Subscriptions](/docs/features/payments#create-your-recurring-prices). Deploy that source configuration with the matching Stripe account credentials.
 
-Authentication can run before Stripe is configured. Checkout, Portal, and subscriber-access checks require the billing settings. [Connect subscriptions](/docs/features/payments) for the local listener and test prices. A missing plan remains unavailable on the public pricing section; it does not prevent local signup.
+Authentication can run before Stripe is configured. Checkout, Portal, and subscriber-access checks require the billing settings. [Connect subscriptions](/docs/features/payments) for the local listener and test prices. The public cards show your source configuration; unavailable provider prices prevent test Checkout, without preventing local signup.
 
 ## Hosted values
 

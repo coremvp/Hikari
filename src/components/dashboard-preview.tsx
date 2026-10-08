@@ -23,7 +23,7 @@ export function DashboardPreview() {
           id="dashboard-preview-description"
           className="mx-auto max-w-3xl text-base leading-7 text-neutral-600"
         >
-          Explore the charts and workspaces. Sample data, nothing saved.
+          Sample data. Nothing saved.
         </p>
       </div>
       <div className="relative isolate h-[40rem] overflow-hidden rounded-xl border border-neutral-200 text-left">
@@ -60,19 +60,22 @@ export function DashboardPreview() {
           <strong className="font-medium text-neutral-900">
             Your account.
           </strong>{' '}
-          Sign up for a Dashboard with your real account details.
+          <Link href="/dashboard" className="underline underline-offset-4">
+            Open your Dashboard
+          </Link>{' '}
+          · sign in required.
         </p>
         <p>
           <strong className="font-medium text-neutral-900">
             Your subscription.
           </strong>{' '}
-          Connect Stripe for Checkout, Portal and subscription access.
+          Checkout, Portal and subscription access.
         </p>
         <p>
           <strong className="font-medium text-neutral-900">
             Your product.
           </strong>{' '}
-          Sample charts and selectors. Add real features and permissions with{' '}
+          Sample charts and selectors. Build real features with{' '}
           <Link
             href="/docs/getting-started/project-structure"
             className="underline underline-offset-4"

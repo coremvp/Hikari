@@ -44,7 +44,11 @@ export function DashboardOverview({
             asChild
             variant="outline"
             size="sm"
-            className="self-start sm:self-auto"
+            className={
+              preview
+                ? 'h-auto max-w-full self-start whitespace-normal sm:self-auto'
+                : 'self-start sm:self-auto'
+            }
           >
             <Link href="/account">
               {preview ? 'Manage account · sign in required' : 'Manage account'}

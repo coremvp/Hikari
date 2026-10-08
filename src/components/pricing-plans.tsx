@@ -88,7 +88,7 @@ export function PricingPlans({
                     {plan.name}
                   </h3>
                   {featured && (
-                    <span className="rounded-full border border-orange-600 bg-linear-to-b from-orange-700 to-orange-800 px-3 py-1 text-sm font-medium leading-5 text-white shadow-sm">
+                    <span className="rounded-full border border-orange-600 bg-orange-700 px-3 py-1 text-sm font-medium leading-5 text-white shadow-sm">
                       Popular
                     </span>
                   )}
