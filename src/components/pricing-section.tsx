@@ -10,28 +10,33 @@ export async function PricingSection() {
       aria-labelledby="pricing-title"
       className="hikari-section scroll-mt-8"
     >
-      <h2
-        id="pricing-title"
-        className="text-3xl font-medium leading-tight tracking-tight sm:text-4xl"
-      >
-        Try subscription billing.
-      </h2>
-      <p className="mt-4 max-w-2xl text-base leading-7 text-neutral-600">
-        Choose an example plan and explore Checkout, subscription access and
-        Customer Portal. Sign in first; we’ll keep your selection.
-      </p>
-      <PricingPlans plans={plans} />
-      <p className="mt-6 max-w-3xl text-sm leading-6 text-neutral-600">
-        These are example subscriptions for testing your application’s billing
-        flow. Hikari’s source is free under MIT.{' '}
+      <PricingPlans plans={plans}>
+        <p className="mb-3 text-xs font-medium tracking-[0.15em] text-orange-700 uppercase">
+          Subscriptions
+        </p>
+        <h2
+          id="pricing-title"
+          className="text-3xl font-medium leading-tight tracking-tight sm:text-4xl"
+        >
+          Try subscription billing.
+        </h2>
+        <p className="mt-4 text-base leading-7 text-neutral-600">
+          Choose an example plan and explore Checkout, subscription access and
+          Customer Portal. Sign in first; we’ll keep your selection.
+        </p>
+      </PricingPlans>
+      <div className="mt-6 flex flex-col gap-3 text-sm leading-6 text-neutral-600 lg:flex-row lg:items-start lg:justify-between lg:gap-8">
+        <p className="max-w-3xl">
+          These are example subscriptions for testing your application’s billing
+          flow. Hikari’s source is free under MIT.
+        </p>
         <Link
           href="/docs/features/payments"
-          className="underline underline-offset-4"
+          className="w-fit shrink-0 underline underline-offset-4"
         >
           Make billing your own
         </Link>
-        .
-      </p>
+      </div>
     </section>
   );
 }
