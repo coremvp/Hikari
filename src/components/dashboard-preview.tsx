@@ -2,6 +2,7 @@ import { Box } from 'lucide-react';
 import Link from 'next/link';
 import { DashboardOverview } from '@/components/dashboard-overview';
 import { DashboardShell } from '@/components/dashboard-shell';
+import { SectionHeading } from '@/components/section-heading';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export function DashboardPreview() {
@@ -12,19 +13,18 @@ export function DashboardPreview() {
       aria-describedby="dashboard-preview-description"
       className="hikari-section"
     >
-      <div className="mb-6 flex flex-col gap-4">
-        <h2
+      <div className="mx-auto mb-10 flex max-w-5xl flex-col gap-4 text-center">
+        <SectionHeading
           id="dashboard-preview-title"
-          className="text-3xl font-medium leading-tight tracking-tight sm:text-4xl"
-        >
-          Try the Dashboard
-        </h2>
+          title="Try the Dashboard."
+          subtitle="No account needed."
+        />
         <p
           id="dashboard-preview-description"
-          className="max-w-3xl text-base leading-7 text-neutral-600"
+          className="mx-auto max-w-3xl text-base leading-7 text-neutral-600"
         >
-          Explore chart values and switch example workspaces and projects. No
-          account needed. This preview uses sample data; nothing is saved.
+          Explore chart values and switch example workspaces and projects. This
+          preview uses sample data; nothing is saved.
         </p>
       </div>
       <div className="relative isolate h-[40rem] overflow-hidden rounded-xl border border-neutral-200 text-left">

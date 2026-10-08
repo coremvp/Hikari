@@ -5,6 +5,7 @@ import { Check } from 'lucide-react';
 import {
   checkoutPath,
   formatRecurringPrice,
+  yearlyDiscount,
   billingIntervals,
   type BillingInterval,
   type PricingPlan,
@@ -19,6 +20,8 @@ export function PricingPlans({
   description: ReactNode;
 }) {
   const [interval, setInterval] = useState<BillingInterval>('monthly');
+  // The example plans use 20%; connected Stripe quotes own their actual saving.
+  const discount = yearlyDiscount(plans, 20);
   return (
     <>
       <div className="mx-auto max-w-3xl text-center">
@@ -38,12 +41,33 @@ export function PricingPlans({
                 type="radio"
                 name="billing-interval"
                 value={value}
+                aria-label={value === 'monthly' ? 'Monthly' : 'Yearly'}
+                aria-describedby={
+                  value === 'yearly' && discount && discount.percentage > 0
+                    ? 'yearly-discount'
+                    : undefined
+                }
                 checked={interval === value}
                 onChange={() => setInterval(value)}
                 className="peer sr-only"
               />
-              <span className="block rounded-full px-5 py-2.5 text-sm font-medium text-stone-600 peer-checked:bg-white peer-checked:text-neutral-950 peer-checked:shadow-sm peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-orange-700 sm:px-6">
+              <span className="flex items-center gap-2 rounded-full px-3 py-2.5 text-sm font-medium text-stone-600 peer-checked:bg-white peer-checked:text-neutral-950 peer-checked:shadow-sm peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-orange-700 sm:px-5">
                 {value === 'monthly' ? 'Monthly' : 'Yearly'}
+                {value === 'yearly' && discount && discount.percentage > 0 && (
+                  <span
+                    id="yearly-discount"
+                    title={
+                      plans.some((plan) => plan.prices.yearly)
+                        ? 'Compared with twelve monthly payments.'
+                        : 'Example yearly discount. Set yearly prices to 80% of twelve monthly payments.'
+                    }
+                    className="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-orange-800"
+                  >
+                    {(discount.upTo ? 'Up to ' : '−') +
+                      discount.percentage +
+                      '%'}
+                  </span>
+                )}
               </span>
             </label>
           ))}
@@ -65,9 +89,16 @@ export function PricingPlans({
               }
             >
               <div className="px-6 pt-7 pb-6 sm:px-8 lg:px-6 xl:px-8">
-                <h3 className="text-xl font-medium tracking-tight text-neutral-950">
-                  {plan.name}
-                </h3>
+                <div className="flex min-h-8 flex-wrap items-center gap-3">
+                  <h3 className="text-xl font-medium tracking-tight text-neutral-950">
+                    {plan.name}
+                  </h3>
+                  {featured && (
+                    <span className="rounded-full border border-orange-600 bg-linear-to-b from-orange-700 to-orange-800 px-3 py-1 text-sm font-medium leading-5 text-white shadow-sm">
+                      Popular
+                    </span>
+                  )}
+                </div>
                 <div className="mt-7 min-h-20">
                   <p className="mb-2 text-xs font-medium text-stone-500">
                     {interval === 'monthly' ? 'Monthly price' : 'Annual price'}

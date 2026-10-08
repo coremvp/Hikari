@@ -84,6 +84,56 @@ export type PricingPlan = Pick<
   prices: Record<BillingInterval, RecurringPrice | null>;
 };
 
+export function yearlyDiscount(
+  plans: PricingPlan[],
+  examplePercentage?: number,
+) {
+  const discounts = plans.flatMap(({ prices: { monthly, yearly } }) => {
+    if (
+      !monthly ||
+      !yearly ||
+      monthly.livemode ||
+      yearly.livemode ||
+      monthly.currency.toLowerCase() !== yearly.currency.toLowerCase() ||
+      monthly.interval !== 'month' ||
+      yearly.interval !== 'year' ||
+      monthly.intervalCount !== 1 ||
+      yearly.intervalCount !== 1 ||
+      !Number.isSafeInteger(monthly.amount * 12) ||
+      !Number.isSafeInteger(yearly.amount) ||
+      monthly.amount <= 0 ||
+      yearly.amount < 0
+    )
+      return [];
+    const annualMonthlyTotal = monthly.amount * 12;
+    // Round down so the badge never promises more than the quoted saving.
+    return [
+      Math.max(
+        0,
+        Math.floor(
+          ((annualMonthlyTotal - yearly.amount) / annualMonthlyTotal) * 100,
+        ),
+      ),
+    ];
+  });
+  if (!discounts.length)
+    return examplePercentage !== undefined &&
+      Number.isInteger(examplePercentage) &&
+      examplePercentage > 0 &&
+      examplePercentage <= 100 &&
+      plans.length > 0 &&
+      plans.every((plan) => !plan.prices.yearly)
+      ? { percentage: examplePercentage, upTo: false }
+      : null;
+  const percentage = Math.max(...discounts);
+  return {
+    percentage,
+    upTo:
+      discounts.length !== plans.length ||
+      discounts.some((discount) => discount !== percentage),
+  };
+}
+
 // Stripe charge amounts use these currencies without decimal minor units.
 const zeroDecimalCurrencies = new Set([
   'bif',
