@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { subscriptionTiers } from '@/config/pricing.config';
 
 export const planIdSchema = z.enum(['starter', 'pro', 'business']);
 export type PlanId = z.infer<typeof planIdSchema>;
@@ -8,32 +9,21 @@ export const billingIntervals = billingIntervalSchema.options;
 export type PlanPrices = Partial<
   Record<PlanId, Partial<Record<BillingInterval, string>>>
 >;
-export const subscriptionPlans = [
-  {
-    id: 'starter',
-    name: 'Starter',
-    description: 'A starting point for your next idea.',
-    env: { monthly: 'STRIPE_PRICE_ID', yearly: 'STRIPE_YEARLY_PRICE_ID' },
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    description: 'A plan to shape around your growing product.',
-    env: {
-      monthly: 'STRIPE_PRO_PRICE_ID',
-      yearly: 'STRIPE_PRO_YEARLY_PRICE_ID',
-    },
-  },
-  {
-    id: 'business',
-    name: 'Business',
-    description: 'Room to explore your next stage.',
-    env: {
-      monthly: 'STRIPE_BUSINESS_PRICE_ID',
-      yearly: 'STRIPE_BUSINESS_YEARLY_PRICE_ID',
-    },
-  },
-] as const;
+const descriptions: Record<PlanId, string> = {
+  starter: 'A starting point for your next idea.',
+  pro: 'A plan to shape around your growing product.',
+  business: 'Room to explore your next stage.',
+};
+export const subscriptionPlans = subscriptionTiers.map((tier) => {
+  const id = planIdSchema.parse(tier.id.replace(/^tier-/, ''));
+  return { ...tier, id, description: descriptions[id] };
+});
+export const configuredSubscriptionPrices: PlanPrices = Object.fromEntries(
+  subscriptionPlans.map((plan) => [
+    plan.id,
+    { monthly: plan.priceIdMonthly, yearly: plan.priceIdYearly },
+  ]),
+);
 
 export function checkoutPath(
   plan: PlanId,
@@ -84,10 +74,7 @@ export type PricingPlan = Pick<
   prices: Record<BillingInterval, RecurringPrice | null>;
 };
 
-export function yearlyDiscount(
-  plans: PricingPlan[],
-  examplePercentage?: number,
-) {
+export function yearlyDiscount(plans: PricingPlan[]) {
   const discounts = plans.flatMap(({ prices: { monthly, yearly } }) => {
     if (
       !monthly ||
@@ -116,15 +103,7 @@ export function yearlyDiscount(
       ),
     ];
   });
-  if (!discounts.length)
-    return examplePercentage !== undefined &&
-      Number.isInteger(examplePercentage) &&
-      examplePercentage > 0 &&
-      examplePercentage <= 100 &&
-      plans.length > 0 &&
-      plans.every((plan) => !plan.prices.yearly)
-      ? { percentage: examplePercentage, upTo: false }
-      : null;
+  if (!discounts.length) return null;
   const percentage = Math.max(...discounts);
   return {
     percentage,

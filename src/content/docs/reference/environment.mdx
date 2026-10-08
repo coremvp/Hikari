@@ -14,12 +14,6 @@ Use ignored `.env.local` locally and your Vercel deployment environment when hos
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Selected Supabase project’s public client key                           |
 | `DATABASE_URL`                         | Server Postgres connection; use TLS and transaction pooling when hosted |
 | `STRIPE_SECRET_KEY`                    | Server key for the selected Stripe account                              |
-| `STRIPE_PRICE_ID`                      | Starter monthly recurring price                                         |
-| `STRIPE_YEARLY_PRICE_ID`               | Starter yearly recurring test price                                     |
-| `STRIPE_PRO_PRICE_ID`                  | Pro monthly recurring price                                             |
-| `STRIPE_PRO_YEARLY_PRICE_ID`           | Pro yearly recurring test price                                         |
-| `STRIPE_BUSINESS_PRICE_ID`             | Business monthly recurring price                                        |
-| `STRIPE_BUSINESS_YEARLY_PRICE_ID`      | Business yearly recurring test price                                    |
 | `STRIPE_WEBHOOK_SECRET`                | Signing secret for this environment’s webhook endpoint                  |
 
 </div>
@@ -27,6 +21,8 @@ Use ignored `.env.local` locally and your Vercel deployment environment when hos
 ## Local values
 
 Follow [Run locally](/docs/getting-started) to start Supabase and apply the local migrations, then run `./coremvp env sync` to derive the Supabase and database settings. Existing Stripe values are preserved. The application origin is `http://localhost:3000`; the local E2E requires that exact origin. Keep custom `APP_URL` changes deliberate, because Auth callbacks and return destinations use it.
+
+Product and monthly/yearly Price IDs live in `src/config/pricing.config.ts`, outside the environment. Replace the example IDs with your own account’s catalog when following [Subscriptions](/docs/features/payments#create-your-recurring-prices). Deploy that source configuration with the matching Stripe account credentials.
 
 Authentication can run before Stripe is configured. Checkout, Portal, and subscriber-access checks require the billing settings. [Connect subscriptions](/docs/features/payments) for the local listener and test prices. A missing plan remains unavailable on the public pricing section; it does not prevent local signup.
 

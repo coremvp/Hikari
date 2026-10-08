@@ -17,9 +17,11 @@ import { Hono } from 'hono';
 import { AppError } from '@/lib/errors';
 import {
   formatRecurringPrice,
+  configuredSubscriptionPrices,
   type PlanId,
   billingIntervals,
 } from '@/lib/subscription-plans';
+import { subscriptionTiers } from '@/config/pricing.config';
 const approved = 'price_approved';
 const state = (
   status: SubscriptionStatus = 'active',
@@ -176,6 +178,51 @@ const event = (id: string) =>
     status: 'active',
   });
 const user = { id: 'user_contract', email: 'fixture@example.test' };
+
+for (const tier of subscriptionTiers)
+  for (const interval of billingIntervals)
+    test(
+      tier.name +
+        ' ' +
+        interval +
+        ' uses the source catalog for Checkout and access',
+      async () => {
+        const f = fixture();
+        const expectedPrice =
+          interval === 'monthly' ? tier.priceIdMonthly : tier.priceIdYearly;
+        const service = new BillingService(
+          f.store,
+          f.provider,
+          () => configuredSubscriptionPrices,
+          () => 'https://app.example',
+        );
+        let selected: string | undefined;
+        f.provider.recurringPrice = async () => ({
+          currency: 'usd',
+          amount: 1500,
+          interval: interval === 'monthly' ? 'month' : 'year',
+          intervalCount: 1,
+          livemode: false,
+        });
+        f.provider.checkout = async (_customer, priceId) => {
+          selected = priceId;
+          return 'https://checkout.stripe.com/fixture';
+        };
+        await service.checkout(
+          user,
+          tier.id.replace(/^tier-/, '') as PlanId,
+          true,
+          interval,
+        );
+        expect(selected).toBe(expectedPrice);
+        f.setCurrent(state('active', expectedPrice));
+        await service.webhook(event('evt_catalog'), 'fixture');
+        expect(f.store.rows.get('sub_contract')?.priceId).toBe(expectedPrice);
+        expect((await service.view(user.id)).access).toBe(true);
+        f.store.rows.set('sub_contract', state('active', 'price_other'));
+        expect((await service.view(user.id)).access).toBe(false);
+      },
+    );
 
 for (const [plan, price] of Object.entries({
   starter: approved,

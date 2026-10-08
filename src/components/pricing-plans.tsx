@@ -20,8 +20,7 @@ export function PricingPlans({
   description: ReactNode;
 }) {
   const [interval, setInterval] = useState<BillingInterval>('monthly');
-  // The example plans use 20%; connected Stripe quotes own their actual saving.
-  const discount = yearlyDiscount(plans, 20);
+  const discount = yearlyDiscount(plans);
   return (
     <>
       <div className="mx-auto max-w-3xl text-center">
@@ -56,11 +55,7 @@ export function PricingPlans({
                 {value === 'yearly' && discount && discount.percentage > 0 && (
                   <span
                     id="yearly-discount"
-                    title={
-                      plans.some((plan) => plan.prices.yearly)
-                        ? 'Compared with twelve monthly payments.'
-                        : 'Example yearly discount. Set yearly prices to 80% of twelve monthly payments.'
-                    }
+                    title="Compared with twelve monthly payments."
                     className="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-orange-800"
                   >
                     {(discount.upTo ? 'Up to ' : '−') +

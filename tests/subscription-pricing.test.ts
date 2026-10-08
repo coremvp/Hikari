@@ -60,20 +60,6 @@ test('unconnected prices do not become a numeric discount', () => {
   expect(yearlyDiscount([])).toBeNull();
 });
 
-test('an explicit example discount applies only before yearly prices are connected', () => {
-  const configured = plans();
-  for (const plan of configured) plan.prices.yearly = null;
-  expect(yearlyDiscount(configured, 20)).toEqual({
-    percentage: 20,
-    upTo: false,
-  });
-  for (const plan of configured)
-    plan.prices.yearly = price(9600, 'year', { currency: 'eur' });
-  expect(yearlyDiscount(configured, 20)).toBeNull();
-  for (const plan of configured) plan.prices.yearly = price(12000, 'year');
-  expect(yearlyDiscount(configured, 20)?.percentage).toBe(0);
-});
-
 test('different currencies or recurring periods cannot produce false savings', () => {
   const configured = plans();
   for (const plan of configured)

@@ -1,5 +1,4 @@
 import 'server-only';
-import { z } from 'zod';
 import { BillingRepository, type BillingStore } from '@/repositories/billing';
 import { StripeProvider, type BillingProvider } from '@/providers/stripe';
 import {
@@ -11,6 +10,7 @@ import { appUrl } from '@/lib/config';
 import { AppError } from '@/lib/errors';
 import {
   subscriptionPlans,
+  configuredSubscriptionPrices,
   billingIntervals,
   type PlanId,
   type PlanPrices,
@@ -195,20 +195,6 @@ export class BillingService {
 export const billing = new BillingService(
   new BillingRepository(),
   new StripeProvider(),
-  () =>
-    Object.fromEntries(
-      subscriptionPlans.map((plan) => [
-        plan.id,
-        Object.fromEntries(
-          billingIntervals.flatMap((interval) => {
-            const result = z
-              .string()
-              .regex(/^price_[A-Za-z0-9]+$/)
-              .safeParse(process.env[plan.env[interval]]);
-            return result.success ? [[interval, result.data]] : [];
-          }),
-        ),
-      ]),
-    ),
+  () => configuredSubscriptionPrices,
   appUrl,
 );

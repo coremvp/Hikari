@@ -69,12 +69,6 @@ bunx vercel env add NEXT_PUBLIC_SUPABASE_URL production
 bunx vercel env add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY production
 bunx vercel env add DATABASE_URL production --sensitive
 bunx vercel env add STRIPE_SECRET_KEY production --sensitive
-bunx vercel env add STRIPE_PRICE_ID production
-bunx vercel env add STRIPE_YEARLY_PRICE_ID production
-bunx vercel env add STRIPE_PRO_PRICE_ID production
-bunx vercel env add STRIPE_PRO_YEARLY_PRICE_ID production
-bunx vercel env add STRIPE_BUSINESS_PRICE_ID production
-bunx vercel env add STRIPE_BUSINESS_YEARLY_PRICE_ID production
 bunx vercel env add STRIPE_WEBHOOK_SECRET production --sensitive
 bunx vercel env ls production
 ```
@@ -87,7 +81,7 @@ Verify that every setting above targets Production in the linked project before 
 
 Follow [Create a hosted destination](/docs/features/payments#create-a-hosted-destination) in your selected Stripe test account. That section contains the exact five-event list and API-version check. Register `https://your-app.example/api/webhooks/stripe`, save that destination's signing secret as the Production `STRIPE_WEBHOOK_SECRET`, then redeploy to load it. The local listener's secret does not verify hosted deliveries.
 
-Complete [Customer Portal configuration](/docs/features/payments#configure-customer-portal) in the same account. Use the same configured monthly and yearly Starter, Pro, and Business test prices throughout setup. The public pricing cards read Stripe’s amounts and intervals; a live-mode or unavailable price cannot open test checkout.
+Complete [Customer Portal configuration](/docs/features/payments#configure-customer-portal) in the same account. Deploy `src/config/pricing.config.ts` with your selected account’s Product and monthly/yearly Price IDs for Starter, Pro, and Business. Use the same configured test prices throughout setup; catalog IDs are source configuration, not Vercel environment values. The public pricing cards read Stripe’s amounts and intervals; a live-mode or unavailable price cannot open test checkout.
 
 </Step>
 <Step>

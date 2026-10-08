@@ -68,20 +68,14 @@ Follow [From Hikari to CoreMVP](src/content/docs/coremvp.mdx) for the separate r
 
 ## Connect a subscription
 
-Use a Stripe test account for development. Create monthly and yearly fixed-amount recurring prices for Starter, Pro, and Business in the [Stripe Dashboard](https://dashboard.stripe.com/test/products). In that account's Customer Portal settings, enable payment-method updates, invoice history, and cancellation at the end of the billing period. Leave plan and quantity changes disabled until you deliberately configure upgrades in Customer Portal. The [Subscriptions guide](src/content/docs/features/payments.mdx) shows the controls and complete setup.
+Use a Stripe test account for development. The included pricing configuration contains example catalog IDs; replace them with your account’s IDs when building your own application. Create monthly and yearly fixed-amount recurring prices for Starter, Pro, and Business in the [Stripe Dashboard](https://dashboard.stripe.com/test/products). In that account's Customer Portal settings, enable payment-method updates, invoice history, and cancellation at the end of the billing period. Leave plan and quantity changes disabled until you deliberately configure upgrades in Customer Portal. The [Subscriptions guide](src/content/docs/features/payments.mdx) shows the controls and complete setup. Deploy the matching `src/config/pricing.config.ts` with your application; Product and Price IDs are not environment variables.
 
-Set these server-only values in ignored `.env.local`:
+Set the Product and monthly/yearly Price IDs for each subscription tier in [src/config/pricing.config.ts](src/config/pricing.config.ts). Use prices from your own Stripe test account. Keep only the Stripe secret key and webhook signing secret in ignored `.env.local`:
 
-| Variable                          | Value source                                                |
-| --------------------------------- | ----------------------------------------------------------- |
-| `STRIPE_SECRET_KEY`               | Test secret key from the selected Stripe account            |
-| `STRIPE_PRICE_ID`                 | Starter monthly recurring price, beginning with `price_`    |
-| `STRIPE_YEARLY_PRICE_ID`          | Starter yearly recurring test price                         |
-| `STRIPE_PRO_PRICE_ID`             | Pro monthly recurring test price from the same account      |
-| `STRIPE_PRO_YEARLY_PRICE_ID`      | Pro yearly recurring test price                             |
-| `STRIPE_BUSINESS_PRICE_ID`        | Business monthly recurring test price from the same account |
-| `STRIPE_BUSINESS_YEARLY_PRICE_ID` | Business yearly recurring test price                        |
-| `STRIPE_WEBHOOK_SECRET`           | Signing secret from the local listener below                |
+| Variable                | Value source                                     |
+| ----------------------- | ------------------------------------------------ |
+| `STRIPE_SECRET_KEY`     | Test secret key from the selected Stripe account |
+| `STRIPE_WEBHOOK_SECRET` | Signing secret from the local listener below     |
 
 Install the [Stripe CLI](https://docs.stripe.com/cli/install) and check `stripe --version` before continuing. Then forward subscription events to the application:
 
@@ -168,12 +162,6 @@ Use a fresh Supabase project and one Vercel Next.js project. Hosted authenticati
    | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | This project's publishable key                    |
    | `DATABASE_URL`                         | Supabase transaction-pooler URL, with TLS enabled |
    | `STRIPE_SECRET_KEY`                    | Secret key for the selected Stripe test account   |
-   | `STRIPE_PRICE_ID`                      | Starter monthly recurring test price              |
-   | `STRIPE_YEARLY_PRICE_ID`               | Starter yearly recurring test price               |
-   | `STRIPE_PRO_PRICE_ID`                  | Pro monthly recurring test price                  |
-   | `STRIPE_PRO_YEARLY_PRICE_ID`           | Pro yearly recurring test price                   |
-   | `STRIPE_BUSINESS_PRICE_ID`             | Business monthly recurring test price             |
-   | `STRIPE_BUSINESS_YEARLY_PRICE_ID`      | Business yearly recurring test price              |
    | `STRIPE_WEBHOOK_SECRET`                | Signing secret for the hosted endpoint            |
 
    Only the two `NEXT_PUBLIC_SUPABASE_*` values are public. Never put database credentials or Stripe secrets in a public variable. Follow [Supabase's connection guide](https://supabase.com/docs/guides/database/connecting-to-postgres) for the pooler and TLS settings. Drizzle uses `prepare: false` for transaction pooling.
