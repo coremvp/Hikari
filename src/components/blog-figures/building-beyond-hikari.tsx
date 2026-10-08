@@ -22,13 +22,33 @@ export function BuildingBeyondHikariFigure({
         Project navigation and the audience globe. This preview uses sample
         data.
       </desc>
+      <defs>
+        <clipPath id="coremvp-dashboard-crop">
+          <rect x="180" y="315" width="840" height="330.75" rx="12" />
+        </clipPath>
+      </defs>
       <rect width="1200" height="630" fill="white" />
-      <image href={logoSrc} x="492" y="24" width="40" height="40" />
-      <text x="545" y="56" fill="#171717" fontSize="38" letterSpacing="-1.5">
+      <image href={logoSrc} x="466" y="125" width="56" height="56" />
+      <text x="539" y="170" fill="#171717" fontSize="54" letterSpacing="-1.5">
         coremvp
       </text>
-      <image href={screenshotSrc} x="0" y="84" width="1200" height="472.5" />
-      <path d="M0 84H1200M0 556.5H1200" stroke="#e5e5e5" />
+      <rect
+        x="180"
+        y="315"
+        width="840"
+        height="330.75"
+        rx="12"
+        fill="#f5f5f5"
+        stroke="#e5e5e5"
+      />
+      <image
+        href={screenshotSrc}
+        x="180"
+        y="315"
+        width="840"
+        height="330.75"
+        clipPath="url(#coremvp-dashboard-crop)"
+      />
     </svg>
   );
 }
