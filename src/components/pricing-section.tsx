@@ -1,11 +1,10 @@
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
-import { billing } from '@/services/billing';
+import { subscriptionPlans } from '@/lib/subscription-plans';
 import { PricingPlans } from '@/components/pricing-plans';
 import { SectionHeading } from '@/components/section-heading';
 
-export async function PricingSection() {
-  const plans = await billing.plans();
+export function PricingSection() {
   return (
     <section
       id="pricing"
@@ -13,7 +12,7 @@ export async function PricingSection() {
       className="hikari-section scroll-mt-8"
     >
       <PricingPlans
-        plans={plans}
+        plans={subscriptionPlans}
         description={
           <p className="text-base leading-7 text-stone-600">
             Choose an example plan and explore Checkout, subscription access and

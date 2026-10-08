@@ -70,7 +70,7 @@ Follow [From Hikari to CoreMVP](src/content/docs/coremvp.mdx) for the separate r
 
 Use a Stripe test account for development. The included pricing configuration contains example catalog IDs; replace them with your account’s IDs when building your own application. Create monthly and yearly fixed-amount recurring prices for Starter, Pro, and Business in the [Stripe Dashboard](https://dashboard.stripe.com/test/products). In that account's Customer Portal settings, enable payment-method updates, invoice history, and cancellation at the end of the billing period. Leave plan and quantity changes disabled until you deliberately configure upgrades in Customer Portal. The [Subscriptions guide](src/content/docs/features/payments.mdx) shows the controls and complete setup. Deploy the matching `src/config/pricing.config.ts` with your application; Product and Price IDs are not environment variables.
 
-Set the Product and monthly/yearly Price IDs for each subscription tier in [src/config/pricing.config.ts](src/config/pricing.config.ts). Use prices from your own Stripe test account. Keep only the Stripe secret key and webhook signing secret in ignored `.env.local`:
+Set the Product and monthly/yearly Price IDs for each subscription tier in [src/config/pricing.config.ts](src/config/pricing.config.ts). Use prices from your own Stripe test account, and set `priceMonthly` and `priceYearly` to their matching displayed amounts. Keep only the Stripe secret key and webhook signing secret in ignored `.env.local`:
 
 | Variable                | Value source                                     |
 | ----------------------- | ------------------------------------------------ |

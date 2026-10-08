@@ -15,17 +15,19 @@ Install the [Stripe CLI](https://docs.stripe.com/cli/install) for your OS before
 
 In the [Stripe test Dashboard](https://dashboard.stripe.com/test/products), create an active Product for each plan, with fixed-amount monthly and yearly prices (six prices total). Use an interval count of one for both cadences. Each price must use standard per-unit billing with quantity one, without metered usage, tiers, or quantity transformations.
 
-In `src/config/pricing.config.ts`, replace each subscription tier’s example catalog IDs with the IDs from your account:
+In `src/config/pricing.config.ts`, replace each subscription tier’s example catalog IDs with the IDs from your account. Set its displayed amounts to match those Stripe prices:
 
 ```ts title="src/config/pricing.config.ts (subscription tier fields)"
 productId: 'prod_...',
 priceIdMonthly: 'price_...',
 priceIdYearly: 'price_...',
+priceMonthly: '$15',
+priceYearly: '$150',
 ```
 
 Hikari uses this configuration to approve Checkout prices and subscriber access. Product and Price IDs belong in this file; keep only the test API key in ignored `.env.local` as `STRIPE_SECRET_KEY`. The listener’s signing secret is added in the next step.
 
-The public pricing section reads actual amounts and intervals from Stripe, including the full yearly charge. Its discount compares the yearly charge with twelve monthly payments. A missing, unavailable or mismatched price links to this guide instead of opening Checkout; yearly billing never falls back to a monthly price. Live-mode prices cannot start its test checkout. Local signup works without any billing credentials.
+The public pricing section reads this configuration. Yearly billing shows the monthly equivalent and the full annual charge; the toggle’s savings label compares the annual charge with twelve monthly payments. Checkout validates the selected price against Stripe before creating a session. An unavailable, mismatched or live-mode price cannot start test Checkout, and yearly billing never falls back to a monthly price. Local signup works without any billing credentials.
 
 Use the same Stripe account for your prices, test key, listener, and Customer Portal. Stop if any of them belongs to another account or live mode.
 

@@ -3,24 +3,26 @@ import { useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { Check } from 'lucide-react';
 import {
+  getSubscriptionPriceDisplay,
+  getSubscriptionSavingsLabel,
+} from '@/config/pricing.config';
+import {
   checkoutPath,
-  formatRecurringPrice,
-  yearlyDiscount,
   billingIntervals,
   type BillingInterval,
-  type PricingPlan,
+  type subscriptionPlans,
 } from '@/lib/subscription-plans';
 export function PricingPlans({
   plans,
   children,
   description,
 }: {
-  plans: PricingPlan[];
+  plans: typeof subscriptionPlans;
   children: ReactNode;
   description: ReactNode;
 }) {
-  const [interval, setInterval] = useState<BillingInterval>('monthly');
-  const discount = yearlyDiscount(plans);
+  const [interval, setInterval] = useState<BillingInterval>('yearly');
+  const savingsLabel = getSubscriptionSavingsLabel(plans);
   return (
     <>
       <div className="mx-auto max-w-3xl text-center">
@@ -42,7 +44,7 @@ export function PricingPlans({
                 value={value}
                 aria-label={value === 'monthly' ? 'Monthly' : 'Yearly'}
                 aria-describedby={
-                  value === 'yearly' && discount && discount.percentage > 0
+                  value === 'yearly' && savingsLabel
                     ? 'yearly-discount'
                     : undefined
                 }
@@ -52,15 +54,13 @@ export function PricingPlans({
               />
               <span className="flex items-center gap-2 rounded-full px-3 py-2.5 text-sm font-medium text-stone-600 peer-checked:bg-white peer-checked:text-neutral-950 peer-checked:shadow-sm peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-orange-700 sm:px-5">
                 {value === 'monthly' ? 'Monthly' : 'Yearly'}
-                {value === 'yearly' && discount && discount.percentage > 0 && (
+                {value === 'yearly' && savingsLabel && (
                   <span
                     id="yearly-discount"
                     title="Compared with twelve monthly payments."
                     className="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-orange-800"
                   >
-                    {(discount.upTo ? 'Up to ' : '−') +
-                      discount.percentage +
-                      '%'}
+                    {savingsLabel}
                   </span>
                 )}
               </span>
@@ -70,9 +70,8 @@ export function PricingPlans({
       </div>
       <div className="mt-8 grid gap-5 lg:grid-cols-3 lg:items-start lg:gap-6">
         {plans.map((plan) => {
-          const price = plan.prices[interval];
-          const formatted = price ? formatRecurringPrice(price) : null;
-          const featured = plan.id === 'pro';
+          const formatted = getSubscriptionPriceDisplay(plan, interval);
+          const featured = plan.featured;
           return (
             <article
               key={plan.id}
@@ -96,34 +95,27 @@ export function PricingPlans({
                 </div>
                 <div className="mt-7 min-h-20">
                   <p className="mb-2 text-xs font-medium text-stone-500">
-                    {interval === 'monthly' ? 'Monthly price' : 'Annual price'}
+                    Monthly price
                   </p>
-                  {formatted ? (
-                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-2">
-                      <p className="max-w-full text-5xl font-semibold tracking-[-0.04em] text-neutral-950 wrap-anywhere">
-                        {formatted.amount}
-                      </p>
-                      <p className="text-sm text-stone-600">
-                        {formatted.interval}
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-3xl font-semibold tracking-tight text-neutral-950">
-                      Not connected
+                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-2">
+                    <p className="max-w-full text-5xl font-semibold tracking-[-0.04em] text-neutral-950 wrap-anywhere">
+                      {formatted.amount}
                     </p>
-                  )}
+                    <p className="text-sm text-stone-600">
+                      {formatted.interval}
+                    </p>
+                  </div>
+                  <p className="mt-3 text-sm leading-5 text-stone-600">
+                    {formatted.billingNote}
+                  </p>
                 </div>
                 <p className="mt-5 text-base leading-6 text-stone-600 lg:min-h-12">
                   {plan.description}
                 </p>
                 <div className="mt-7">
                   <Link
-                    href={
-                      price
-                        ? checkoutPath(plan.id, interval)
-                        : '/docs/features/payments'
-                    }
-                    prefetch={price ? false : undefined}
+                    href={checkoutPath(plan.id, interval)}
+                    prefetch={false}
                     className={
                       'flex min-h-12 w-full items-center justify-center rounded-full px-4 py-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-700 ' +
                       (featured
@@ -133,17 +125,13 @@ export function PricingPlans({
                           : 'border border-stone-200 bg-white text-neutral-950 shadow-sm hover:bg-stone-50')
                     }
                     aria-label={
-                      price
-                        ? 'Try ' + plan.name + ' ' + interval + ' test checkout'
-                        : undefined
+                      'Try ' + plan.name + ' ' + interval + ' test checkout'
                     }
                   >
-                    {price ? 'Try ' + plan.name : 'Set up test billing'}
+                    {'Try ' + plan.name}
                   </Link>
                   <p className="mt-3 text-center text-xs leading-5 text-stone-600">
-                    {price
-                      ? 'Sign-in required · Stripe test mode'
-                      : 'Connect your ' + interval + ' Stripe price'}
+                    Sign-in required · Stripe test mode
                   </p>
                 </div>
               </div>
