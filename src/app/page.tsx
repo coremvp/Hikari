@@ -7,6 +7,7 @@ import { BlogCard } from '@/components/blog-card';
 import { SectionHeading } from '@/components/section-heading';
 import { DashboardPreview } from '@/components/dashboard-preview';
 import { PricingSection } from '@/components/pricing-section';
+import { CoreMVPSection } from '@/components/coremvp-section';
 import {
   ApplicationPreview,
   DocumentationPreview,
@@ -253,37 +254,10 @@ export default function Home() {
             </li>
           ))}
         </ol>
-        <div className="mt-10 border-t border-neutral-200 pt-8">
-          <h3 className="text-xl font-semibold tracking-tight">
-            When to consider CoreMVP
-          </h3>
-          <p className="mt-3 max-w-3xl leading-7 text-neutral-600">
-            Hikari is free MIT source for individual accounts, recurring
-            subscriptions, Docs and Blog. CoreMVP is a premium startup
-            application foundation delivered as source code, adding shared
-            Organizations with invitations and roles, persisted Projects, and
-            lifetime payments with guest checkout. Choose it when those paths
-            fit your product. You operate either application with your own
-            providers.
-          </p>
-          <div className="mt-5 flex flex-wrap gap-x-6 gap-y-3 text-sm font-medium">
-            <a
-              href="https://coremvp.com/en/products/nextjs"
-              className="underline underline-offset-4"
-            >
-              Explore CoreMVP <span aria-hidden="true">→</span>
-            </a>
-            <a
-              href="https://nextjs.coremvp.com"
-              className="underline underline-offset-4"
-            >
-              Preview the CoreMVP demo <span aria-hidden="true">→</span>
-            </a>
-          </div>
-        </div>
       </section>
       <Testimonials />
       <PricingSection />
+      <CoreMVPSection />
       <section aria-labelledby="content-title" className="hikari-section">
         <div className="grid items-center gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
           <div>

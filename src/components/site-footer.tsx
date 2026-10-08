@@ -91,6 +91,19 @@ export function SiteFooter() {
                     CoreMVP demo
                   </a>
                 </li>
+                <li>
+                  <Link className="hover:text-neutral-950" href="/docs/coremvp">
+                    From Hikari to CoreMVP
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="hover:text-neutral-950"
+                    href="/blog/building-beyond-hikari"
+                  >
+                    Building Beyond Hikari
+                  </Link>
+                </li>
               </ul>
             </div>
           </nav>

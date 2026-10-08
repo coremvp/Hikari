@@ -1,0 +1,61 @@
+---
+title: From Hikari to CoreMVP
+description: Start with the CoreMVP foundation and assess where your existing Hikari work belongs.
+---
+
+CoreMVP is a separate source-code foundation. Choose it when your application needs shared workspaces, persisted Projects or one-time payments with guest onboarding. Your next step is to inspect the foundation, obtain repository access and run a separate local checkout.
+
+Hikari stays free under MIT. A Starter, Pro or Business subscription in your Hikari application exercises its example billing flow; it does not provide CoreMVP repository access.
+
+## Match the foundation to your product
+
+Hikari includes individual accounts, protected pages, recurring subscriptions, Docs and Blog. Its Organization and Project selectors are visual examples. CoreMVP adds connected collaboration and payment paths you can extend:
+
+| Your product needs                          | Start with the included CoreMVP path                                                                          |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| People working in a shared workspace        | [Organizations, invitations and member roles](https://coremvp.com/en/docs/organizations)                      |
+| Real records with shared ownership          | [Persisted Projects and server-checked member access](https://coremvp.com/en/docs/projects)                   |
+| A one-time purchase before account creation | [Guest checkout, onboarding and lifetime access](https://coremvp.com/en/docs/billing/lifetime/guest-checkout) |
+
+For example, a client workspace needs more than a selected Organization in the browser. A request must identify the signed-in user, check their current membership and scope the requested data to that Organization. CoreMVP’s Projects follow that path. Any new customer-owned table you add still needs its own ownership checks.
+
+Inspect the [CoreMVP Next.js product](https://coremvp.com/en/products/nextjs) and [try the demo](https://nextjs.coremvp.com) to explore the interfaces. The public demo labels its sample data; it is not a migration or a shared account with your Hikari application.
+
+## Start in a separate checkout
+
+1. Obtain CoreMVP through the [CoreMVP site](https://coremvp.com/en#pricing), which owns source access and current commercial terms. Then follow [After Purchase](https://coremvp.com/en/docs/getting-started/after-purchase) to claim source access and create your working repository.
+2. Follow CoreMVP’s [Run Locally](https://coremvp.com/en/docs/getting-started/run-locally) guide in that repository. Use its current configuration and migrations rather than copying Hikari’s environment file or applying both projects’ migrations to one database.
+3. Create a local account and verify the included path you need. The [Organizations guide](https://coremvp.com/en/docs/organizations/configure) shows the shared workspace path; the [Projects guide](https://coremvp.com/en/docs/projects) shows creating and managing a real record.
+
+Keep your existing Hikari application intact while evaluating the new checkout. Both foundations run with your provider accounts; acquiring source does not include hosting or transfer your current users, subscriptions or provider state.
+
+## Bring your existing work deliberately
+
+Before moving custom work, identify what you have changed:
+
+- **Interface and content:** inventory your routes, components, styles and MDX. Compare them with the corresponding CoreMVP edit points before carrying them across.
+- **Application behavior:** identify the services and access rules behind your features. A feature that becomes shared must use the Organization ownership path, not just a selected workspace name.
+- **Data:** map your custom tables and relationships. Existing users, passwords, Projects and Stripe subscriptions require a separate migration design; this guide does not supply an automatic importer.
+- **Providers:** configure the new application using its own guide. Keep credentials in ignored local configuration and verify callbacks, webhooks and hosted settings for that application.
+
+Read CoreMVP’s [Project Structure](https://coremvp.com/en/docs/getting-started/project-structure) to place custom work. Start with one feature in the new checkout and verify its account and data boundary before planning a production cutover.
+
+## What's next
+
+<Cards>
+  <Card
+    title="Building Beyond Hikari"
+    href="/blog/building-beyond-hikari"
+    description="Understand why shared work needs membership and persisted ownership."
+  />
+  <Card
+    title="Explore CoreMVP"
+    href="https://coremvp.com/en#pricing"
+    description="Inspect source access and current commercial terms."
+  />
+  <Card
+    title="Keep building with Hikari"
+    href="/docs/getting-started/project-structure"
+    description="Find the next edit point when individual accounts fit your application."
+  />
+</Cards>

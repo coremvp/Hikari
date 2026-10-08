@@ -29,6 +29,11 @@ export function SiteShell({
             ) : (
               <Link href="/#pricing">Pricing</Link>
             )}
+            {home ? (
+              <a href="#coremvp">CoreMVP</a>
+            ) : (
+              <Link href="/#coremvp">CoreMVP</Link>
+            )}
             <Link href="/docs">Docs</Link>
             <Link href="/blog">Blog</Link>
             <a href="https://github.com/coremvp/hikari">GitHub</a>
