@@ -207,7 +207,7 @@ function WorkspaceSidebar({
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className={preview ? 'overflow-clip' : undefined}>
         <nav aria-label="Workspace navigation" className="pt-4">
           {groups.map((group) => (
             <SidebarGroup key={group.label}>
@@ -224,22 +224,8 @@ function WorkspaceSidebar({
                             href={item.href}
                             onClick={(event) => {
                               closeMobile();
-                              if (!preview || !item.href.startsWith('#'))
-                                return;
-                              const inset = document.querySelector<HTMLElement>(
-                                '#dashboard-preview [data-slot=sidebar-inset]',
-                              );
-                              const target = inset?.querySelector<HTMLElement>(
-                                item.href,
-                              );
-                              if (!inset || !target) return;
-                              event.preventDefault();
-                              inset.scrollTo({
-                                top:
-                                  target.offsetTop -
-                                  (inset.querySelector('header')
-                                    ?.offsetHeight ?? 0),
-                              });
+                              if (preview && item.href.startsWith('#'))
+                                event.preventDefault();
                             }}
                             aria-current={active ? 'page' : undefined}
                           >
@@ -370,7 +356,7 @@ export function DashboardShell({
         />
         <SidebarInset
           asChild
-          className={cn('min-w-0', preview && 'min-h-0 overflow-y-auto')}
+          className={cn('min-w-0', preview && 'min-h-0 overflow-clip')}
         >
           <InsetElement>
             <header
