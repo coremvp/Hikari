@@ -11,7 +11,7 @@ export async function PricingSection() {
       aria-labelledby="pricing-title"
       className="hikari-section scroll-mt-8"
     >
-      <div className="-mx-6 bg-stone-100 px-6 py-10 sm:mx-0 sm:rounded-3xl sm:p-8 xl:p-12">
+      <div className="-mx-6 bg-stone-50 px-6 py-10 sm:mx-0 sm:rounded-3xl sm:px-8 sm:py-12 xl:px-10">
         <PricingPlans
           plans={plans}
           description={
@@ -26,15 +26,16 @@ export async function PricingSection() {
           </p>
           <h2
             id="pricing-title"
-            className="max-w-lg text-4xl font-medium leading-[1.05] tracking-[-0.04em] text-neutral-950 sm:text-5xl xl:text-6xl"
+            className="text-4xl font-medium leading-[1.05] tracking-[-0.04em] text-neutral-950 sm:text-5xl xl:text-6xl"
           >
             Try subscription billing.
           </h2>
         </PricingPlans>
-        <div className="mt-6 flex flex-col gap-4 text-sm leading-6 text-stone-600 lg:flex-row lg:items-start lg:justify-between lg:gap-8">
-          <p className="max-w-3xl">
+        <div className="mt-7 flex flex-col items-center gap-3 text-center text-sm leading-6 text-stone-600">
+          <p className="max-w-2xl">
             These are example subscriptions for testing your application’s
-            billing flow.{' '}
+            billing flow. All three include the same features; shape them around
+            your product.{' '}
             <span className="font-medium text-stone-900">
               Hikari’s source is free under MIT.
             </span>
