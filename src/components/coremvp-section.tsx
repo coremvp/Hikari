@@ -12,7 +12,7 @@ const outcomes = [
     icon: UsersRound,
     title: 'Build for people working together.',
     description:
-      'Shared Organizations, invitations and member roles. Bring people into a workspace with permissions checked on the server.',
+      'Invite members, assign roles and check permissions on the server.',
     href: 'https://coremvp.com/en/docs/organizations',
     link: 'Explore Organizations',
   },
@@ -20,7 +20,7 @@ const outcomes = [
     icon: FolderKanban,
     title: 'Start with real product data.',
     description:
-      'Create, rename, archive and restore persisted Projects. Organization ownership and member access are already connected.',
+      'Create, rename, archive and restore Projects in shared workspaces.',
     href: 'https://coremvp.com/en/docs/projects',
     link: 'Explore Projects',
   },
@@ -28,7 +28,7 @@ const outcomes = [
     icon: ReceiptText,
     title: 'Let a purchase start the account.',
     description:
-      'One-time payments with guest checkout. Verified payment connects to account onboarding and stored access.',
+      'Guest checkout, followed by account setup and purchase access.',
     href: 'https://coremvp.com/en/docs/billing/lifetime/guest-checkout',
     link: 'Explore guest checkout',
   },
@@ -48,10 +48,8 @@ export function CoreMVPSection() {
           subtitle="Start with more already connected."
         />
         <p className="mt-6 text-base leading-7 text-neutral-600">
-          Hikari gives your individual-account application a place to begin.
-          When your product needs shared workspaces, persisted Projects or
-          one-time onboarding, build on CoreMVP’s premium startup application
-          foundation.
+          A premium foundation for shared workspaces, Projects and guest
+          checkout.
         </p>
       </div>
       <div className="mt-10 grid gap-6 md:grid-cols-3">
@@ -95,16 +93,15 @@ export function CoreMVPSection() {
           </a>
         </div>
         <p className="mt-5 text-sm leading-6 text-neutral-600">
-          A separate source-code foundation you run with your own providers.
-          Hikari’s example subscriptions test your app’s billing; they do not
-          include CoreMVP source. Visit{' '}
+          CoreMVP is a separate foundation you host. Hikari subscriptions don’t
+          include its source. See{' '}
           <a
             href="https://coremvp.com/en#pricing"
             className="underline underline-offset-4"
           >
             CoreMVP
           </a>{' '}
-          for source access and current commercial terms.
+          for source access and terms.
         </p>
       </div>
       <div className="mt-10 grid gap-6 sm:grid-cols-2">
@@ -117,8 +114,7 @@ export function CoreMVPSection() {
             From Hikari to CoreMVP <span aria-hidden="true">→</span>
           </h3>
           <p className="mt-2 text-sm leading-6 text-neutral-600">
-            Understand the separate foundation, start locally and plan where
-            your existing work belongs.
+            Compare foundations and plan your next build.
           </p>
         </Link>
         <Link
@@ -132,8 +128,7 @@ export function CoreMVPSection() {
             Building Beyond Hikari <span aria-hidden="true">→</span>
           </h3>
           <p className="mt-2 text-sm leading-6 text-neutral-600">
-            See why shared work needs membership, permissions and real Project
-            ownership.
+            Membership, permissions and Projects. The step beyond Hikari.
           </p>
         </Link>
       </div>

@@ -15,8 +15,7 @@ export function PricingSection() {
         plans={subscriptionPlans}
         description={
           <p className="text-base leading-7 text-stone-600">
-            Choose an example plan and explore Checkout, subscription access and
-            Customer Portal. Sign in first; we’ll keep your selection.
+            Pick an example plan. Sign in to try Checkout.
           </p>
         }
       >
@@ -28,9 +27,7 @@ export function PricingSection() {
       </PricingPlans>
       <div className="mt-7 flex flex-col items-center gap-3 text-center text-sm leading-6 text-stone-600">
         <p className="max-w-2xl">
-          These are example subscriptions for testing your application’s billing
-          flow. All three include the same features; shape them around your
-          product.{' '}
+          Three example plans, one feature set. Shape them around your product.{' '}
           <span className="font-medium text-stone-900">
             Hikari’s source is free under MIT.
           </span>

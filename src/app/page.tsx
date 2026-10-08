@@ -27,8 +27,7 @@ const foundations = [
   {
     number: '01',
     title: 'Give users a home.',
-    description:
-      'Email and password signup opens a protected Dashboard. Supabase Auth handles sessions and recovery.',
+    description: 'Signup, sessions and password recovery with Supabase Auth.',
     href: '/docs/features/authentication',
     link: 'Accounts and authentication',
   },
@@ -36,7 +35,7 @@ const foundations = [
     number: '02',
     title: 'Connect payments to access.',
     description:
-      'Stripe Checkout, verified webhooks, and stored subscription state. Customer Portal handles subscription management.',
+      'Stripe subscriptions, with access kept in sync and a customer portal.',
     href: '/docs/features/payments',
     link: 'Subscription billing',
   },
@@ -44,7 +43,7 @@ const foundations = [
     number: '03',
     title: 'Make it your application.',
     description:
-      'Build your product in one Next.js runtime. Hono owns the API, and Drizzle owns database access.',
+      'Next.js pages, Hono APIs and Drizzle queries. One application.',
     href: '/docs/getting-started/project-structure',
     link: 'Explore the source',
   },
@@ -86,8 +85,8 @@ export default function Home() {
             </span>
           </h1>
           <p className="mt-5 max-w-xl text-balance text-lg leading-7 text-neutral-600">
-            Individual accounts, subscriptions, and content. Connected in one
-            open-source Next.js application you run and make your own.
+            Accounts, subscriptions, Docs and Blog. Your Next.js app starts
+            here.
           </p>
           <div className="mt-7 flex flex-wrap justify-center gap-3">
             <Link
@@ -167,7 +166,7 @@ export default function Home() {
             subtitle="Accounts and subscriptions, connected."
           />
           <p className="max-w-sm text-lg leading-7 text-neutral-600 lg:justify-self-end">
-            Give the rest of your application your attention.
+            Supabase accounts. Stripe subscriptions. Your code.
           </p>
         </div>
         <ol className="mt-10 grid overflow-hidden rounded-2xl border border-neutral-200 bg-white lg:grid-cols-3">
@@ -267,7 +266,7 @@ export default function Home() {
               subtitle="Publish from the same repository."
             />
             <p className="mt-5 max-w-lg text-lg leading-7 text-neutral-600">
-              Local MDX, searchable documentation, and an engineering blog.
+              Write in MDX. Give your readers search and a Blog.
             </p>
             <div className="mt-7 flex flex-wrap gap-6 text-sm font-medium">
               <Link href="/docs" className="underline underline-offset-4">
@@ -321,8 +320,7 @@ export default function Home() {
             subtitle="Make it yours."
           />
           <p className="mt-5 max-w-md leading-7 text-neutral-600">
-            Hikari is MIT licensed. Run it locally, connect your providers, and
-            build your product on top.
+            MIT licensed. Run locally, connect your providers and build.
           </p>
           <Link
             href="/docs/getting-started"

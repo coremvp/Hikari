@@ -23,8 +23,7 @@ export function DashboardPreview() {
           id="dashboard-preview-description"
           className="mx-auto max-w-3xl text-base leading-7 text-neutral-600"
         >
-          Explore chart values and switch example workspaces and projects. This
-          preview uses sample data; nothing is saved.
+          Explore the charts and workspaces. Sample data, nothing saved.
         </p>
       </div>
       <div className="relative isolate h-[40rem] overflow-hidden rounded-xl border border-neutral-200 text-left">
@@ -61,28 +60,26 @@ export function DashboardPreview() {
           <strong className="font-medium text-neutral-900">
             Your account.
           </strong>{' '}
-          Signup opens Dashboard. Signed-in account summaries use your real
-          account state.
+          Sign up for a Dashboard with your real account details.
         </p>
         <p>
           <strong className="font-medium text-neutral-900">
             Your subscription.
           </strong>{' '}
-          Account holds Checkout and Portal controls once Stripe is configured.
-          Access comes from persisted subscription state.
+          Connect Stripe for Checkout, Portal and subscription access.
         </p>
         <p>
           <strong className="font-medium text-neutral-900">
             Your product.
           </strong>{' '}
-          Charts and Organization/Project selectors are illustrative. See{' '}
+          Sample charts and selectors. Add real features and permissions with{' '}
           <Link
             href="/docs/getting-started/project-structure"
             className="underline underline-offset-4"
           >
             Project structure
-          </Link>{' '}
-          for the features and authorization you add.
+          </Link>
+          .
         </p>
       </div>
     </section>
