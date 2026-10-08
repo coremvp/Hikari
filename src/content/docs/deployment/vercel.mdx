@@ -35,8 +35,11 @@ In Supabase Authentication → URL Configuration, set **Site URL** to your final
 https://your-app.example/auth/callback
 https://your-app.example/auth/callback?next=/reset-password
 https://your-app.example/auth/callback?next=%2Fcheckout%3Fplan%3Dstarter
+https://your-app.example/auth/callback?next=%2Fcheckout%3Fplan%3Dstarter%26interval%3Dyearly
 https://your-app.example/auth/callback?next=%2Fcheckout%3Fplan%3Dpro
+https://your-app.example/auth/callback?next=%2Fcheckout%3Fplan%3Dpro%26interval%3Dyearly
 https://your-app.example/auth/callback?next=%2Fcheckout%3Fplan%3Dbusiness
+https://your-app.example/auth/callback?next=%2Fcheckout%3Fplan%3Dbusiness%26interval%3Dyearly
 https://your-app.example/auth/confirm
 ```
 
@@ -56,7 +59,7 @@ bunx vercel link --project <your-project-name>
 
 Confirm the intended account and project; stop if they are wrong. For a team project, append `--scope <team-slug>` to both `project ls` and `link`. For a personal project, omit `--scope` and select your personal account in the link prompts. Select the listed project or create a fresh project with your chosen name. Use the Next.js preset. The checked-in `vercel.json` uses `bun install --frozen-lockfile` and `bun run build`; Next.js runs under Node.js.
 
-Add the seven values in the [environment reference](/docs/reference/environment) to **Production** in the selected project. Set `APP_URL` to your final HTTPS origin, without a path or query. Use this Supabase project’s API URL, publishable key, and TLS-enabled transaction-pooler URL. Follow the [Supabase connection guide](https://supabase.com/docs/guides/database/connecting-to-postgres); Hikari’s Drizzle connection disables prepared statements for transaction pooling.
+Add the values in the [environment reference](/docs/reference/environment) to **Production** in the selected project. Set `APP_URL` to your final HTTPS origin, without a path or query. Use this Supabase project’s API URL, publishable key, and TLS-enabled transaction-pooler URL. Follow the [Supabase connection guide](https://supabase.com/docs/guides/database/connecting-to-postgres); Hikari’s Drizzle connection disables prepared statements for transaction pooling.
 
 Use Vercel Dashboard fields or these [interactive environment prompts](https://vercel.com/docs/cli/env). Enter values only when prompted; do not put secrets in command arguments. Mark database credentials and Stripe secrets as sensitive. The only public settings are the two `NEXT_PUBLIC_SUPABASE_*` values.
 
@@ -67,13 +70,16 @@ bunx vercel env add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY production
 bunx vercel env add DATABASE_URL production --sensitive
 bunx vercel env add STRIPE_SECRET_KEY production --sensitive
 bunx vercel env add STRIPE_PRICE_ID production
+bunx vercel env add STRIPE_YEARLY_PRICE_ID production
 bunx vercel env add STRIPE_PRO_PRICE_ID production
+bunx vercel env add STRIPE_PRO_YEARLY_PRICE_ID production
 bunx vercel env add STRIPE_BUSINESS_PRICE_ID production
+bunx vercel env add STRIPE_BUSINESS_YEARLY_PRICE_ID production
 bunx vercel env add STRIPE_WEBHOOK_SECRET production --sensitive
 bunx vercel env ls production
 ```
 
-Verify that all seven names target Production in the linked project before deploying. If a value already exists, use `env update` with the same target and sensitive flag.
+Verify that every setting above targets Production in the linked project before deploying. If a value already exists, use `env update` with the same target and sensitive flag.
 
 </Step>
 <Step>
@@ -81,7 +87,7 @@ Verify that all seven names target Production in the linked project before deplo
 
 Follow [Create a hosted destination](/docs/features/payments#create-a-hosted-destination) in your selected Stripe test account. That section contains the exact five-event list and API-version check. Register `https://your-app.example/api/webhooks/stripe`, save that destination's signing secret as the Production `STRIPE_WEBHOOK_SECRET`, then redeploy to load it. The local listener's secret does not verify hosted deliveries.
 
-Complete [Customer Portal configuration](/docs/features/payments#configure-customer-portal) in the same account. Use the same configured Starter, Pro, and Business test prices throughout setup. The public pricing cards read Stripe’s amounts and intervals; a live-mode or unavailable price cannot open test checkout.
+Complete [Customer Portal configuration](/docs/features/payments#configure-customer-portal) in the same account. Use the same configured monthly and yearly Starter, Pro, and Business test prices throughout setup. The public pricing cards read Stripe’s amounts and intervals; a live-mode or unavailable price cannot open test checkout.
 
 </Step>
 <Step>

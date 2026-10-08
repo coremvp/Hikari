@@ -15,8 +15,10 @@ export function createBillingRoutes(
       '/billing/checkout',
       zValidator('json', checkoutInputSchema),
       async (c) => {
-        const { plan, demo } = c.req.valid('json');
-        return c.json(await service.checkout(await user(), plan, demo));
+        const { plan, demo, interval } = c.req.valid('json');
+        return c.json(
+          await service.checkout(await user(), plan, demo, interval),
+        );
       },
     )
     .post('/billing/portal', async (c) =>

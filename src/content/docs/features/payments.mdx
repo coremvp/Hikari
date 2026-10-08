@@ -13,16 +13,23 @@ Install the [Stripe CLI](https://docs.stripe.com/cli/install) for your OS before
 <Step>
 ## Create your recurring prices
 
-In the [Stripe test Dashboard](https://dashboard.stripe.com/test/products), create an active, fixed-amount recurring price for each plan. Each price must use standard per-unit billing with quantity one, without metered usage, tiers, or quantity transformations. Add these server-only values to ignored `.env.local`:
+In the [Stripe test Dashboard](https://dashboard.stripe.com/test/products), create active, fixed-amount monthly and yearly prices for each plan (six prices total). Use an interval count of one for both cadences. Each price must use standard per-unit billing with quantity one, without metered usage, tiers, or quantity transformations. Add these server-only values to ignored `.env.local`:
 
-| Variable                   | Value                                    |
-| -------------------------- | ---------------------------------------- |
-| `STRIPE_SECRET_KEY`        | Secret test key from this Stripe account |
-| `STRIPE_PRICE_ID`          | Starter recurring test price ID          |
-| `STRIPE_PRO_PRICE_ID`      | Pro recurring test price ID              |
-| `STRIPE_BUSINESS_PRICE_ID` | Business recurring test price ID         |
+<div className="[&_td:last-child]:min-w-48">
 
-Keep `STRIPE_PRICE_ID` for your existing Starter configuration. A missing or unavailable plan links to this guide instead of opening Checkout. The public pricing section displays amounts and billing intervals from valid test prices; live-mode prices cannot start its test checkout. Local signup works without any billing settings.
+| Variable                          | Value                                    |
+| --------------------------------- | ---------------------------------------- |
+| `STRIPE_SECRET_KEY`               | Secret test key from this Stripe account |
+| `STRIPE_PRICE_ID`                 | Starter monthly recurring test price ID  |
+| `STRIPE_YEARLY_PRICE_ID`          | Starter yearly recurring test price      |
+| `STRIPE_PRO_PRICE_ID`             | Pro monthly recurring test price ID      |
+| `STRIPE_PRO_YEARLY_PRICE_ID`      | Pro yearly recurring test price          |
+| `STRIPE_BUSINESS_PRICE_ID`        | Business monthly recurring test price ID |
+| `STRIPE_BUSINESS_YEARLY_PRICE_ID` | Business yearly recurring test price     |
+
+</div>
+
+Keep `STRIPE_PRICE_ID` for your existing monthly Starter configuration. The other existing price names remain monthly; the three `*_YEARLY_PRICE_ID` settings hold yearly prices. A missing yearly setting never falls back to monthly billing. A missing or unavailable plan links to this guide instead of opening Checkout. The public pricing section displays the actual amount for the selected cadence, including the full yearly charge; no annual amount or discount is calculated from a monthly price. A price with a mismatched cadence remains unavailable. Live-mode prices cannot start its test checkout. Local signup works without any billing settings.
 
 Use the same Stripe account for your prices, test key, listener, and Customer Portal. Stop if any of them belongs to another account or live mode.
 
@@ -63,13 +70,13 @@ Save the test-mode configuration and preview it. The app creates each Portal ses
   </figcaption>
 </figure>
 
-You can choose immediate cancellation instead. Subscriber access accepts your configured Starter, Pro, and Business prices. Switching to an unconfigured price removes access. Plan labels do not add separate entitlements; customize them for your application.
+You can choose immediate cancellation instead. Subscriber access accepts your configured monthly and yearly Starter, Pro, and Business prices. Switching to an unconfigured price removes access. Plan labels do not add separate entitlements; customize them for your application.
 
 </Step>
 <Step>
 ## Complete a test subscription
 
-Open **Pricing** on the homepage and choose **Try test checkout** for a plan. An anonymous visitor first reaches Sign in; the **Sign up** link keeps the same selected plan. After sign-in or signup, Checkout opens automatically. If email confirmation is enabled, the confirmation callback keeps that selection too. Without a selected plan, signup still opens Dashboard. Account’s **Start subscription** starts Starter Checkout. Use Stripe’s `4242 4242 4242 4242` test card, a future expiry, and any three-digit CVC. After returning, select **Refresh subscription**. Account should show **Your subscription access is active.** and the subscription status; Dashboard should also show subscriber access.
+Open **Pricing** on the homepage and select Monthly or Yearly, then choose **Try test checkout** for a plan. An anonymous visitor first reaches Sign in; the **Sign up** link keeps the same selected plan and billing interval. After sign-in or signup, Checkout opens automatically. If email confirmation is enabled, the confirmation callback keeps the plan and interval too. Without a selected plan, signup still opens Dashboard. Account’s **Start subscription** starts monthly Starter Checkout. Use Stripe’s `4242 4242 4242 4242` test card, a future expiry, and any three-digit CVC. After returning, select **Refresh subscription**. Account should show **Your subscription access is active.** and the subscription status; Dashboard should also show subscriber access.
 
 Select **Billing portal** to open Customer Portal. Cancel the disposable subscription there, keep the listener running, and refresh Account after Stripe delivers the change. Immediate cancellation should remove access. A scheduled cancellation keeps access while the subscription remains `active` or `trialing`.
 

@@ -15,7 +15,11 @@ import Stripe from 'stripe';
 import { createBillingRoutes } from '@/api/billing';
 import { Hono } from 'hono';
 import { AppError } from '@/lib/errors';
-import { formatRecurringPrice, type PlanId } from '@/lib/subscription-plans';
+import {
+  formatRecurringPrice,
+  type PlanId,
+  billingIntervals,
+} from '@/lib/subscription-plans';
 const approved = 'price_approved';
 const state = (
   status: SubscriptionStatus = 'active',
@@ -113,11 +117,11 @@ function fixture() {
     async currentSubscription() {
       return current;
     },
-    async recurringPrice() {
+    async recurringPrice(id) {
       return {
         currency: 'usd',
         amount: 1500,
-        interval: 'month',
+        interval: id.endsWith('_yearly') ? 'year' : 'month',
         intervalCount: 1,
         livemode: false,
       } as const;
@@ -149,9 +153,12 @@ function fixture() {
       store,
       provider,
       () => ({
-        starter: approved,
-        pro: 'price_pro',
-        business: 'price_business',
+        starter: { monthly: approved, yearly: 'price_starter_yearly' },
+        pro: { monthly: 'price_pro', yearly: 'price_pro_yearly' },
+        business: {
+          monthly: 'price_business',
+          yearly: 'price_business_yearly',
+        },
       }),
       () => 'https://app.example',
     ),
@@ -174,25 +181,31 @@ for (const [plan, price] of Object.entries({
   starter: approved,
   pro: 'price_pro',
   business: 'price_business',
-})) {
-  test(
-    plan + ' resolves a server-owned price for Checkout and persisted access',
-    async () => {
-      const f = fixture();
-      let selected: string | undefined;
-      f.provider.checkout = async (_customer, priceId) => {
-        selected = priceId;
-        return 'https://checkout.stripe.com/fixture';
-      };
-      await f.service.checkout(user, plan as PlanId, true);
-      expect(selected).toBe(price);
-      f.setCurrent(state('active', price));
-      await f.service.webhook(event('evt_plan'), 'fixture');
-      expect(f.store.rows.get('sub_contract')?.priceId).toBe(price);
-      expect((await f.service.view(user.id)).access).toBe(true);
-    },
-  );
-}
+}))
+  for (const interval of billingIntervals) {
+    const selectedPrice =
+      interval === 'monthly' ? price : 'price_' + plan + '_yearly';
+    test(
+      plan +
+        ' ' +
+        interval +
+        ' resolves a server-owned price for Checkout and persisted access',
+      async () => {
+        const f = fixture();
+        let selected: string | undefined;
+        f.provider.checkout = async (_customer, priceId) => {
+          selected = priceId;
+          return 'https://checkout.stripe.com/fixture';
+        };
+        await f.service.checkout(user, plan as PlanId, true, interval);
+        expect(selected).toBe(selectedPrice);
+        f.setCurrent(state('active', selectedPrice));
+        await f.service.webhook(event('evt_plan'), 'fixture');
+        expect(f.store.rows.get('sub_contract')?.priceId).toBe(selectedPrice);
+        expect((await f.service.view(user.id)).access).toBe(true);
+      },
+    );
+  }
 
 test('public pricing maps provider currency and recurrence, and hides live or failed prices', async () => {
   const f = fixture();
@@ -201,20 +214,22 @@ test('public pricing maps provider currency and recurrence, and hides live or fa
     return {
       currency: 'jpy',
       amount: 2300,
-      interval: 'year',
-      intervalCount: 2,
+      interval: id.endsWith('_yearly') ? 'year' : 'month',
+      intervalCount: 1,
       livemode: id === 'price_pro',
     };
   };
   const plans = await f.service.plans();
   const starter = plans.find((plan) => plan.id === 'starter')!;
-  expect(starter.price?.amount).toBe(2300);
-  expect(formatRecurringPrice(starter.price!)).toEqual({
+  expect(starter.prices.yearly?.amount).toBe(2300);
+  expect(formatRecurringPrice(starter.prices.yearly!)).toEqual({
     amount: '¥2,300',
-    interval: 'every 2 years',
+    interval: 'per year',
   });
-  expect(plans.find((plan) => plan.id === 'pro')?.price).toBeNull();
-  expect(plans.find((plan) => plan.id === 'business')?.price).toBeNull();
+  expect(plans.find((plan) => plan.id === 'pro')?.prices.monthly).toBeNull();
+  expect(
+    plans.find((plan) => plan.id === 'business')?.prices.monthly,
+  ).toBeNull();
 });
 
 test('missing plans stay unavailable and never create a provider customer', async () => {
@@ -222,7 +237,7 @@ test('missing plans stay unavailable and never create a provider customer', asyn
   const service = new BillingService(
     f.store,
     f.provider,
-    () => ({ starter: approved }),
+    () => ({ starter: { monthly: approved } }),
     () => 'https://app.example',
   );
   f.store.customer = null;
@@ -232,7 +247,7 @@ test('missing plans stay unavailable and never create a provider customer', asyn
     return 'cus_new';
   };
   expect(
-    (await service.plans()).find((plan) => plan.id === 'pro')?.price,
+    (await service.plans()).find((plan) => plan.id === 'pro')?.prices.monthly,
   ).toBeNull();
   await expect(service.checkout(user, 'pro', true)).rejects.toThrow(
     'not configured',
@@ -243,7 +258,7 @@ test('missing plans stay unavailable and never create a provider customer', asyn
 test('a stale pricing card cannot create a customer or session after a price switches to live mode', async () => {
   const f = fixture();
   expect(
-    (await f.service.plans()).find((plan) => plan.id === 'pro')?.price
+    (await f.service.plans()).find((plan) => plan.id === 'pro')?.prices.monthly
       ?.livemode,
   ).toBe(false);
   f.store.customer = null;
@@ -277,6 +292,49 @@ test('an archived purchase price does not block existing Account billing managem
   expect(f.count()).toBe(0);
 });
 
+test('a yearly selection cannot fall back to a monthly or multi-year price', async () => {
+  const f = fixture();
+  f.store.customer = null;
+  for (const intervalCount of [1, 2]) {
+    f.provider.recurringPrice = async () => ({
+      currency: 'usd',
+      amount: 9900,
+      interval: intervalCount === 1 ? 'month' : 'year',
+      intervalCount,
+      livemode: false,
+    });
+    expect(
+      (await f.service.plans()).find((plan) => plan.id === 'pro')?.prices
+        .yearly,
+    ).toBeNull();
+    await expect(
+      f.service.checkout(user, 'pro', true, 'yearly'),
+    ).rejects.toThrow('does not match');
+    expect(f.store.customer).toBeNull();
+    expect(f.count()).toBe(0);
+  }
+});
+
+test('missing yearly configuration stays unavailable while monthly keeps working', async () => {
+  const f = fixture();
+  const service = new BillingService(
+    f.store,
+    f.provider,
+    () => ({ starter: { monthly: approved } }),
+    () => 'https://app.example',
+  );
+  const starter = (await service.plans()).find(
+    (plan) => plan.id === 'starter',
+  )!;
+  expect(starter.prices.monthly?.amount).toBe(1500);
+  expect(starter.prices.yearly).toBeNull();
+  await expect(
+    service.checkout(user, 'starter', true, 'yearly'),
+  ).rejects.toThrow('not configured');
+  expect(f.count()).toBe(0);
+  expect((await service.checkout(user)).destination).toBe('checkout');
+});
+
 test('Checkout API rejects arbitrary prices and plan identifiers, and requires a verified user', async () => {
   const f = fixture();
   const api = new Hono().route(
@@ -291,6 +349,7 @@ test('Checkout API rejects arbitrary prices and plan identifiers, and requires a
     });
   for (const body of [
     { plan: 'enterprise' },
+    { plan: 'pro', interval: 'weekly' },
     { plan: 'pro', priceId: 'price_attacker' },
     { demo: 'true' },
   ]) {

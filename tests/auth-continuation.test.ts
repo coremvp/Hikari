@@ -4,6 +4,7 @@ import {
   authDestination,
   checkoutNext,
   checkoutPath,
+  billingIntervals,
 } from '@/lib/subscription-plans';
 
 let failure = false;
@@ -40,38 +41,43 @@ const request = (route: string, params: Record<string, string>) => {
   return new NextRequest(url);
 };
 
-for (const plan of ['starter', 'pro', 'business'] as const) {
-  test(
-    plan +
-      ' keeps its checkout destination through signup and verified confirmation',
-    async () => {
-      failure = false;
-      const next = checkoutPath(plan);
-      expect(checkoutNext(next)).toBe(next);
-      expect(authDestination(next)).toBe(next);
-      await signUp('fixture@example.test', 'Fixture-password', next);
-      expect(new URL(signupRedirect).searchParams.get('next')).toBe(next);
-      for (const response of [
-        await callback(
-          request('/auth/callback', { code: 'fixture_code', next }),
-        ),
-        await confirm(
-          request('/auth/confirm', {
-            token_hash: 'fixture_hash',
-            type: 'signup',
-            next,
-          }),
-        ),
-      ]) {
-        expect(response.headers.get('location')).toBe(
-          'http://localhost:3000' + next,
-        );
-        expect(response.headers.get('cache-control')).toBe('private, no-store');
-        expect(response.headers.get('referrer-policy')).toBe('no-referrer');
-      }
-    },
-  );
-}
+for (const plan of ['starter', 'pro', 'business'] as const)
+  for (const interval of billingIntervals) {
+    test(
+      plan +
+        ' ' +
+        interval +
+        ' keeps its checkout destination through signup and verified confirmation',
+      async () => {
+        failure = false;
+        const next = checkoutPath(plan, interval);
+        expect(checkoutNext(next)).toBe(next);
+        expect(authDestination(next)).toBe(next);
+        await signUp('fixture@example.test', 'Fixture-password', next);
+        expect(new URL(signupRedirect).searchParams.get('next')).toBe(next);
+        for (const response of [
+          await callback(
+            request('/auth/callback', { code: 'fixture_code', next }),
+          ),
+          await confirm(
+            request('/auth/confirm', {
+              token_hash: 'fixture_hash',
+              type: 'signup',
+              next,
+            }),
+          ),
+        ]) {
+          expect(response.headers.get('location')).toBe(
+            'http://localhost:3000' + next,
+          );
+          expect(response.headers.get('cache-control')).toBe(
+            'private, no-store',
+          );
+          expect(response.headers.get('referrer-policy')).toBe('no-referrer');
+        }
+      },
+    );
+  }
 
 test('untrusted return paths never escape the application or trigger checkout', async () => {
   failure = false;
@@ -80,6 +86,8 @@ test('untrusted return paths never escape the application or trigger checkout', 
     '//other.example',
     '/checkout?plan=pro&url=https://other.example',
     '/checkout?plan=enterprise',
+    '/checkout?plan=pro&interval=weekly',
+    '/checkout?plan=pro&interval=yearly&url=https://other.example',
     '/account',
   ]) {
     expect(checkoutNext(next)).toBeNull();

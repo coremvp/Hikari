@@ -64,7 +64,7 @@ const provider: BillingProvider = {
   recurringPrice: async () => ({
     currency: 'usd',
     amount: 6500,
-    interval: 'month',
+    interval: 'year',
     intervalCount: 1,
     livemode: false,
   }),
@@ -79,7 +79,7 @@ const provider: BillingProvider = {
 const service = new BillingService(
   new BillingRepository(),
   provider,
-  () => ({ pro: approved }),
+  () => ({ pro: { yearly: approved } }),
   () => 'http://localhost:3000',
 );
 const api = new Hono()
@@ -118,7 +118,7 @@ try {
       await api.request('/api/billing/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: 'pro', demo: true }),
+        body: JSON.stringify({ plan: 'pro', interval: 'yearly', demo: true }),
       })
     ).status,
     200,

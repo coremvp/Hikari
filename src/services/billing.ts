@@ -9,7 +9,14 @@ import {
 } from '@/lib/billing-contract';
 import { appUrl } from '@/lib/config';
 import { AppError } from '@/lib/errors';
-import { subscriptionPlans, type PlanId } from '@/lib/subscription-plans';
+import {
+  subscriptionPlans,
+  billingIntervals,
+  type PlanId,
+  type PlanPrices,
+  type BillingInterval,
+  type PricingPlan,
+} from '@/lib/subscription-plans';
 const lifecycleEvents = new Set([
   'customer.subscription.created',
   'customer.subscription.updated',
@@ -21,7 +28,7 @@ export class BillingService {
   constructor(
     private store: BillingStore,
     private provider: BillingProvider,
-    private prices: () => Partial<Record<PlanId, string>>,
+    private prices: () => PlanPrices,
     private origin: () => string,
   ) {}
   async view(userId: string): Promise<BillingView> {
@@ -30,7 +37,10 @@ export class BillingService {
       ? await this.store.subscriptions(customer.stripeCustomerId)
       : [];
     return {
-      access: hasSubscriptionAccess(states, Object.values(this.prices())),
+      access: hasSubscriptionAccess(
+        states,
+        Object.values(this.prices()).flatMap((prices) => Object.values(prices)),
+      ),
       canManage: !!customer,
       subscriptions: states.map((s) => ({
         status: s.status,
@@ -43,18 +53,40 @@ export class BillingService {
     if (!(await this.view(userId)).access)
       throw new AppError(403, 'An active subscription is required.');
   }
-  async plans() {
+  private async quote(priceId: string, interval: BillingInterval) {
+    const price = await this.provider.recurringPrice(priceId);
+    if (
+      price.interval !== (interval === 'monthly' ? 'month' : 'year') ||
+      price.intervalCount !== 1
+    )
+      throw new AppError(
+        503,
+        'The subscription price does not match the selected billing interval.',
+      );
+    return price;
+  }
+  async plans(): Promise<PricingPlan[]> {
     const configured = this.prices();
     return Promise.all(
       subscriptionPlans.map(async (plan) => {
-        const priceId = configured[plan.id];
-        if (!priceId) return { ...plan, price: null };
-        try {
-          const price = await this.provider.recurringPrice(priceId);
-          return { ...plan, price: price.livemode ? null : price };
-        } catch {
-          return { ...plan, price: null };
-        }
+        const prices = await Promise.all(
+          billingIntervals.map(async (interval) => {
+            const priceId = configured[plan.id]?.[interval];
+            if (!priceId) return null;
+            try {
+              const price = await this.quote(priceId, interval);
+              return price.livemode ? null : price;
+            } catch {
+              return null;
+            }
+          }),
+        );
+        return {
+          id: plan.id,
+          name: plan.name,
+          description: plan.description,
+          prices: { monthly: prices[0], yearly: prices[1] },
+        };
       }),
     );
   }
@@ -62,9 +94,10 @@ export class BillingService {
     user: { id: string; email: string },
     plan: PlanId = 'starter',
     demo = false,
+    interval: BillingInterval = 'monthly',
   ) {
     return this.store.withLock('hikari:checkout:' + user.id, async (store) => {
-      const approvedPrice = this.prices()[plan];
+      const approvedPrice = this.prices()[plan]?.[interval];
       if (!approvedPrice)
         throw new AppError(
           503,
@@ -72,7 +105,7 @@ export class BillingService {
         );
       // Read fresh provider truth before any mutation, even if the pricing card is cached.
       if (demo) {
-        const price = await this.provider.recurringPrice(approvedPrice);
+        const price = await this.quote(approvedPrice, interval);
         if (price.livemode)
           throw new AppError(
             409,
@@ -102,7 +135,7 @@ export class BillingService {
           ),
           destination: 'portal' as const,
         };
-      if (!demo) await this.provider.recurringPrice(approvedPrice);
+      if (!demo) await this.quote(approvedPrice, interval);
       const url =
         (await this.provider.openCheckout(
           customer.stripeCustomerId,
@@ -164,13 +197,18 @@ export const billing = new BillingService(
   new StripeProvider(),
   () =>
     Object.fromEntries(
-      subscriptionPlans.flatMap((plan) => {
-        const result = z
-          .string()
-          .regex(/^price_[A-Za-z0-9]+$/)
-          .safeParse(process.env[plan.env]);
-        return result.success ? [[plan.id, result.data]] : [];
-      }),
+      subscriptionPlans.map((plan) => [
+        plan.id,
+        Object.fromEntries(
+          billingIntervals.flatMap((interval) => {
+            const result = z
+              .string()
+              .regex(/^price_[A-Za-z0-9]+$/)
+              .safeParse(process.env[plan.env[interval]]);
+            return result.success ? [[interval, result.data]] : [];
+          }),
+        ),
+      ]),
     ),
   appUrl,
 );

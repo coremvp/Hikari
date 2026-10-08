@@ -63,17 +63,20 @@ Compare the [CoreMVP Next.js product](https://coremvp.com/en/products/nextjs) an
 
 ## Connect a subscription
 
-Use a Stripe test account for development. Create active, fixed-amount recurring prices for Starter, Pro, and Business in the [Stripe Dashboard](https://dashboard.stripe.com/test/products). In that account's Customer Portal settings, enable payment-method updates, invoice history, and cancellation at the end of the billing period. Leave plan and quantity changes disabled until you deliberately configure upgrades in Customer Portal. The [Subscriptions guide](src/content/docs/features/payments.mdx) shows the controls and complete setup.
+Use a Stripe test account for development. Create monthly and yearly fixed-amount recurring prices for Starter, Pro, and Business in the [Stripe Dashboard](https://dashboard.stripe.com/test/products). In that account's Customer Portal settings, enable payment-method updates, invoice history, and cancellation at the end of the billing period. Leave plan and quantity changes disabled until you deliberately configure upgrades in Customer Portal. The [Subscriptions guide](src/content/docs/features/payments.mdx) shows the controls and complete setup.
 
 Set these server-only values in ignored `.env.local`:
 
-| Variable                   | Value source                                        |
-| -------------------------- | --------------------------------------------------- |
-| `STRIPE_SECRET_KEY`        | Test secret key from the selected Stripe account    |
-| `STRIPE_PRICE_ID`          | Starter recurring price, beginning with `price_`    |
-| `STRIPE_PRO_PRICE_ID`      | Pro recurring test price from the same account      |
-| `STRIPE_BUSINESS_PRICE_ID` | Business recurring test price from the same account |
-| `STRIPE_WEBHOOK_SECRET`    | Signing secret from the local listener below        |
+| Variable                          | Value source                                                |
+| --------------------------------- | ----------------------------------------------------------- |
+| `STRIPE_SECRET_KEY`               | Test secret key from the selected Stripe account            |
+| `STRIPE_PRICE_ID`                 | Starter monthly recurring price, beginning with `price_`    |
+| `STRIPE_YEARLY_PRICE_ID`          | Starter yearly recurring test price                         |
+| `STRIPE_PRO_PRICE_ID`             | Pro monthly recurring test price from the same account      |
+| `STRIPE_PRO_YEARLY_PRICE_ID`      | Pro yearly recurring test price                             |
+| `STRIPE_BUSINESS_PRICE_ID`        | Business monthly recurring test price from the same account |
+| `STRIPE_BUSINESS_YEARLY_PRICE_ID` | Business yearly recurring test price                        |
+| `STRIPE_WEBHOOK_SECRET`           | Signing secret from the local listener below                |
 
 Install the [Stripe CLI](https://docs.stripe.com/cli/install) and check `stripe --version` before continuing. Then forward subscription events to the application:
 
@@ -82,7 +85,7 @@ stripe login
 stripe listen --events customer.subscription.created,customer.subscription.updated,customer.subscription.deleted,customer.subscription.paused,customer.subscription.resumed --forward-to localhost:3000/api/webhooks/stripe
 ```
 
-Copy the listener's signing secret into `.env.local` and restart `bun run dev`. Keep the listener running while testing Checkout. Open **Pricing** on the homepage and choose a plan. Sign in or create an account when prompted; the selected test Checkout opens automatically. Account’s **Start subscription** action continues to use Starter. Complete payment using Stripe's `4242 4242 4242 4242` test card, a future expiry, and any three-digit CVC. Refresh the subscription display after returning from Stripe.
+Copy the listener's signing secret into `.env.local` and restart `bun run dev`. Keep the listener running while testing Checkout. Open **Pricing** on the homepage and choose Monthly or Yearly, then a plan. Sign in or create an account when prompted; the selected test Checkout opens automatically. Account’s **Start subscription** action continues to use monthly Starter. Complete payment using Stripe's `4242 4242 4242 4242` test card, a future expiry, and any three-digit CVC. Refresh the subscription display after returning from Stripe.
 
 Subscription access requires persisted `active` or `trialing` state on one of your configured prices. Scheduled cancellation keeps access until Stripe changes that status. Other statuses and other prices deny access. Returning from Checkout does not grant access.
 
@@ -107,7 +110,7 @@ The Auth journey uses the running local application, Supabase Auth, and recovery
 
 Unit tests cover subscription access and controlled provider-state convergence. Database integration uses the real local database and application service/repository/API with signed Stripe fixtures. It also checks that anonymous and authenticated Supabase clients cannot read or write billing tables. No Stripe API is called by those tests.
 
-The subscription E2E needs a configured Stripe test account, the running listener, the application, and local Supabase. It selects Pro on the public pricing section, signs up, automatically opens the selected Checkout, and creates a real test subscription. It then waits for webhook-backed access, opens Customer Portal, and cancels its test subscription during cleanup. Missing settings fail the journey instead of silently skipping it. Do not use a live Stripe key.
+The subscription E2E needs a configured Stripe test account, the running listener, the application, and local Supabase. It selects yearly Pro on the public pricing section, signs up, automatically opens the selected Checkout, and creates a real test subscription. It then waits for webhook-backed access, opens Customer Portal, and cancels its test subscription during cleanup. Missing settings fail the journey instead of silently skipping it. Do not use a live Stripe key.
 
 ## Deploy on Vercel and Supabase
 
@@ -127,8 +130,11 @@ Use a fresh Supabase project and one Vercel Next.js project. Hosted authenticati
    https://<your-app>/auth/callback
    https://<your-app>/auth/callback?next=/reset-password
    https://<your-app>/auth/callback?next=%2Fcheckout%3Fplan%3Dstarter
+   https://<your-app>/auth/callback?next=%2Fcheckout%3Fplan%3Dstarter%26interval%3Dyearly
    https://<your-app>/auth/callback?next=%2Fcheckout%3Fplan%3Dpro
+   https://<your-app>/auth/callback?next=%2Fcheckout%3Fplan%3Dpro%26interval%3Dyearly
    https://<your-app>/auth/callback?next=%2Fcheckout%3Fplan%3Dbusiness
+   https://<your-app>/auth/callback?next=%2Fcheckout%3Fplan%3Dbusiness%26interval%3Dyearly
    https://<your-app>/auth/confirm
    ```
 
@@ -157,14 +163,17 @@ Use a fresh Supabase project and one Vercel Next.js project. Hosted authenticati
    | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | This project's publishable key                    |
    | `DATABASE_URL`                         | Supabase transaction-pooler URL, with TLS enabled |
    | `STRIPE_SECRET_KEY`                    | Secret key for the selected Stripe test account   |
-   | `STRIPE_PRICE_ID`                      | Starter recurring test price                      |
-   | `STRIPE_PRO_PRICE_ID`                  | Pro recurring test price                          |
-   | `STRIPE_BUSINESS_PRICE_ID`             | Business recurring test price                     |
+   | `STRIPE_PRICE_ID`                      | Starter monthly recurring test price              |
+   | `STRIPE_YEARLY_PRICE_ID`               | Starter yearly recurring test price               |
+   | `STRIPE_PRO_PRICE_ID`                  | Pro monthly recurring test price                  |
+   | `STRIPE_PRO_YEARLY_PRICE_ID`           | Pro yearly recurring test price                   |
+   | `STRIPE_BUSINESS_PRICE_ID`             | Business monthly recurring test price             |
+   | `STRIPE_BUSINESS_YEARLY_PRICE_ID`      | Business yearly recurring test price              |
    | `STRIPE_WEBHOOK_SECRET`                | Signing secret for the hosted endpoint            |
 
    Only the two `NEXT_PUBLIC_SUPABASE_*` values are public. Never put database credentials or Stripe secrets in a public variable. Follow [Supabase's connection guide](https://supabase.com/docs/guides/database/connecting-to-postgres) for the pooler and TLS settings. Drizzle uses `prepare: false` for transaction pooling.
 
-   Verify all seven names target Production with `bunx vercel env ls production` before deploying. The [deployment guide](src/content/docs/deployment/vercel.mdx) includes the complete prompt sequence.
+   Verify all names above target Production with `bunx vercel env ls production` before deploying. The [deployment guide](src/content/docs/deployment/vercel.mdx) includes the complete prompt sequence.
 
 5. Follow the [hosted destination steps](src/content/docs/features/payments.mdx#create-a-hosted-destination): select Your account, snapshot events, and the five lifecycle events listed above. Match the event API version to your installed Stripe SDK using the guide's credential-free command. Register `https://<your-app>/api/webhooks/stripe` and save this endpoint's signing secret as Production `STRIPE_WEBHOOK_SECRET`. Configure Customer Portal in that account, then deploy to load the credentials.
 

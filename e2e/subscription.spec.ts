@@ -10,6 +10,9 @@ test('public plan selection survives signup and reaches Stripe test Checkout, du
     'STRIPE_PRICE_ID',
     'STRIPE_PRO_PRICE_ID',
     'STRIPE_BUSINESS_PRICE_ID',
+    'STRIPE_YEARLY_PRICE_ID',
+    'STRIPE_PRO_YEARLY_PRICE_ID',
+    'STRIPE_BUSINESS_YEARLY_PRICE_ID',
     'DATABASE_URL',
   ])
     if (!process.env[name])
@@ -39,15 +42,19 @@ test('public plan selection survives signup and reaches Stripe test Checkout, du
   try {
     await page.goto('/#pricing');
     await page
-      .getByRole('link', { name: 'Try Pro test checkout', exact: true })
+      .getByRole('group', { name: 'Billing interval', exact: true })
+      .getByText('Yearly', { exact: true })
+      .click();
+    await page
+      .getByRole('link', { name: 'Try Pro yearly test checkout', exact: true })
       .click();
     await expect(page).toHaveURL(/\/signin\?next=/);
     expect(new URL(page.url()).searchParams.get('next')).toBe(
-      '/checkout?plan=pro',
+      '/checkout?plan=pro&interval=yearly',
     );
     await page.getByRole('link', { name: 'Sign up', exact: true }).click();
     expect(new URL(page.url()).searchParams.get('next')).toBe(
-      '/checkout?plan=pro',
+      '/checkout?plan=pro&interval=yearly',
     );
     await page.getByLabel('Email', { exact: true }).fill(email);
     await page.getByLabel('Password', { exact: true }).fill(password);
@@ -81,7 +88,9 @@ test('public plan selection survives signup and reaches Stripe test Checkout, du
     const session = sessions.data.find((s) => s.url === response.url);
     expect(session).toBeDefined();
     const items = await stripe.checkout.sessions.listLineItems(session!.id);
-    expect(items.data[0].price?.id).toBe(process.env.STRIPE_PRO_PRICE_ID);
+    expect(items.data[0].price?.id).toBe(
+      process.env.STRIPE_PRO_YEARLY_PRICE_ID,
+    );
     await page.locator('input[name="cardNumber"]').fill('4242424242424242');
     await page.locator('input[name="cardExpiry"]').fill('1235');
     await page.locator('input[name="cardCvc"]').fill('123');
@@ -106,7 +115,7 @@ test('public plan selection survives signup and reaches Stripe test Checkout, du
       rows.some(
         (s) =>
           ['active', 'trialing'].includes(s.status) &&
-          s.price_id === process.env.STRIPE_PRO_PRICE_ID,
+          s.price_id === process.env.STRIPE_PRO_YEARLY_PRICE_ID,
       ),
     ).toBe(true);
     await page.reload();

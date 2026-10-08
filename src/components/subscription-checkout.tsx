@@ -3,9 +3,15 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { z } from 'zod';
 import { request } from '@/lib/client';
-import type { PlanId } from '@/lib/subscription-plans';
+import type { PlanId, BillingInterval } from '@/lib/subscription-plans';
 
-export function SubscriptionCheckout({ plan }: { plan: PlanId }) {
+export function SubscriptionCheckout({
+  plan,
+  interval,
+}: {
+  plan: PlanId;
+  interval: BillingInterval;
+}) {
   const started = useRef(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(true);
@@ -15,7 +21,9 @@ export function SubscriptionCheckout({ plan }: { plan: PlanId }) {
     try {
       const { url } = z
         .object({ url: z.url() })
-        .parse(await request('/billing/checkout', { plan, demo: true }));
+        .parse(
+          await request('/billing/checkout', { plan, interval, demo: true }),
+        );
       window.location.replace(url);
     } catch (cause) {
       setError(
@@ -25,7 +33,7 @@ export function SubscriptionCheckout({ plan }: { plan: PlanId }) {
       );
       setBusy(false);
     }
-  }, [plan]);
+  }, [plan, interval]);
   useEffect(() => {
     if (started.current) return;
     started.current = true;

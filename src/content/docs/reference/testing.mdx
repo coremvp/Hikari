@@ -35,13 +35,13 @@ This uses your real local Postgres database, Hikari’s services/repositories/AP
 
 ## Verify a real test subscription
 
-Configure a Stripe test account, three recurring prices, Customer Portal, and running local listener as described in [Subscriptions](/docs/features/payments), then run:
+Configure a Stripe test account, six monthly/yearly recurring prices, Customer Portal, and running local listener as described in [Subscriptions](/docs/features/payments), then run:
 
 ```bash
 ./coremvp e2e billing:subscription
 ```
 
-The journey selects Pro from public Pricing, preserves it through anonymous sign-in and signup, automatically opens the selected real Stripe test Checkout, waits for webhook-backed subscriber access, opens Customer Portal, and cancels the test subscription during cleanup. Missing provider settings fail the journey instead of skipping it. Configure all three recurring test price IDs, use a test key, and use disposable customers. The journey checks Pro’s line item and persisted price so a silent fallback to Starter fails.
+The journey selects yearly Pro from public Pricing, preserves it through anonymous sign-in and signup, automatically opens the selected real Stripe test Checkout, waits for webhook-backed subscriber access, opens Customer Portal, and cancels the test subscription during cleanup. Missing provider settings fail the journey instead of skipping it. Configure all six recurring test price IDs, use a test key, and use disposable customers. The journey checks Pro’s line item and persisted yearly price so a silent fallback to monthly billing or Starter fails.
 
 If access fails, check the listener’s selected account and signing secret, successful subscription-event delivery, the configured price, and the durable subscription row. A successful Checkout return alone is insufficient.
 

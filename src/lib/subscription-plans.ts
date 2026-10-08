@@ -2,35 +2,55 @@ import { z } from 'zod';
 
 export const planIdSchema = z.enum(['starter', 'pro', 'business']);
 export type PlanId = z.infer<typeof planIdSchema>;
+export const billingIntervalSchema = z.enum(['monthly', 'yearly']);
+export type BillingInterval = z.infer<typeof billingIntervalSchema>;
+export const billingIntervals = billingIntervalSchema.options;
+export type PlanPrices = Partial<
+  Record<PlanId, Partial<Record<BillingInterval, string>>>
+>;
 export const subscriptionPlans = [
   {
     id: 'starter',
     name: 'Starter',
     description: 'A starting point for your next idea.',
-    env: 'STRIPE_PRICE_ID',
+    env: { monthly: 'STRIPE_PRICE_ID', yearly: 'STRIPE_YEARLY_PRICE_ID' },
   },
   {
     id: 'pro',
     name: 'Pro',
     description: 'A plan to shape around your growing product.',
-    env: 'STRIPE_PRO_PRICE_ID',
+    env: {
+      monthly: 'STRIPE_PRO_PRICE_ID',
+      yearly: 'STRIPE_PRO_YEARLY_PRICE_ID',
+    },
   },
   {
     id: 'business',
     name: 'Business',
     description: 'Room to explore your next stage.',
-    env: 'STRIPE_BUSINESS_PRICE_ID',
+    env: {
+      monthly: 'STRIPE_BUSINESS_PRICE_ID',
+      yearly: 'STRIPE_BUSINESS_YEARLY_PRICE_ID',
+    },
   },
 ] as const;
 
-export function checkoutPath(plan: PlanId) {
-  return '/checkout?plan=' + plan;
+export function checkoutPath(
+  plan: PlanId,
+  interval: BillingInterval = 'monthly',
+) {
+  return (
+    '/checkout?plan=' + plan + (interval === 'yearly' ? '&interval=yearly' : '')
+  );
 }
 
 export const checkoutNextSchema = z.enum([
   '/checkout?plan=starter',
   '/checkout?plan=pro',
   '/checkout?plan=business',
+  '/checkout?plan=starter&interval=yearly',
+  '/checkout?plan=pro&interval=yearly',
+  '/checkout?plan=business&interval=yearly',
 ]);
 
 export function checkoutNext(value: unknown): string | null {
@@ -45,6 +65,7 @@ export function authDestination(value: unknown) {
 export const checkoutInputSchema = z
   .object({
     plan: planIdSchema.default('starter'),
+    interval: billingIntervalSchema.default('monthly'),
     demo: z.boolean().default(false),
   })
   .strict();
@@ -55,6 +76,12 @@ export type RecurringPrice = {
   interval: 'day' | 'week' | 'month' | 'year';
   intervalCount: number;
   livemode: boolean;
+};
+export type PricingPlan = Pick<
+  (typeof subscriptionPlans)[number],
+  'id' | 'name' | 'description'
+> & {
+  prices: Record<BillingInterval, RecurringPrice | null>;
 };
 
 // Stripe charge amounts use these currencies without decimal minor units.

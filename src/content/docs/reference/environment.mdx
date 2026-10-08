@@ -5,6 +5,8 @@ description: Find Hikari’s settings and keep private values on the server.
 
 Use ignored `.env.local` locally and your Vercel deployment environment when hosted. `./coremvp env list` reports whether each setting is present without displaying values. `.env.example` defines the names; never commit actual credentials.
 
+<div className="[&_td:last-child]:min-w-48">
+
 | Variable                               | Source and purpose                                                      |
 | -------------------------------------- | ----------------------------------------------------------------------- |
 | `APP_URL`                              | Application origin used for Auth, billing returns, and canonical URLs   |
@@ -12,10 +14,15 @@ Use ignored `.env.local` locally and your Vercel deployment environment when hos
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Selected Supabase project’s public client key                           |
 | `DATABASE_URL`                         | Server Postgres connection; use TLS and transaction pooling when hosted |
 | `STRIPE_SECRET_KEY`                    | Server key for the selected Stripe account                              |
-| `STRIPE_PRICE_ID`                      | Starter recurring price                                                 |
-| `STRIPE_PRO_PRICE_ID`                  | Pro recurring price                                                     |
-| `STRIPE_BUSINESS_PRICE_ID`             | Business recurring price                                                |
+| `STRIPE_PRICE_ID`                      | Starter monthly recurring price                                         |
+| `STRIPE_YEARLY_PRICE_ID`               | Starter yearly recurring test price                                     |
+| `STRIPE_PRO_PRICE_ID`                  | Pro monthly recurring price                                             |
+| `STRIPE_PRO_YEARLY_PRICE_ID`           | Pro yearly recurring test price                                         |
+| `STRIPE_BUSINESS_PRICE_ID`             | Business monthly recurring price                                        |
+| `STRIPE_BUSINESS_YEARLY_PRICE_ID`      | Business yearly recurring test price                                    |
 | `STRIPE_WEBHOOK_SECRET`                | Signing secret for this environment’s webhook endpoint                  |
+
+</div>
 
 ## Local values
 
