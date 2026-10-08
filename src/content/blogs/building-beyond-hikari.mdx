@@ -10,12 +10,20 @@ index: true
 import { BuildingBeyondHikariFigure } from '@/components/blog-figures/building-beyond-hikari';
 
 <figure className="not-prose mb-10">
-  <div className="aspect-square overflow-hidden rounded-xl sm:aspect-[1200/630]">
+  <div className="overflow-hidden rounded-xl border border-neutral-200">
     <BuildingBeyondHikariFigure />
   </div>
   <figcaption className="mt-3 text-sm leading-6 text-neutral-600">
-    In CoreMVP, an Organization owns its Projects. Current membership and roles
-    determine who can access them.
+    {
+      'The top half of CoreMVP’s public Dashboard demo. Charts and account examples use sample data. '
+    }
+    <a
+      href="https://nextjs.coremvp.com/demo/dashboard"
+      className="underline underline-offset-4"
+    >
+      {'Explore the interactive demo'}
+    </a>
+    {'.'}
   </figcaption>
 </figure>
 
