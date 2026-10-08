@@ -3,7 +3,7 @@ title: From Hikari to CoreMVP
 description: Start with the CoreMVP foundation and assess where your existing Hikari work belongs.
 ---
 
-CoreMVP is a separate source-code foundation. Choose it when your application needs shared workspaces, persisted Projects or one-time payments with guest onboarding. Your next step is to inspect the foundation, obtain repository access and run a separate local checkout.
+CoreMVP is a separate source-code foundation. Choose it when your application needs shared workspaces, persisted Projects or one-time payments with guest onboarding. Your next step is to inspect the foundation, obtain repository access and run a new local clone.
 
 Hikari stays free under MIT. A Starter, Pro or Business subscription in your Hikari application exercises its example billing flow; it does not provide CoreMVP repository access.
 
@@ -21,13 +21,13 @@ For example, a client workspace needs more than a selected Organization in the b
 
 Inspect the [CoreMVP Next.js product](https://coremvp.com/en/products/nextjs) and [try the demo](https://nextjs.coremvp.com) to explore the interfaces. The public demo labels its sample data; it is not a migration or a shared account with your Hikari application.
 
-## Start in a separate checkout
+## Start in a separate repository
 
 1. Obtain CoreMVP through the [CoreMVP site](https://coremvp.com/en#pricing), which owns source access and current commercial terms. Then follow [After Purchase](https://coremvp.com/en/docs/getting-started/after-purchase) to claim source access and create your working repository.
 2. Follow CoreMVP’s [Run Locally](https://coremvp.com/en/docs/getting-started/run-locally) guide in that repository. Use its current configuration and migrations rather than copying Hikari’s environment file or applying both projects’ migrations to one database.
 3. Create a local account and verify the included path you need. The [Organizations guide](https://coremvp.com/en/docs/organizations/configure) shows the shared workspace path; the [Projects guide](https://coremvp.com/en/docs/projects) shows creating and managing a real record.
 
-Keep your existing Hikari application intact while evaluating the new checkout. Both foundations run with your provider accounts; acquiring source does not include hosting or transfer your current users, subscriptions or provider state.
+Keep your existing Hikari application intact while evaluating the new local clone. Configure its provider resources and application settings explicitly. Acquiring source does not include hosting or transfer your current users, subscriptions or provider state.
 
 ## Bring your existing work deliberately
 
@@ -38,7 +38,7 @@ Before moving custom work, identify what you have changed:
 - **Data:** map your custom tables and relationships. Existing users, passwords, Projects and Stripe subscriptions require a separate migration design; this guide does not supply an automatic importer.
 - **Providers:** configure the new application using its own guide. Keep credentials in ignored local configuration and verify callbacks, webhooks and hosted settings for that application.
 
-Read CoreMVP’s [Project Structure](https://coremvp.com/en/docs/getting-started/project-structure) to place custom work. Start with one feature in the new checkout and verify its account and data boundary before planning a production cutover.
+Read CoreMVP’s [Project Structure](https://coremvp.com/en/docs/getting-started/project-structure) to place custom work. Start with one feature in the new repository and verify its account and data boundary before planning a production cutover.
 
 ## What's next
 

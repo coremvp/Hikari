@@ -20,7 +20,7 @@ In the CoreMVP foundation, every Project belongs to an Organization. The private
 
 ## Check the action where the data changes
 
-CoreMVP’s Projects service checks the Supabase Auth user, reloads their Organization role and checks the requested action before calling the repository. This excerpt from `src/services/projects/service.ts` is the permission decision:
+CoreMVP’s Projects service checks the Supabase Auth user, reloads their Organization role and checks the requested action before returning or changing a Project. This excerpt from `src/services/projects/service.ts` is the permission decision:
 
 ```ts
 const role = await OrganizationRepository.findRole(userId, organizationId);
@@ -29,7 +29,7 @@ if (!canPerformOrganizationAction(role, action))
   throw new ProjectForbiddenError();
 ```
 
-The included role model lets owners and admins change Projects; members can view them. A nonmember does not get access. The [Organizations guide](https://coremvp.com/en/docs/organizations) explains invitations and the role model, including actions reserved for the owner.
+The included role model lets owners and admins change Projects; members can view them. A nonmember does not get access. A removed member fails this check on their next request. The [Organizations guide](https://coremvp.com/en/docs/organizations) explains invitations and the role model, including actions reserved for the owner.
 
 That check belongs on each server request. Hiding a button helps the interface communicate permission, but it cannot make a direct request safe. Switching the selected Organization also cannot grant membership. The stored relationship decides what the user can do.
 
@@ -47,6 +47,6 @@ Server checks add a current membership lookup to the request. That is a delibera
 
 Shared work is one reason to build further. Another is a product where a one-time purchase starts onboarding before an account exists. CoreMVP’s [Guest Checkout and Access guide](https://coremvp.com/en/docs/billing/lifetime/guest-checkout) follows that payment-to-account path. Hikari’s example subscriptions remain recurring billing for signed-in accounts; selecting a plan does not acquire CoreMVP source.
 
-Adopting CoreMVP means starting with a separate licensed source-code foundation. It does not automatically move Hikari users, custom tables, subscriptions or provider settings. Evaluate the new checkout first, then map your existing product work to its interfaces and ownership model. Keep your current application intact until a migration and cutover are designed for your data.
+Adopting CoreMVP means starting with a separate licensed source-code foundation. It does not automatically move Hikari users, custom tables, subscriptions or provider settings. Evaluate the new local clone first, then map your existing product work to its interfaces and ownership model. Keep your current application intact until a migration and cutover are designed for your data.
 
 Follow [From Hikari to CoreMVP](/docs/coremvp) for the repository and local-start path. Inspect the [CoreMVP Next.js product](https://coremvp.com/en/products/nextjs) and [try the demo](https://nextjs.coremvp.com) to see what you would build on. When individual accounts and recurring subscriptions fit your application, keep building from [Hikari’s existing source boundaries](/docs/getting-started/project-structure).
