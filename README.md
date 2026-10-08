@@ -35,6 +35,7 @@ bun install
 bunx --no-install supabase --version
 bunx --no-install supabase --help
 bunx supabase start
+bunx supabase migration up --local
 ./coremvp env sync
 bun run dev
 ```
@@ -44,6 +45,8 @@ Open [localhost:3000](http://localhost:3000) and create an account. Signup signs
 `bun install` installs Supabase CLI 2.119.0 from this project's dev dependencies. The version/help commands verify that local installation. No global Supabase installation, `supabase init`, provider login, or hosted Supabase project is needed. See the [local Supabase requirements](https://supabase.com/docs/guides/local-development/cli/getting-started).
 
 `env sync` writes the local Supabase connection settings to ignored `.env.local` and preserves existing Stripe settings. `./coremvp env list` reports whether each required variable is set, without displaying values. Authentication works before you configure Stripe; subscription features require the billing settings below.
+
+`migration up --local` applies the repository’s pending migrations to this local project, including the billing tables. Run it before the first signup. If a migration reports existing legacy application data, stop and preserve it; this quickstart targets a fresh project. It does not require a database reset.
 
 The local Supabase project is `hikari-oss`, using ports 55420–55424. Its services are separate from other projects on your machine. Stop your development server and run `bunx supabase stop` when finished. Use `bunx supabase db reset` only to reset disposable local data.
 
@@ -112,7 +115,7 @@ The Auth journey uses the running local application, Supabase Auth, and recovery
 
 Unit tests cover subscription access and controlled provider-state convergence. Database integration uses the real local database and application service/repository/API with signed Stripe fixtures. It also checks that anonymous and authenticated Supabase clients cannot read or write billing tables. No Stripe API is called by those tests.
 
-The subscription E2E needs a configured Stripe test account, the running listener, the application, and local Supabase. It selects yearly Pro on the public pricing section, signs up, automatically opens the selected Checkout, and creates a real test subscription. It then waits for webhook-backed access, opens Customer Portal, and cancels its test subscription during cleanup. Missing settings fail the journey instead of silently skipping it. Do not use a live Stripe key.
+The subscription E2E needs a configured Stripe test account, the running listener, the application, and local Supabase. It selects yearly Pro on the public pricing section, signs up, automatically opens the selected Checkout, and creates a real test subscription. It then waits for webhook-backed access, opens Customer Portal, cancels through Stripe’s API, and verifies persisted cancellation and subscriber access HTTP 403. Cleanup removes the disposable Stripe customer. Missing settings fail the journey instead of silently skipping it. Do not use a live Stripe key.
 
 ## Deploy on Vercel and Supabase
 

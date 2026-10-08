@@ -41,7 +41,7 @@ Configure a Stripe test account, six monthly/yearly recurring prices, Customer P
 ./coremvp e2e billing:subscription
 ```
 
-The journey selects yearly Pro from public Pricing, preserves it through anonymous sign-in and signup, automatically opens the selected real Stripe test Checkout, waits for webhook-backed subscriber access, opens Customer Portal, and cancels the test subscription during cleanup. Missing provider settings fail the journey instead of skipping it. Configure all six recurring test price IDs, use a test key, and use disposable customers. The journey checks Pro’s line item and persisted yearly price so a silent fallback to monthly billing or Starter fails.
+The journey selects yearly Pro from public Pricing, preserves it through anonymous sign-in and signup, automatically opens the selected real Stripe test Checkout, waits for webhook-backed subscriber access, and opens Customer Portal. It then cancels the subscription through Stripe’s API and verifies that the webhook persists cancellation and subscriber access returns HTTP 403. Cleanup removes the disposable Stripe customer. Missing provider settings fail the journey instead of skipping it. Configure all six recurring test price IDs, use a test key, and use disposable customers. The journey checks Pro’s line item and persisted yearly price so a silent fallback to monthly billing or Starter fails.
 
 If access fails, check the listener’s selected account and signing secret, successful subscription-event delivery, the configured price, and the durable subscription row. A successful Checkout return alone is insufficient.
 

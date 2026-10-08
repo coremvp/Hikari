@@ -45,10 +45,13 @@ No global Supabase install, `supabase init`, login or hosted project is needed.
 
 ```bash
 bunx supabase start
+bunx supabase migration up --local
 ./coremvp env sync
 ```
 
 Supabase starts the `hikari-oss` project on ports 55420–55424. The template CLI writes the local connection settings to ignored `.env.local`, preserving existing Stripe settings. Keep this file private.
+
+`migration up --local` applies the repository’s pending migrations, including the billing tables, to this local project before signup. If a migration reports existing legacy application data, stop and preserve it; this guide targets a fresh project. A database reset is unnecessary.
 
 If Supabase cannot start, check that your Docker-compatible runtime is running and these ports are available. Run `env sync` only after Supabase is ready.
 

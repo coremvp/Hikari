@@ -41,10 +41,11 @@ test('public plan selection survives signup and reaches Stripe test Checkout, du
   let customerId: string | undefined;
   try {
     await page.goto('/#pricing');
-    await page
+    const yearly = page
       .getByRole('group', { name: 'Billing interval', exact: true })
-      .getByText('Yearly', { exact: true })
-      .click();
+      .getByRole('radio', { name: 'Yearly', exact: true });
+    await yearly.press('Space');
+    await expect(yearly).toBeChecked();
     await page
       .getByRole('link', { name: 'Try Pro yearly test checkout', exact: true })
       .click();
@@ -56,23 +57,30 @@ test('public plan selection survives signup and reaches Stripe test Checkout, du
     expect(new URL(page.url()).searchParams.get('next')).toBe(
       '/checkout?plan=pro&interval=yearly',
     );
+    await expect(
+      page.getByRole('heading', { name: 'Create your account', exact: true }),
+    ).toBeVisible();
+    const createAccount = page.getByRole('button', {
+      name: 'Create account',
+      exact: true,
+    });
+    await expect(createAccount).toBeEnabled();
     await page.getByLabel('Email', { exact: true }).fill(email);
     await page.getByLabel('Password', { exact: true }).fill(password);
+    const signupResponse = page.waitForResponse(
+      (response) =>
+        response.url().endsWith('/api/auth/signup') &&
+        response.request().method() === 'POST',
+    );
     const checkoutResponse = page.waitForResponse(
       (response) =>
         response.url().endsWith('/api/billing/checkout') &&
         response.request().method() === 'POST',
     );
-    await page
-      .getByRole('button', { name: 'Create account', exact: true })
-      .click();
+    await createAccount.click();
+    expect((await signupResponse).status()).toBe(200);
     const checkout = await checkoutResponse;
     expect(checkout.status()).toBe(200);
-    const response = (await checkout.json()) as {
-      url: string;
-      destination: string;
-    };
-    expect(response.destination).toBe('checkout');
     await expect(page).toHaveURL(/https:\/\/checkout\.stripe\.com\//);
     const account = (await (await page.request.get('/api/account')).json()) as {
       id: string;
@@ -85,7 +93,9 @@ test('public plan selection survives signup and reaches Stripe test Checkout, du
       status: 'open',
       limit: 10,
     });
-    const session = sessions.data.find((s) => s.url === response.url);
+    const session = sessions.data.find(
+      (s) => s.url && new URL(s.url).pathname === new URL(page.url()).pathname,
+    );
     expect(session).toBeDefined();
     const items = await stripe.checkout.sessions.listLineItems(session!.id);
     expect(items.data[0].price?.id).toBe(
@@ -136,8 +146,40 @@ test('public plan selection survives signup and reaches Stripe test Checkout, du
     expect(new URL(portalData.url).hostname).toBe('billing.stripe.com');
     await page.goto(portalData.url);
     await expect(page.getByText(email, { exact: false }).first()).toBeVisible();
+    const active = rows.find(
+      (s) =>
+        ['active', 'trialing'].includes(s.status) &&
+        s.price_id === process.env.STRIPE_PRO_YEARLY_PRICE_ID,
+    );
+    await stripe.subscriptions.cancel(active!.id);
+    await expect
+      .poll(
+        async () =>
+          (await page.request.get('/api/subscription/access')).status(),
+        { timeout: 45000 },
+      )
+      .toBe(403);
+    const canceled =
+      await sql`select status from public.subscriptions where id=${active!.id}`;
+    expect(canceled[0].status).toBe('canceled');
+    const view = await page.request.get('/api/billing/subscription');
+    expect(view.status()).toBe(200);
+    expect((await view.json()).access).toBe(false);
   } finally {
+    if (!customerId) {
+      const customers = await sql`
+        select c.stripe_customer_id from public.customers c
+        join auth.users u on u.id=c.user_id where u.email=${email}`;
+      customerId = customers[0]?.stripe_customer_id;
+    }
     if (customerId) {
+      const sessions = await stripe.checkout.sessions.list({
+        customer: customerId,
+        status: 'open',
+        limit: 100,
+      });
+      for (const session of sessions.data)
+        await stripe.checkout.sessions.expire(session.id);
       const subscriptions = await stripe.subscriptions.list({
         customer: customerId,
         status: 'all',

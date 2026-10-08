@@ -26,7 +26,7 @@ Use ignored `.env.local` locally and your Vercel deployment environment when hos
 
 ## Local values
 
-Start local Supabase, then run `./coremvp env sync` to derive the Supabase and database settings. Existing Stripe values are preserved. The application origin is `http://localhost:3000`; the local E2E requires that exact origin. Keep custom `APP_URL` changes deliberate, because Auth callbacks and return destinations use it.
+Follow [Run locally](/docs/getting-started) to start Supabase and apply the local migrations, then run `./coremvp env sync` to derive the Supabase and database settings. Existing Stripe values are preserved. The application origin is `http://localhost:3000`; the local E2E requires that exact origin. Keep custom `APP_URL` changes deliberate, because Auth callbacks and return destinations use it.
 
 Authentication can run before Stripe is configured. Checkout, Portal, and subscriber-access checks require the billing settings. [Connect subscriptions](/docs/features/payments) for the local listener and test prices. A missing plan remains unavailable on the public pricing section; it does not prevent local signup.
 

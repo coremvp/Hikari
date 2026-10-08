@@ -342,7 +342,7 @@ export default function Home() {
           <pre className="overflow-x-auto p-5 text-xs leading-8 text-neutral-800 sm:p-7 sm:text-sm">
             <code>
               {
-                'git clone https://github.com/coremvp/hikari.git\ncd hikari\nbun install\nbunx supabase start\n./coremvp env sync\nbun run dev'
+                'git clone https://github.com/coremvp/hikari.git\ncd hikari\nbun install\nbunx supabase start\nbunx supabase migration up --local\n./coremvp env sync\nbun run dev'
               }
             </code>
           </pre>
