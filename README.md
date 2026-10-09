@@ -117,7 +117,7 @@ The subscription E2E needs a configured Stripe test account, the running listene
 
 Use a fresh Supabase project and one Vercel Next.js project. Hosted authentication and provider-backed Stripe test verification must be completed for your configuration before you release your application.
 
-The walkthrough below deploys to Vercel **Production** using Stripe **test mode**. For branch testing, follow [Configure a Preview deployment](src/content/docs/deployment/vercel.mdx#configure-a-preview-deployment): use a stable branch origin, a separate Supabase project, Preview variables and a separate hosted webhook endpoint. Vercel's deployment scope does not switch Stripe mode or catalog IDs.
+The walkthrough below deploys to Vercel **Production** using Stripe **test mode**. After completing it, follow [Configure a Preview deployment](src/content/docs/deployment/vercel.mdx#configure-a-preview-deployment) for branch testing: choose a stable Preview origin, configure a separate Supabase project, Preview variables and a separate hosted webhook endpoint, then deploy the branch. Vercel's deployment scope does not switch Stripe mode or catalog IDs.
 
 1. Create a Supabase project. Link this clone to that exact project and apply the migrations:
 

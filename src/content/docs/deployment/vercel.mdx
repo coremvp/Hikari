@@ -5,7 +5,7 @@ description: Publish Hikari with fresh Supabase and Vercel projects, then verify
 
 Use a fresh Supabase project and one [Vercel Next.js project](https://vercel.com/docs/frameworks/full-stack/nextjs). Have a working local account and Stripe test subscription before starting. Keep the selected Supabase project, Vercel project, and Stripe account consistent throughout setup.
 
-The main walkthrough deploys to Vercel **Production** with Stripe **test mode**. For an isolated branch candidate, follow [Configure a Preview deployment](#configure-a-preview-deployment) after reading the shared setup. The [environment reference](/docs/reference/environment) maps Local, Preview and Production settings.
+The main walkthrough deploys to Vercel **Production** with Stripe **test mode**. After completing it, follow [Configure a Preview deployment](#configure-a-preview-deployment) for an isolated branch candidate. The [environment reference](/docs/reference/environment) maps Local, Preview and Production settings.
 
 <Callout type="warn">
   The schema transition refuses to discard nonempty legacy Hikari tables. Back
@@ -109,15 +109,19 @@ Release only after these checks pass for your deployment and intended email reci
 
 ## Configure a Preview deployment
 
-Use a stable branch URL and a separate Supabase project to test a candidate without writing to your Production database. Preview uses Vercel's **Preview** variables; it does not inherit the Production setup above.
+Complete the Production walkthrough above first, then use that Vercel project connected to your Git repository. [Vercel's first deployment](https://vercel.com/docs/deployments/environments#first-deployment) is always Production, even from another branch. Select a branch other than the project's Production Branch for this Preview setup.
+
+Use a stable Preview origin and a separate Supabase project to test a candidate without writing to your Production database. Preview uses Vercel's **Preview** variables; it does not inherit the Production setup above.
 
 <Steps>
 <Step>
-### Choose a stable branch origin
+### Choose a stable Preview origin
 
-Connect your Git repository to the Vercel project and deploy the branch you want to test. Copy its **Git branch URL** from Vercel's deployment overview. This URL follows the latest deployment on that branch; the unique deployment URL identifies only one build. See [Vercel's generated URLs](https://vercel.com/docs/deployments/generated-urls#why-deployments-have-multiple-urls).
+Choose the HTTPS origin before starting a Preview build: Hikari requires `APP_URL` while generating page metadata during the build. For a branch's first Preview deployment, [assign a domain to that Git branch](https://vercel.com/docs/domains/working-with-domains/assign-domain-to-a-git-branch), using a subdomain you control such as `preview.your-app.example`. Configure its DNS as instructed by Vercel. Keep your Production domain assigned to Production.
 
-Use the copied HTTPS origin consistently below. Open that branch URL when testing Auth and billing; Hikari does not configure a different callback origin for every generated deployment URL.
+If the branch already has a deployment, you can instead copy its stable **Git branch URL** from Vercel's deployment overview. This URL follows the latest deployment on that branch; the unique deployment URL identifies only one build. See [Vercel's generated URLs](https://vercel.com/docs/deployments/generated-urls#why-deployments-have-multiple-urls).
+
+Use your chosen origin throughout the steps below. Save the Preview settings before deploying or redeploying the branch, following [Vercel's branch setup order](https://vercel.com/docs/git#multiple-preview-phases). Hikari does not configure a different callback origin for every generated deployment URL.
 
 </Step>
 <Step>
@@ -125,7 +129,7 @@ Use the copied HTTPS origin consistently below. Open that branch URL when testin
 
 Create a separate hosted Supabase project. Repeat [Apply the schema](#apply-the-schema-to-supabase) for that exact project, checking the linked project reference before `db push`.
 
-In that project's Auth settings, repeat [Configure hosted Auth](#configure-hosted-auth), replacing every hostname with the stable Preview hostname. Set **Site URL** to the same Preview origin and add all listed callback and confirmation URLs to **Redirect URLs**. The supplied recovery template uses **Site URL**, so it must also return to Preview. Configure SMTP and verify recovery delivery there. See [Supabase's redirect configuration](https://supabase.com/docs/guides/auth/redirect-urls).
+In that project's Auth settings, repeat [Configure hosted Auth](#configure-hosted-auth), replacing every hostname with the stable Preview hostname. Set **Site URL** to the same Preview origin and add all listed callback and confirmation URLs to **Redirect URLs**. The supplied recovery template uses **Site URL**, so it must also return to Preview. Configure SMTP for this project; verify recovery after deploying Preview below. See [Supabase's redirect configuration](https://supabase.com/docs/guides/auth/redirect-urls).
 
 </Step>
 <Step>
@@ -147,11 +151,11 @@ Confirm the selected branch in the Dashboard before continuing; stop if the orig
 
 </Step>
 <Step>
-### Redeploy and verify Preview
+### Deploy and verify Preview
 
-Create a new Preview deployment of that branch after saving the settings. Git pushes to a non-Production branch create Preview deployments.
+After saving the Preview settings and configuring Auth and its webhook destination, push a commit to the selected branch to create a new Preview deployment. Confirm Vercel labels it **Preview** and assigns your chosen origin before testing the application.
 
-Open the stable branch URL and repeat [Deploy and verify](#deploy-and-verify)'s account, recovery, test Checkout, webhook, access and Portal checks there. The existing `./coremvp prod e2e smoke` command also accepts a Preview HTTPS origin; its name does not select Vercel Production, and it still proves only liveness and anonymous rejection.
+After a successful build, open the chosen Preview origin and repeat [Deploy and verify](#deploy-and-verify)'s account, recovery, test Checkout, webhook, access and Portal checks there. The existing `./coremvp prod e2e smoke` command also accepts a Preview HTTPS origin; its name does not select Vercel Production, and it still proves only liveness and anonymous rejection.
 
 Expect recovery links and Checkout/Portal returns to stay on Preview. Confirm that the account and subscription rows belong to the Preview Supabase project. A green Vercel build alone does not prove these paths.
 

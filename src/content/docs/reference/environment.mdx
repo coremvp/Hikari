@@ -8,7 +8,7 @@ Choose where your app runs, then save its settings in the matching location. `.e
 | Environment | Settings location                              | `APP_URL`                      |
 | ----------- | ---------------------------------------------- | ------------------------------ |
 | Local       | Ignored `.env.local` in your clone             | `http://localhost:3000`        |
-| Preview     | Vercel **Preview**, scoped to your test branch | Stable HTTPS branch URL        |
+| Preview     | Vercel **Preview**, scoped to your test branch | Stable HTTPS Preview origin    |
 | Production  | Vercel **Production**                          | Final HTTPS application origin |
 
 Vercel's [environment scopes](https://vercel.com/docs/environment-variables#environments) select which settings a deployment receives. A Preview setting does not update Production. Vercel also has a **Development** scope; Hikari's local quickstart derives `.env.local` from local Supabase instead of downloading hosted settings.
@@ -40,7 +40,7 @@ Use `http://localhost:3000` for the documented local Auth and E2E path. Authenti
 
 Use a separate hosted Supabase project for Preview so test accounts and migrations stay separate from Production. Save its API URL, publishable key and database URL in Vercel's **Preview** scope for the branch you test.
 
-Set `APP_URL` to that branch's stable HTTPS URL and test through that URL. Hikari reads `APP_URL` explicitly; it does not derive it from Vercel's generated deployment URL. Reusing the Production origin sends recovery links and billing returns to Production. Supabase's **Site URL**, Auth redirect allowlist and Stripe webhook destination must match the Preview origin. Follow [Configure a Preview deployment](/docs/deployment/vercel#configure-a-preview-deployment).
+Choose a stable HTTPS Preview origin before the branch's first build, then save it as `APP_URL` and test through that origin. Hikari needs this value during the build and reads it explicitly; it does not derive it from Vercel's generated deployment URL. Reusing the Production origin sends recovery links and billing returns to Production. Supabase's **Site URL**, Auth redirect allowlist and Stripe webhook destination must match the Preview origin. Follow [Configure a Preview deployment](/docs/deployment/vercel#configure-a-preview-deployment) to choose the origin and configure settings before deploying.
 
 Use a Stripe test key and the signing secret for the Preview webhook endpoint. Each endpoint has its own signing secret, even when Local, Preview and Production use the same test catalog.
 
