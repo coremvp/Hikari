@@ -8,6 +8,8 @@ Hikari suits builders who can run terminal commands and want a free foundation t
 
 Existing guides: [Run locally](src/content/docs/getting-started/index.mdx) · [Subscriptions](src/content/docs/features/payments.mdx) · [Deployment](src/content/docs/deployment/vercel.mdx) · [Project structure](src/content/docs/getting-started/project-structure.mdx) · [Testing](src/content/docs/reference/testing.mdx) · [Help](#get-help).
 
+Use the [environment reference](src/content/docs/reference/environment.mdx) to choose Local, Preview or Production settings. Local signup uses local Supabase and ignored `.env.local`. Hosted candidates use Vercel Preview settings and a separate Supabase project; the public deployment uses Production settings. Pricing IDs and amounts stay in source configuration, with matching Stripe credentials in the selected environment.
+
 ## Run locally
 
 Install these before cloning:
@@ -114,6 +116,8 @@ The subscription E2E needs a configured Stripe test account, the running listene
 ## Deploy on Vercel and Supabase
 
 Use a fresh Supabase project and one Vercel Next.js project. Hosted authentication and provider-backed Stripe test verification must be completed for your configuration before you release your application.
+
+The walkthrough below deploys to Vercel **Production** using Stripe **test mode**. For branch testing, follow [Configure a Preview deployment](src/content/docs/deployment/vercel.mdx#configure-a-preview-deployment): use a stable branch origin, a separate Supabase project, Preview variables and a separate hosted webhook endpoint. Vercel's deployment scope does not switch Stripe mode or catalog IDs.
 
 1. Create a Supabase project. Link this clone to that exact project and apply the migrations:
 

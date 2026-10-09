@@ -1,9 +1,21 @@
 ---
 title: Environment variables
-description: Find Hikari’s settings and keep private values on the server.
+description: Configure Local, Preview and Production settings, origins and Stripe credentials.
 ---
 
-Use ignored `.env.local` locally and your Vercel deployment environment when hosted. `./coremvp env list` reports whether each setting is present without displaying values. `.env.example` defines the names; never commit actual credentials.
+Choose where your app runs, then save its settings in the matching location. `.env.example` defines the variable names; keep actual credentials out of Git.
+
+| Environment | Settings location                              | `APP_URL`                      |
+| ----------- | ---------------------------------------------- | ------------------------------ |
+| Local       | Ignored `.env.local` in your clone             | `http://localhost:3000`        |
+| Preview     | Vercel **Preview**, scoped to your test branch | Stable HTTPS branch URL        |
+| Production  | Vercel **Production**                          | Final HTTPS application origin |
+
+Vercel's [environment scopes](https://vercel.com/docs/environment-variables#environments) select which settings a deployment receives. A Preview setting does not update Production. Vercel also has a **Development** scope; Hikari's local quickstart derives `.env.local` from local Supabase instead of downloading hosted settings.
+
+Set `APP_URL` to an origin only, without a path, query or embedded credentials. Hosted origins require HTTPS.
+
+## Variable reference
 
 <div className="[&_td:last-child]:min-w-48">
 
@@ -20,16 +32,32 @@ Use ignored `.env.local` locally and your Vercel deployment environment when hos
 
 ## Local values
 
-Follow [Run locally](/docs/getting-started) to start Supabase and apply the local migrations, then run `./coremvp env sync` to derive the Supabase and database settings. Existing Stripe values are preserved. The application origin is `http://localhost:3000`; the local E2E requires that exact origin. Keep custom `APP_URL` changes deliberate, because Auth callbacks and return destinations use it.
+Follow [Run locally](/docs/getting-started) to start Supabase, apply migrations and run `./coremvp env sync`. The local CLI writes the local Supabase and database settings to ignored `.env.local`, preserving existing Stripe settings and a configured `APP_URL`. `./coremvp env list` reports set/missing status without displaying values. These commands do not configure Vercel.
 
-Product and monthly/yearly Price IDs live in `src/config/pricing.config.ts`, outside the environment. Replace the example IDs with your own account’s catalog when following [Subscriptions](/docs/features/payments#create-your-recurring-prices). Deploy that source configuration with the matching Stripe account credentials.
+Use `http://localhost:3000` for the documented local Auth and E2E path. Authentication works before you add Stripe. For billing, use a test key and the signing secret from your running local `stripe listen` session.
 
-Authentication can run before Stripe is configured. Checkout, Portal, and subscriber-access checks require the billing settings. [Connect subscriptions](/docs/features/payments) for the local listener and test prices. The public cards show your source configuration; unavailable provider prices prevent test Checkout, without preventing local signup.
+## Preview values
 
-## Hosted values
+Use a separate hosted Supabase project for Preview so test accounts and migrations stay separate from Production. Save its API URL, publishable key and database URL in Vercel's **Preview** scope for the branch you test.
 
-Use your final HTTPS origin with no path, query, or embedded credentials as `APP_URL`. Local loopback HTTP is supported for development; hosted origins require HTTPS. The database uses Supabase’s transaction pooler with `prepare: false` and TLS.
+Set `APP_URL` to that branch's stable HTTPS URL and test through that URL. Hikari reads `APP_URL` explicitly; it does not derive it from Vercel's generated deployment URL. Reusing the Production origin sends recovery links and billing returns to Production. Supabase's **Site URL**, Auth redirect allowlist and Stripe webhook destination must match the Preview origin. Follow [Configure a Preview deployment](/docs/deployment/vercel#configure-a-preview-deployment).
 
-Only the two `NEXT_PUBLIC_SUPABASE_*` values may reach the browser. Never prefix a database URL, Stripe secret, signing secret, or privileged provider credential with `NEXT_PUBLIC_`.
+Use a Stripe test key and the signing secret for the Preview webhook endpoint. Each endpoint has its own signing secret, even when Local, Preview and Production use the same test catalog.
 
-The local Stripe listener and hosted Stripe endpoint each have their own signing secret. Do not interchange them. Follow [Deploy to Vercel](/docs/deployment/vercel) to place each value in the correct provider environment.
+## Production values
+
+Save your Production Supabase project's settings and final HTTPS `APP_URL` in Vercel's **Production** scope. Configure Auth and the hosted Stripe endpoint for that origin using [Deploy to Vercel](/docs/deployment/vercel). Hosted database connections use Supabase's transaction pooler with TLS; Hikari sets `prepare: false` for transaction pooling.
+
+Vercel **Production** means the deployment serving your application. It does not select Stripe live mode. Hikari's public **Try** pricing flow requests test Checkout and rejects live-mode prices, including on a Production deployment. Follow the documented Stripe test setup to exercise it.
+
+## Pricing configuration
+
+Product IDs, monthly/yearly Price IDs and displayed amounts live in `src/config/pricing.config.ts`. There is one source catalog, with no automatic Local/Preview/Production selection. The deployed `STRIPE_SECRET_KEY` must belong to the account and test/live mode that owns those prices; changing the key does not translate their IDs.
+
+For the included test journey, use the same matching Stripe test catalog across your environments. When using your own account, replace the example IDs and displayed amounts in source, then deploy that configuration with matching credentials. Public cards show those configured amounts. Stripe charges the selected Price's amount, so keep both in agreement. [Configure your recurring prices](/docs/features/payments#create-your-recurring-prices) before testing Checkout.
+
+## Apply a settings change
+
+Restart `bun run dev` after changing `.env.local`. After changing hosted variables or source pricing, create a new deployment in the affected scope. Existing deployments keep their previous settings. `NEXT_PUBLIC_*` values are included during the Next.js build; rebuild before testing a changed Supabase project. See [Next.js environment variables](https://nextjs.org/docs/app/guides/environment-variables#bundling-environment-variables-for-the-browser).
+
+The Supabase URL and publishable key are public configuration. Keep `DATABASE_URL`, `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` server-only; never prefix them with `NEXT_PUBLIC_` or copy a complete environment file into a support report.

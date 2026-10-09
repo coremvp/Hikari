@@ -27,9 +27,13 @@ priceYearly: '$150',
 
 Hikari uses this configuration to approve Checkout prices and subscriber access. Product and Price IDs belong in this file; keep only the test API key in ignored `.env.local` as `STRIPE_SECRET_KEY`. The listener’s signing secret is added in the next step.
 
-The public pricing section reads this configuration. Yearly billing shows the monthly equivalent and the full annual charge; the toggle’s savings label compares the annual charge with twelve monthly payments. Checkout validates the selected price against Stripe before creating a session. An unavailable, mismatched or live-mode price cannot start test Checkout, and yearly billing never falls back to a monthly price. Local signup works without any billing credentials.
+The public pricing section reads the displayed amounts from this configuration. Yearly billing shows the monthly equivalent and full annual charge; the toggle's savings label compares the annual charge with twelve monthly payments. Stripe charges the selected Price's amount. Hikari does not compare that amount with the display fields automatically, so update both when changing your catalog.
+
+Before test Checkout, the server retrieves the configured Price and checks that it and its Product are active, that it uses fixed, licensed per-unit recurring billing, and that its interval matches your monthly/yearly selection with an interval count of one. An unavailable price, unsupported price shape, wrong interval or live-mode price cannot start test Checkout. Yearly billing never falls back to a monthly price. Local signup works without billing credentials.
 
 Use the same Stripe account for your prices, test key, listener, and Customer Portal. Stop if any of them belongs to another account or live mode.
+
+Local, Preview and Production use the same source catalog; changing a Vercel scope or API key does not replace its IDs. Each environment uses its own webhook signing secret. See [Environment variables](/docs/reference/environment#pricing-configuration) for where to save credentials and how deployment scope differs from Stripe mode.
 
 </Step>
 <Step>
