@@ -16,7 +16,6 @@ import { createBillingRoutes } from '@/api/billing';
 import { Hono } from 'hono';
 import { AppError } from '@/lib/errors';
 import {
-  formatRecurringPrice,
   configuredSubscriptionPrices,
   type PlanId,
   billingIntervals,
@@ -254,31 +253,6 @@ for (const [plan, price] of Object.entries({
     );
   }
 
-test('public pricing maps provider currency and recurrence, and hides live or failed prices', async () => {
-  const f = fixture();
-  f.provider.recurringPrice = async (id) => {
-    if (id === 'price_business') throw new Error('Provider unavailable');
-    return {
-      currency: 'jpy',
-      amount: 2300,
-      interval: id.endsWith('_yearly') ? 'year' : 'month',
-      intervalCount: 1,
-      livemode: id === 'price_pro',
-    };
-  };
-  const plans = await f.service.plans();
-  const starter = plans.find((plan) => plan.id === 'starter')!;
-  expect(starter.prices.yearly?.amount).toBe(2300);
-  expect(formatRecurringPrice(starter.prices.yearly!)).toEqual({
-    amount: '¥2,300',
-    interval: 'per year',
-  });
-  expect(plans.find((plan) => plan.id === 'pro')?.prices.monthly).toBeNull();
-  expect(
-    plans.find((plan) => plan.id === 'business')?.prices.monthly,
-  ).toBeNull();
-});
-
 test('missing plans stay unavailable and never create a provider customer', async () => {
   const f = fixture();
   const service = new BillingService(
@@ -293,9 +267,6 @@ test('missing plans stay unavailable and never create a provider customer', asyn
     created = true;
     return 'cus_new';
   };
-  expect(
-    (await service.plans()).find((plan) => plan.id === 'pro')?.prices.monthly,
-  ).toBeNull();
   await expect(service.checkout(user, 'pro', true)).rejects.toThrow(
     'not configured',
   );
@@ -304,10 +275,6 @@ test('missing plans stay unavailable and never create a provider customer', asyn
 
 test('a stale pricing card cannot create a customer or session after a price switches to live mode', async () => {
   const f = fixture();
-  expect(
-    (await f.service.plans()).find((plan) => plan.id === 'pro')?.prices.monthly
-      ?.livemode,
-  ).toBe(false);
   f.store.customer = null;
   let created = false;
   f.provider.createCustomer = async () => {
@@ -350,10 +317,6 @@ test('a yearly selection cannot fall back to a monthly or multi-year price', asy
       intervalCount,
       livemode: false,
     });
-    expect(
-      (await f.service.plans()).find((plan) => plan.id === 'pro')?.prices
-        .yearly,
-    ).toBeNull();
     await expect(
       f.service.checkout(user, 'pro', true, 'yearly'),
     ).rejects.toThrow('does not match');
@@ -370,11 +333,6 @@ test('missing yearly configuration stays unavailable while monthly keeps working
     () => ({ starter: { monthly: approved } }),
     () => 'https://app.example',
   );
-  const starter = (await service.plans()).find(
-    (plan) => plan.id === 'starter',
-  )!;
-  expect(starter.prices.monthly?.amount).toBe(1500);
-  expect(starter.prices.yearly).toBeNull();
   await expect(
     service.checkout(user, 'starter', true, 'yearly'),
   ).rejects.toThrow('not configured');
@@ -451,9 +409,6 @@ test('Stripe price validation retains quoted fields and rejects unsupported or i
     intervalCount: 3,
     livemode: false,
   });
-  expect(
-    formatRecurringPrice(await provider.recurringPrice('price_fixture')),
-  ).toEqual({ amount: '€12.34', interval: 'every 3 weeks' });
   for (const changed of [
     { active: false },
     { unit_amount: null },

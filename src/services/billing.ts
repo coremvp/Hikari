@@ -9,13 +9,10 @@ import {
 import { appUrl } from '@/lib/config';
 import { AppError } from '@/lib/errors';
 import {
-  subscriptionPlans,
   configuredSubscriptionPrices,
-  billingIntervals,
   type PlanId,
   type PlanPrices,
   type BillingInterval,
-  type PricingPlan,
 } from '@/lib/subscription-plans';
 const lifecycleEvents = new Set([
   'customer.subscription.created',
@@ -64,31 +61,6 @@ export class BillingService {
         'The subscription price does not match the selected billing interval.',
       );
     return price;
-  }
-  async plans(): Promise<PricingPlan[]> {
-    const configured = this.prices();
-    return Promise.all(
-      subscriptionPlans.map(async (plan) => {
-        const prices = await Promise.all(
-          billingIntervals.map(async (interval) => {
-            const priceId = configured[plan.id]?.[interval];
-            if (!priceId) return null;
-            try {
-              const price = await this.quote(priceId, interval);
-              return price.livemode ? null : price;
-            } catch {
-              return null;
-            }
-          }),
-        );
-        return {
-          id: plan.id,
-          name: plan.name,
-          description: plan.description,
-          prices: { monthly: prices[0], yearly: prices[1] },
-        };
-      }),
-    );
   }
   async checkout(
     user: { id: string; email: string },
