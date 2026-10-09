@@ -22,7 +22,7 @@ export function SiteFooter() {
               </span>
             </Link>
             <p className="mt-5 text-sm leading-6 text-neutral-600">
-              Free and open source. Make it yours.
+              Your source. Your application.
             </p>
           </div>
           <nav
@@ -75,6 +75,35 @@ export function SiteFooter() {
                     MIT license
                   </a>
                 </li>
+                <li>
+                  <a
+                    className="hover:text-neutral-950"
+                    href="https://coremvp.com/en/products/nextjs"
+                  >
+                    CoreMVP Next.js product
+                  </a>
+                </li>
+                <li>
+                  <a
+                    className="hover:text-neutral-950"
+                    href="https://nextjs.coremvp.com"
+                  >
+                    CoreMVP demo
+                  </a>
+                </li>
+                <li>
+                  <Link className="hover:text-neutral-950" href="/docs/coremvp">
+                    From Hikari to CoreMVP
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="hover:text-neutral-950"
+                    href="/blog/building-beyond-hikari"
+                  >
+                    Building Beyond Hikari
+                  </Link>
+                </li>
               </ul>
             </div>
           </nav>
@@ -84,7 +113,6 @@ export function SiteFooter() {
         aria-hidden="true"
         className="pointer-events-none relative isolate mt-16 overflow-hidden px-6 pb-10 pt-12 sm:mt-20 sm:pb-12"
       >
-        <div className="absolute left-1/2 top-0 -z-10 aspect-square w-[min(900px,115vw)] -translate-x-1/2 rounded-full bg-[url('/sun.svg')] bg-cover md:w-[min(900px,85vw)]" />
         <div className="mx-auto max-w-7xl select-none text-center text-[clamp(6rem,28vw,24rem)] font-medium leading-[0.85] tracking-[-0.075em] text-neutral-950">
           hikari
         </div>

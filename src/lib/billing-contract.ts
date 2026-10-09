@@ -20,14 +20,15 @@ export type SubscriptionState = {
 };
 export function hasSubscriptionAccess(
   subscriptions: SubscriptionState[],
-  approvedPrice: string,
+  approvedPrices: readonly string[],
 ) {
   return (
-    !!approvedPrice &&
+    approvedPrices.length > 0 &&
     subscriptions.some(
       (s) =>
         ['active', 'trialing'].includes(s.status) &&
-        s.priceId === approvedPrice,
+        s.priceId !== null &&
+        approvedPrices.includes(s.priceId),
     )
   );
 }

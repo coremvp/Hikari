@@ -3,7 +3,22 @@ title: Run locally
 description: Start Hikari with local Supabase and reach your first signed-in Dashboard.
 ---
 
-Install [Bun 1.3.14](https://bun.sh), Node.js 20.19 or later, and a Docker-compatible runtime. This path starts a fresh local application; it does not migrate an existing Hikari deployment.
+Start a fresh local application and create an account before configuring billing or hosting. This path does not migrate an existing Hikari deployment.
+
+## Before you start
+
+Install [Git](https://git-scm.com/downloads/), [Bun 1.3.14](https://bun.sh/docs/installation), and [Node.js](https://nodejs.org/en/download) satisfying `>=20.19.0`. Bun is pinned in `package.json`; choose a [supported Node LTS release](https://nodejs.org/en/about/previous-releases). Use a Bash-capable shell for `./coremvp`.
+
+Install [Docker or a compatible runtime](https://docs.docker.com/get-started/get-docker/) and start its daemon. Follow the vendors’ OS requirements and the [local Supabase requirements](https://supabase.com/docs/guides/local-development/cli/getting-started). Check that the tools and running daemon are available:
+
+```bash
+git --version
+bun --version
+node --version
+docker info --format '{{.ServerVersion}}'
+```
+
+Local signup needs no Stripe, hosted Supabase project or Vercel account. Add a Stripe test account and CLI for [subscription testing](/docs/features/payments), or your own hosted providers for [deployment](/docs/deployment/vercel), when you reach those tasks.
 
 <Steps>
 <Step>
@@ -15,7 +30,14 @@ cd hikari
 bun install
 ```
 
-Run the following commands from this repository root.
+Run the following commands from this repository root. Installation includes Supabase CLI 2.119.0 as a project-local dev dependency. Verify it before starting services:
+
+```bash
+bunx --no-install supabase --version
+bunx --no-install supabase --help
+```
+
+No global Supabase install, `supabase init`, login or hosted project is needed.
 
 </Step>
 <Step>
@@ -23,10 +45,13 @@ Run the following commands from this repository root.
 
 ```bash
 bunx supabase start
+bunx supabase migration up --local
 ./coremvp env sync
 ```
 
 Supabase starts the `hikari-oss` project on ports 55420–55424. The template CLI writes the local connection settings to ignored `.env.local`, preserving existing Stripe settings. Keep this file private.
+
+`migration up --local` applies the repository’s pending migrations, including the billing tables, to this local project before signup. If a migration reports existing legacy application data, stop and preserve it; this guide targets a fresh project. A database reset is unnecessary.
 
 If Supabase cannot start, check that your Docker-compatible runtime is running and these ports are available. Run `env sync` only after Supabase is ready.
 

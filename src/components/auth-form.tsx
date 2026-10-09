@@ -3,14 +3,17 @@ import { useState, useSyncExternalStore, type FormEvent } from 'react';
 import Link from 'next/link';
 import { request } from '@/lib/client';
 import { Logo } from '@/components/logo';
+import { authDestination, checkoutNext } from '@/lib/subscription-plans';
 export type AuthMode = 'signin' | 'signup' | 'recovery' | 'password';
 const subscribe = () => () => {};
 export function AuthForm({
   mode,
   confirmationFailed = false,
+  next = null,
 }: {
   mode: AuthMode;
   confirmationFailed?: boolean;
+  next?: string | null;
 }) {
   const hydrated = useSyncExternalStore(
     subscribe,
@@ -18,6 +21,7 @@ export function AuthForm({
     () => false,
   );
   const [busy, setBusy] = useState(false);
+  const continuation = checkoutNext(next);
   const [message, setMessage] = useState('');
   const [error, setError] = useState(
     confirmationFailed
@@ -39,6 +43,7 @@ export function AuthForm({
     const body = {
       ...(mode !== 'password' ? { email: form.get('email') } : {}),
       ...(mode !== 'recovery' ? { password: form.get('password') } : {}),
+      ...(mode === 'signup' && continuation ? { next: continuation } : {}),
     };
     try {
       const data = await request('/auth/' + mode, body);
@@ -56,7 +61,12 @@ export function AuthForm({
         setMessage('Check your email to confirm your account.');
       else
         window.location.assign(
-          new URL('/dashboard', window.location.origin).href,
+          new URL(
+            mode === 'signin' || mode === 'signup'
+              ? authDestination(continuation)
+              : '/dashboard',
+            window.location.origin,
+          ).href,
         );
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Please try again.');
@@ -90,6 +100,12 @@ export function AuthForm({
                     ? 'Set a new password for your account.'
                     : 'Sign in to your account'}
             </p>
+            {continuation && (mode === 'signin' || mode === 'signup') && (
+              <p className="text-center text-sm leading-6 text-neutral-600">
+                We’ll open your selected test checkout after you{' '}
+                {mode === 'signup' ? 'create your account' : 'sign in'}.
+              </p>
+            )}
           </div>
           {mode !== 'password' && (
             <label className="flex flex-col gap-3 text-sm font-medium">
@@ -173,7 +189,12 @@ export function AuthForm({
                 ? 'Already have an account? '
                 : ''}
             <Link
-              href={mode === 'signin' ? '/signup' : '/signin'}
+              href={
+                (mode === 'signin' ? '/signup' : '/signin') +
+                (continuation && (mode === 'signin' || mode === 'signup')
+                  ? '?next=' + encodeURIComponent(continuation)
+                  : '')
+              }
               className="underline underline-offset-4"
             >
               {mode === 'signin'

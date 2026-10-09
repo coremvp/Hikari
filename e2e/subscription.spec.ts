@@ -1,13 +1,13 @@
 import { test, expect } from '@playwright/test';
 import Stripe from 'stripe';
 import postgres from 'postgres';
-test('real test subscription reaches signed webhook, durable access and Customer Portal', async ({
+import { subscriptionTiers } from '../src/config/pricing.config';
+test('public plan selection survives signup and reaches Stripe test Checkout, durable access and Customer Portal', async ({
   page,
 }) => {
   for (const name of [
     'STRIPE_SECRET_KEY',
     'STRIPE_WEBHOOK_SECRET',
-    'STRIPE_PRICE_ID',
     'DATABASE_URL',
   ])
     if (!process.env[name])
@@ -32,29 +32,57 @@ test('real test subscription reaches signed webhook, durable access and Customer
     connect_timeout: 10,
   });
   const email = 'hikari-billing-' + crypto.randomUUID() + '@example.test';
+  const selectedPrice = subscriptionTiers.find(
+    (tier) => tier.id === 'tier-pro',
+  )!.priceIdYearly;
   const password = 'Hikari-billing-' + crypto.randomUUID();
   let customerId: string | undefined;
   try {
-    await page.goto('/signup');
+    await page.goto('/#pricing');
+    const yearly = page
+      .getByRole('group', { name: 'Billing interval', exact: true })
+      .getByRole('radio', { name: 'Yearly', exact: true });
+    await yearly.press('Space');
+    await expect(yearly).toBeChecked();
+    await page
+      .getByRole('link', { name: 'Try Pro yearly test checkout', exact: true })
+      .click();
+    await expect(page).toHaveURL(/\/signin\?next=/);
+    expect(new URL(page.url()).searchParams.get('next')).toBe(
+      '/checkout?plan=pro&interval=yearly',
+    );
+    await page.getByRole('link', { name: 'Sign up', exact: true }).click();
+    expect(new URL(page.url()).searchParams.get('next')).toBe(
+      '/checkout?plan=pro&interval=yearly',
+    );
+    await expect(
+      page.getByRole('heading', { name: 'Create your account', exact: true }),
+    ).toBeVisible();
+    const createAccount = page.getByRole('button', {
+      name: 'Create account',
+      exact: true,
+    });
+    await expect(createAccount).toBeEnabled();
     await page.getByLabel('Email', { exact: true }).fill(email);
     await page.getByLabel('Password', { exact: true }).fill(password);
-    await page
-      .getByRole('button', { name: 'Create account', exact: true })
-      .click();
-    await expect(page).toHaveURL(/\/dashboard/);
+    const signupResponse = page.waitForResponse(
+      (response) =>
+        response.url().endsWith('/api/auth/signup') &&
+        response.request().method() === 'POST',
+    );
+    const checkoutResponse = page.waitForResponse(
+      (response) =>
+        response.url().endsWith('/api/billing/checkout') &&
+        response.request().method() === 'POST',
+    );
+    await createAccount.click();
+    expect((await signupResponse).status()).toBe(200);
+    const checkout = await checkoutResponse;
+    expect(checkout.status()).toBe(200);
+    await expect(page).toHaveURL(/https:\/\/checkout\.stripe\.com\//);
     const account = (await (await page.request.get('/api/account')).json()) as {
       id: string;
     };
-    const checkout = await page.request.post('/api/billing/checkout', {
-      headers: { Origin: process.env.APP_URL || 'http://localhost:3000' },
-      data: {},
-    });
-    expect(checkout.status()).toBe(200);
-    const response = (await checkout.json()) as {
-      url: string;
-      destination: string;
-    };
-    expect(response.destination).toBe('checkout');
     const customers =
       await sql`select stripe_customer_id from public.customers where user_id=${account.id}`;
     customerId = customers[0].stripe_customer_id;
@@ -63,11 +91,12 @@ test('real test subscription reaches signed webhook, durable access and Customer
       status: 'open',
       limit: 10,
     });
-    const session = sessions.data.find((s) => s.url === response.url);
+    const session = sessions.data.find(
+      (s) => s.url && new URL(s.url).pathname === new URL(page.url()).pathname,
+    );
     expect(session).toBeDefined();
     const items = await stripe.checkout.sessions.listLineItems(session!.id);
-    expect(items.data[0].price?.id).toBe(process.env.STRIPE_PRICE_ID);
-    await page.goto(response.url);
+    expect(items.data[0].price?.id).toBe(selectedPrice);
     await page.locator('input[name="cardNumber"]').fill('4242424242424242');
     await page.locator('input[name="cardExpiry"]').fill('1235');
     await page.locator('input[name="cardCvc"]').fill('123');
@@ -92,7 +121,7 @@ test('real test subscription reaches signed webhook, durable access and Customer
       rows.some(
         (s) =>
           ['active', 'trialing'].includes(s.status) &&
-          s.price_id === process.env.STRIPE_PRICE_ID,
+          s.price_id === selectedPrice,
       ),
     ).toBe(true);
     await page.reload();
@@ -113,8 +142,40 @@ test('real test subscription reaches signed webhook, durable access and Customer
     expect(new URL(portalData.url).hostname).toBe('billing.stripe.com');
     await page.goto(portalData.url);
     await expect(page.getByText(email, { exact: false }).first()).toBeVisible();
+    const active = rows.find(
+      (s) =>
+        ['active', 'trialing'].includes(s.status) &&
+        s.price_id === selectedPrice,
+    );
+    await stripe.subscriptions.cancel(active!.id);
+    await expect
+      .poll(
+        async () =>
+          (await page.request.get('/api/subscription/access')).status(),
+        { timeout: 45000 },
+      )
+      .toBe(403);
+    const canceled =
+      await sql`select status from public.subscriptions where id=${active!.id}`;
+    expect(canceled[0].status).toBe('canceled');
+    const view = await page.request.get('/api/billing/subscription');
+    expect(view.status()).toBe(200);
+    expect((await view.json()).access).toBe(false);
   } finally {
+    if (!customerId) {
+      const customers = await sql`
+        select c.stripe_customer_id from public.customers c
+        join auth.users u on u.id=c.user_id where u.email=${email}`;
+      customerId = customers[0]?.stripe_customer_id;
+    }
     if (customerId) {
+      const sessions = await stripe.checkout.sessions.list({
+        customer: customerId,
+        status: 'open',
+        limit: 100,
+      });
+      for (const session of sessions.data)
+        await stripe.checkout.sessions.expire(session.id);
       const subscriptions = await stripe.subscriptions.list({
         customer: customerId,
         status: 'all',

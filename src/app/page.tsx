@@ -1,10 +1,32 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Check, FileCode2, Folder, LockKeyhole, UserRound } from 'lucide-react';
+import {
+  ArrowRight,
+  ArrowUpRight,
+  BadgeCheck,
+  CalendarDays,
+  Check,
+  Cloud,
+  CreditCard,
+  Database,
+  FileCode2,
+  Folder,
+  KeyRound,
+  LockKeyhole,
+  Mail,
+  ShieldCheck,
+  Terminal,
+  UserRound,
+} from 'lucide-react';
+import { getSubscriptionPriceDisplay } from '@/config/pricing.config';
+import { subscriptionPlans } from '@/lib/subscription-plans';
 import { SiteShell } from '@/components/site-shell';
 import { Testimonials } from '@/components/testimonials';
 import { BlogCard } from '@/components/blog-card';
 import { SectionHeading } from '@/components/section-heading';
+import { DashboardPreview } from '@/components/dashboard-preview';
+import { PricingSection } from '@/components/pricing-section';
+import { CoreMVPSection } from '@/components/coremvp-section';
 import {
   ApplicationPreview,
   DocumentationPreview,
@@ -12,38 +34,13 @@ import {
 import { getBlogPages } from '@/lib/blog-source';
 import { publicMetadata } from '@/lib/public-metadata';
 
+export const revalidate = 300;
+
 export const metadata = publicMetadata(
   'Hikari by CoreMVP',
   'An open-source Next.js application foundation with accounts, protected pages, subscription billing, Docs, and Blog.',
   '/',
 );
-
-const foundations = [
-  {
-    number: '01',
-    title: 'Give users a home.',
-    description:
-      'Email and password signup opens a protected Dashboard. Supabase Auth handles sessions and recovery.',
-    href: '/docs/features/authentication',
-    link: 'Accounts and authentication',
-  },
-  {
-    number: '02',
-    title: 'Connect payments to access.',
-    description:
-      'Stripe Checkout, verified webhooks, and stored subscription state. Customer Portal handles subscription management.',
-    href: '/docs/features/payments',
-    link: 'Subscription billing',
-  },
-  {
-    number: '03',
-    title: 'Make it your application.',
-    description:
-      'Build your product in one Next.js runtime. Hono owns the API, and Drizzle owns database access.',
-    href: '/docs/getting-started/project-structure',
-    link: 'Explore the source',
-  },
-];
 
 const stack = [
   { name: 'Next.js', logo: 'nextjs.svg' },
@@ -64,7 +61,7 @@ const communityAvatars = [
 export default function Home() {
   const posts = getBlogPages().slice(0, 2);
   return (
-    <SiteShell>
+    <SiteShell home>
       <section className="hikari-canvas" aria-labelledby="hero-title">
         <div className="relative mx-auto flex max-w-4xl flex-col items-center px-6 pb-9 pt-12 text-center sm:pt-16">
           <p className="inline-flex items-center gap-2 text-xs font-medium tracking-wide text-neutral-600">
@@ -153,197 +150,431 @@ export default function Home() {
           ))}
         </ul>
       </section>
-      <section aria-labelledby="foundation-title" className="hikari-section">
-        <div className="grid items-end gap-6 lg:grid-cols-[1.5fr_1fr] lg:gap-16">
+      <DashboardPreview />
+      <FoundationShowcase />
+      <Testimonials />
+      <PricingSection />
+      <CoreMVPSection />
+      <section aria-labelledby="content-title" className="hikari-section">
+        <div className="mb-10 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
           <SectionHeading
-            id="foundation-title"
-            title="Start where your product begins."
-            subtitle="Accounts and subscriptions, connected."
+            id="content-title"
+            title="Docs with your code."
+            subtitle="Publish as you build."
           />
-          <p className="max-w-sm text-lg leading-7 text-neutral-600 lg:justify-self-end">
-            Give the rest of your application your attention.
+          <p className="text-base leading-7 text-neutral-600">
+            MDX, search and a Blog. In your repository.
           </p>
         </div>
-        <ol className="mt-10 grid overflow-hidden rounded-2xl border border-neutral-200 bg-white lg:grid-cols-3">
-          {foundations.map((item) => (
-            <li
-              key={item.number}
-              className="flex min-w-0 flex-col border-neutral-200 p-6 not-first:border-t sm:flex-row sm:items-center sm:p-8 lg:flex-col lg:items-stretch lg:not-first:border-l lg:not-first:border-t-0"
-            >
-              <div
-                aria-hidden="true"
-                className="flex h-48 w-full shrink-0 items-center justify-center rounded-xl bg-neutral-50 p-5 sm:w-2/5 lg:w-full"
+        <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr]">
+          <div className="min-w-0">
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-4 text-sm">
+              <h3 className="font-medium">Documentation</h3>
+              <Link
+                href="/docs"
+                className="inline-flex min-h-11 items-center gap-2 font-medium hover:underline underline-offset-4"
               >
-                {item.number === '01' ? (
-                  <div className="w-full max-w-64 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm">
-                    <div className="flex items-center gap-3">
-                      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-orange-50 text-orange-800">
-                        <UserRound className="size-5" />
-                      </span>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium">Your account</p>
-                        <p className="mt-1 text-xs text-neutral-500">
-                          Supabase Auth
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-5 flex items-center gap-2 border-t border-neutral-100 pt-3 text-xs text-neutral-600">
-                      <LockKeyhole className="size-3.5" /> Protected Dashboard
-                    </div>
-                  </div>
-                ) : item.number === '02' ? (
-                  <div className="w-full max-w-64 space-y-2 text-xs">
-                    {[
-                      'Stripe Checkout',
-                      'Verified webhook',
-                      'Stored subscription',
-                    ].map((step, index) => (
-                      <div
-                        key={step}
-                        className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-white px-4 py-3 shadow-sm"
-                      >
-                        <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-orange-50 text-orange-800">
-                          {index === 1 ? (
-                            <Check className="size-3" />
-                          ) : (
-                            index + 1
-                          )}
-                        </span>
-                        <span className="font-medium">{step}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="w-full max-w-64 rounded-lg border border-neutral-200 bg-white p-4 font-mono text-xs shadow-sm">
-                    <p className="flex items-center gap-2 font-medium">
-                      <Folder className="size-4 text-neutral-500" /> src/
-                    </p>
-                    <div className="ml-2 mt-3 space-y-3 border-l border-neutral-200 pl-4 text-neutral-600">
-                      {['app/', 'api/billing.ts', 'db/schema.ts'].map(
-                        (path) => (
-                          <p key={path} className="flex items-center gap-2">
-                            <FileCode2 className="size-3.5 shrink-0 text-neutral-500" />
-                            {path}
-                          </p>
-                        ),
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="flex min-w-0 flex-1 flex-col sm:pl-8 lg:pl-0">
-                <h3 className="mt-7 text-xl font-semibold tracking-tight sm:mt-0 lg:mt-7">
-                  {item.title}
-                </h3>
-                <p className="mt-3 flex-1 leading-7 text-neutral-600">
-                  {item.description}
-                </p>
+                Explore the Docs{' '}
+                <ArrowUpRight aria-hidden="true" className="size-4" />
+              </Link>
+            </div>
+            <DocumentationPreview variant="landing" />
+            <div className="mt-5 divide-y divide-neutral-200">
+              {[
+                {
+                  title: 'Run locally',
+                  href: '/docs/getting-started',
+                  icon: Terminal,
+                },
+                {
+                  title: 'Connect billing',
+                  href: '/docs/features/payments',
+                  icon: CreditCard,
+                },
+                {
+                  title: 'Deploy your app',
+                  href: '/docs/deployment/vercel',
+                  icon: Cloud,
+                },
+              ].map(({ title, href, icon: Icon }) => (
                 <Link
-                  href={item.href}
-                  className="mt-6 inline-block text-sm font-medium underline underline-offset-4"
+                  key={href}
+                  href={href}
+                  className="flex min-h-12 items-center gap-3 py-3 text-sm hover:underline underline-offset-4"
                 >
-                  {item.link} <span aria-hidden="true">→</span>
+                  <Icon
+                    aria-hidden="true"
+                    className="size-4 text-neutral-500"
+                  />
+                  <span>{title}</span>
+                  <ArrowUpRight aria-hidden="true" className="ml-auto size-4" />
                 </Link>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </section>
-      <Testimonials />
-      <section aria-labelledby="content-title" className="hikari-section">
-        <div className="grid items-center gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
-          <div>
-            <SectionHeading
-              id="content-title"
-              title="The docs belong with the code."
-              subtitle="Publish from the same repository."
-            />
-            <p className="mt-5 max-w-lg text-lg leading-7 text-neutral-600">
-              Local MDX, searchable documentation, and an engineering blog.
-            </p>
-            <div className="mt-7 flex flex-wrap gap-6 text-sm font-medium">
-              <Link href="/docs" className="underline underline-offset-4">
-                Explore the Docs <span aria-hidden="true">→</span>
-              </Link>
-              <Link href="/blog" className="underline underline-offset-4">
-                Read the Blog <span aria-hidden="true">→</span>
-              </Link>
+              ))}
             </div>
           </div>
-          <DocumentationPreview />
-        </div>
-        {posts.length > 0 && (
-          <section aria-labelledby="news-title" className="mt-20">
-            <div className="flex flex-wrap items-end justify-between gap-6">
-              <SectionHeading
-                id="news-title"
-                title="Latest notes."
-                subtitle="From the source."
-              />
-              <Link href="/blog" className="text-sm font-medium">
-                All posts <span aria-hidden="true">→</span>
+          <section aria-labelledby="news-title" className="min-w-0">
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-4 text-sm">
+              <h3 id="news-title" className="font-medium">
+                From the source
+              </h3>
+              <Link
+                href="/blog"
+                className="inline-flex min-h-11 items-center gap-2 font-medium hover:underline underline-offset-4"
+              >
+                All posts <ArrowUpRight aria-hidden="true" className="size-4" />
               </Link>
             </div>
-            <div className="mt-10 grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2">
-              {posts.map((post) => (
+            <div className="space-y-7">
+              {posts.map((post, index) => (
                 <BlogCard
                   key={post.url}
                   href={post.url}
                   title={post.data.title}
                   date={post.data.date}
                   cover={post.data.cover}
-                  heading="h3"
+                  heading="h4"
+                  variant={index === 0 ? 'featured' : 'compact'}
                 />
               ))}
             </div>
           </section>
-        )}
+        </div>
       </section>
       <section
         aria-labelledby="source-title"
-        className="hikari-section grid items-center gap-10 border-t border-neutral-200 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16"
+        className="hikari-section grid items-center gap-9 lg:grid-cols-[1.3fr_1fr] lg:gap-x-16"
       >
-        <div>
-          <p className="mb-5 font-mono text-xs uppercase tracking-widest text-neutral-600">
-            Your next commit starts here
+        <div className="min-w-0 overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50 max-lg:order-2">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200 px-5 py-4 text-xs text-neutral-600 sm:px-7">
+            <span className="flex items-center gap-2 font-mono text-neutral-900">
+              <Terminal aria-hidden="true" className="size-4" />
+              Terminal
+            </span>
+            <span>Local quickstart</span>
+          </div>
+          <pre className="p-5 font-mono text-xs leading-8 whitespace-pre-wrap wrap-anywhere text-neutral-800 sm:p-7 sm:text-sm">
+            <code>
+              {
+                'git clone https://github.com/coremvp/hikari.git\ncd hikari\nbun install\nbunx supabase start\nbunx supabase migration up --local\n./coremvp env sync\nbun run dev'
+              }
+            </code>
+          </pre>
+          <p className="flex items-center gap-2 px-5 pb-5 font-mono text-xs text-neutral-600 sm:px-7">
+            <span
+              aria-hidden="true"
+              className="size-1.5 rounded-full bg-orange-700"
+            />
+            localhost:3000
           </p>
+        </div>
+        <div className="max-lg:order-1">
+          <Image
+            src="/icon.svg"
+            alt=""
+            width={28}
+            height={28}
+            className="mb-5"
+          />
           <SectionHeading
             id="source-title"
             title="Clone it."
             subtitle="Make it yours."
           />
-          <p className="mt-5 max-w-md leading-7 text-neutral-600">
-            Hikari is MIT licensed. Run it locally, connect your providers, and
-            build your product on top.
+          <p className="mt-5 text-base leading-7 text-neutral-600">
+            Run locally. Connect your providers. Build.
           </p>
-          <Link
-            href="/docs/getting-started"
-            className="button mt-7 rounded-lg px-6"
-          >
-            Follow the quickstart{' '}
-            <span className="ml-2" aria-hidden="true">
-              →
-            </span>
-          </Link>
-        </div>
-        <div className="min-w-0 overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50">
-          <div className="flex items-center justify-between border-b border-neutral-200 bg-white px-5 py-3 text-xs text-neutral-600">
-            <span className="font-mono">Terminal</span>
-            <span>Local quickstart</span>
+          <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3">
+            <Link
+              href="/docs/getting-started"
+              className="button gap-2 rounded-lg px-6"
+            >
+              Start building{' '}
+              <ArrowRight aria-hidden="true" className="size-4" />
+            </Link>
+            <a
+              href="https://github.com/coremvp/hikari"
+              className="inline-flex min-h-11 items-center gap-2 text-sm font-medium hover:underline underline-offset-4"
+            >
+              View the source{' '}
+              <ArrowUpRight aria-hidden="true" className="size-4" />
+            </a>
           </div>
-          <pre className="overflow-x-auto p-5 text-xs leading-8 text-neutral-800 sm:p-7 sm:text-sm">
-            <code>
-              {
-                'git clone https://github.com/coremvp/hikari.git\ncd hikari\nbun install\nbunx supabase start\n./coremvp env sync\nbun run dev'
-              }
-            </code>
-          </pre>
-          <p className="border-t border-neutral-200 bg-white px-5 py-4 text-xs leading-5 text-neutral-600 sm:px-7">
-            Requires Bun, Node.js 20.19+, and Docker. The quickstart covers
-            local setup and provider configuration.
+          <p className="mt-5 text-xs leading-6 text-neutral-600">
+            Free source. MIT licensed.
+            <br />
+            Your hosting and providers.
           </p>
         </div>
+        <p className="text-xs leading-6 text-neutral-600 max-lg:order-3 lg:col-span-2">
+          Requires Git, Bun 1.3.14, Node.js 20.19+, Bash and running Docker. The
+          quickstart covers installation and local signup before billing.
+        </p>
       </section>
     </SiteShell>
+  );
+}
+
+function FoundationShowcase() {
+  const pro = subscriptionPlans.find((plan) => plan.id === 'pro')!;
+  const price = getSubscriptionPriceDisplay(pro, 'monthly');
+  const sceneClass =
+    'relative order-2 flex min-h-[360px] items-center justify-center px-2 py-9 md:min-h-[390px] md:px-5';
+  const planeClass =
+    'relative min-w-0 rounded-xl border border-neutral-200 bg-white shadow-[0_12px_30px_-12px_rgba(23,23,23,0.15)] group-hover/feature:border-[#d7baa8] group-hover/feature:shadow-[0_20px_36px_-16px_rgba(23,23,23,0.22)] group-focus-within/feature:border-[#d7baa8] group-focus-within/feature:shadow-[0_20px_36px_-16px_rgba(23,23,23,0.22)] motion-safe:transition-[transform,box-shadow,border-color] motion-safe:duration-[240ms] motion-safe:ease-out';
+  const mainMotion =
+    ' motion-safe:group-hover/feature:-translate-y-1.5 motion-safe:group-focus-within/feature:-translate-y-1.5';
+  const statusClass =
+    'inline-flex items-center gap-1 text-[11px] font-medium text-orange-700';
+  return (
+    <section aria-labelledby="foundation-title" className="hikari-section">
+      <div className="mb-9 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+        <SectionHeading
+          id="foundation-title"
+          title="Accounts included."
+          subtitle="Subscriptions connected."
+        />
+        <p className="text-base leading-7 text-neutral-600 lg:max-w-[230px]">
+          <span className="block">A home for your users.</span>
+          <span className="block">A foundation for your product.</span>
+        </p>
+      </div>
+      <div>
+        <article className="group/feature grid min-w-0 items-center gap-2 pb-8 md:grid-cols-[1.2fr_0.8fr] md:gap-8">
+          <div className={sceneClass + ' md:order-first'}>
+            <div
+              role="img"
+              aria-label="Illustrative account with email, signed-in state, protected pages and recovery"
+              className="w-full max-w-[420px]"
+            >
+              <div className={planeClass + mainMotion + ' overflow-hidden'}>
+                <div className="flex items-center gap-1.5 border-b border-neutral-200 px-4 py-3 text-[11px] text-neutral-500">
+                  <span className="size-1.5 rounded-full bg-neutral-300" />
+                  <span className="size-1.5 rounded-full bg-neutral-300" />
+                  <span className="size-1.5 rounded-full bg-neutral-300" />
+                  <span className="ml-auto">Hikari · Account</span>
+                </div>
+                <div className="px-5 pt-6 pb-5">
+                  <div className="flex items-center gap-3">
+                    <span className="grid size-10 shrink-0 place-items-center rounded-full bg-orange-50 text-orange-700">
+                      <UserRound className="size-5" />
+                    </span>
+                    <div>
+                      <p className="text-lg font-medium tracking-tight">
+                        Your account
+                      </p>
+                      <p className="mt-0.5 text-xs text-neutral-500">
+                        Your signed-in account.
+                      </p>
+                    </div>
+                  </div>
+                  <p className="mt-5 border-t border-neutral-200 py-3 text-sm wrap-anywhere">
+                    builder@example.test
+                  </p>
+                  <span className={statusClass}>
+                    <Check className="size-3.5" />
+                    Signed in
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 border-t border-neutral-200 bg-neutral-50 px-4 py-3 text-[11px] text-neutral-600">
+                  <LockKeyhole className="size-3.5" />
+                  <span>Protected pages</span>
+                  <code>/dashboard</code>
+                  <code>/account</code>
+                </div>
+              </div>
+              <div
+                className={
+                  planeClass +
+                  ' z-10 -mt-2 ml-auto flex w-[92%] -rotate-3 items-center gap-3 px-4 py-3.5 motion-safe:group-hover/feature:-translate-y-2 motion-safe:group-hover/feature:-rotate-1 motion-safe:group-focus-within/feature:-translate-y-2 motion-safe:group-focus-within/feature:-rotate-1'
+                }
+              >
+                <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-orange-50 text-orange-700">
+                  <Mail className="size-4" />
+                </span>
+                <div>
+                  <p className="text-xs font-medium">Password recovery</p>
+                  <p className="mt-0.5 text-[11px] text-neutral-500">
+                    Back to your account.
+                  </p>
+                </div>
+                <ArrowUpRight className="ml-auto size-4 shrink-0 text-neutral-500" />
+              </div>
+            </div>
+            <p className="absolute inset-x-2 bottom-0 text-center text-[11px] text-neutral-500">
+              Illustrative account interface
+            </p>
+          </div>
+          <div className="max-w-sm py-5 md:py-6">
+            <p className="mb-2 flex items-center gap-2 text-xs font-medium text-orange-700">
+              <UserRound aria-hidden="true" className="size-4" />
+              Accounts
+            </p>
+            <h3 className="text-[28px] font-medium leading-tight tracking-tight">
+              Give users a home.
+            </h3>
+            <p className="mt-3 text-sm leading-6 text-neutral-600">
+              Signup, recovery and protected pages.
+            </p>
+            <Link
+              href="/docs/features/authentication"
+              className="mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-medium underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-700"
+            >
+              Explore authentication
+              <ArrowUpRight aria-hidden="true" className="size-4" />
+            </Link>
+            <ul className="mt-5 flex flex-col gap-3 text-xs text-neutral-600">
+              {[
+                { title: 'Email & password', icon: UserRound },
+                { title: 'Recovery flow', icon: KeyRound },
+                { title: 'Server checks', icon: ShieldCheck },
+              ].map(({ title, icon: Icon }) => (
+                <li key={title} className="flex items-center gap-2">
+                  <Icon aria-hidden="true" className="size-4 text-orange-700" />
+                  {title}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </article>
+        <article className="group/feature grid min-w-0 items-center gap-2 py-8 md:grid-cols-[0.8fr_1.2fr] md:gap-8">
+          <div className={sceneClass + ' md:order-last'}>
+            <div
+              role="img"
+              aria-label="Illustrative Pro subscription with active status, customer portal and verified access"
+              className="w-full max-w-[420px]"
+            >
+              <div className={planeClass + mainMotion}>
+                <div className="flex items-center justify-between gap-3 px-5 pt-5">
+                  <p className="text-base font-medium">
+                    {pro.name} subscription
+                  </p>
+                  <span className={statusClass}>
+                    <Check className="size-3.5" />
+                    Active
+                  </span>
+                </div>
+                <p className="flex items-baseline gap-1.5 px-5 pt-2 pb-5">
+                  <span className="text-[56px] font-medium leading-tight tracking-[-0.05em]">
+                    {price.amount}
+                  </span>
+                  <span className="text-xs text-neutral-500">
+                    {price.interval}
+                  </span>
+                </p>
+                <div className="flex items-center justify-between gap-3 border-t border-neutral-200 px-5 py-3 text-xs">
+                  <span className="text-neutral-600">Example plan</span>
+                  <span>Monthly billing</span>
+                </div>
+              </div>
+              <div
+                className={
+                  planeClass +
+                  ' z-10 -mt-1 w-[90%] rotate-3 px-4 py-4 motion-safe:group-hover/feature:-translate-y-2 motion-safe:group-hover/feature:rotate-1 motion-safe:group-focus-within/feature:-translate-y-2 motion-safe:group-focus-within/feature:rotate-1'
+                }
+              >
+                <p className="flex items-center gap-2 text-xs font-medium">
+                  <CreditCard className="size-4 text-orange-700" />
+                  Customer Portal
+                  <ArrowUpRight className="ml-auto size-4 text-neutral-500" />
+                </p>
+                <p className="mt-2.5 flex flex-wrap gap-3 text-[11px] text-neutral-500">
+                  <span>Invoices</span>
+                  <span>Payment method</span>
+                  <span>Cancellation</span>
+                </p>
+              </div>
+              <ol className="mt-6 grid grid-cols-3 gap-2 text-[11px]">
+                {[
+                  { title: 'Checkout', icon: CreditCard },
+                  { title: 'Verified event', icon: BadgeCheck },
+                  { title: 'Access', icon: LockKeyhole },
+                ].map(({ title, icon: Icon }, index) => (
+                  <li
+                    key={title}
+                    className="relative flex flex-col items-center gap-1.5 sm:flex-row sm:justify-center"
+                  >
+                    {index > 0 && (
+                      <ArrowRight className="absolute -left-2 top-0.5 size-3 text-neutral-400 sm:top-auto" />
+                    )}
+                    <Icon className="size-3.5 text-orange-700" />
+                    <span>{title}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+            <p className="absolute inset-x-2 bottom-0 text-center text-[11px] text-neutral-500">
+              Illustrative subscription interface
+            </p>
+          </div>
+          <div className="max-w-sm py-5 md:py-6">
+            <p className="mb-2 flex items-center gap-2 text-xs font-medium text-orange-700">
+              <CreditCard aria-hidden="true" className="size-4" />
+              Subscriptions
+            </p>
+            <h3 className="text-[28px] font-medium leading-tight tracking-tight">
+              Connect payments to access.
+            </h3>
+            <p className="mt-3 text-sm leading-6 text-neutral-600">
+              Checkout, webhooks and Customer Portal.
+            </p>
+            <Link
+              href="/docs/features/payments"
+              className="mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-medium underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-700"
+            >
+              Explore subscription billing
+              <ArrowUpRight aria-hidden="true" className="size-4" />
+            </Link>
+            <ul className="mt-5 flex flex-col gap-3 text-xs text-neutral-600">
+              {[
+                { title: 'Monthly & yearly', icon: CalendarDays },
+                { title: 'Stored status', icon: Database },
+                { title: 'Billing portal', icon: CreditCard },
+              ].map(({ title, icon: Icon }) => (
+                <li key={title} className="flex items-center gap-2">
+                  <Icon aria-hidden="true" className="size-4 text-orange-700" />
+                  {title}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </article>
+        <div className="mt-8 grid items-center gap-7 md:grid-cols-2 md:gap-10">
+          <div>
+            <p className="mb-2 text-xs font-medium text-orange-700">
+              Your source
+            </p>
+            <h3 className="text-xl font-medium tracking-tight sm:text-2xl">
+              Make it your application.
+            </h3>
+            <p className="mt-3 text-sm leading-6 text-neutral-600">
+              Next.js pages, Hono APIs and Drizzle queries.
+            </p>
+            <Link
+              href="/docs/getting-started/project-structure"
+              className="mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-medium underline-offset-4 hover:underline"
+            >
+              Explore the source
+              <ArrowUpRight aria-hidden="true" className="size-4" />
+            </Link>
+          </div>
+          <ul
+            aria-label="Included source edit points"
+            className="divide-y divide-neutral-200 text-xs"
+          >
+            {[
+              { path: 'src/app/', name: 'Pages', icon: Folder },
+              { path: 'src/api/billing.ts', name: 'API', icon: FileCode2 },
+              { path: 'src/db/schema.ts', name: 'Data', icon: Database },
+            ].map(({ path, name, icon: Icon }) => (
+              <li key={path} className="flex flex-wrap items-center gap-3 py-3">
+                <Icon aria-hidden="true" className="size-4 text-orange-700" />
+                <code className="wrap-anywhere">{path}</code>
+                <span className="ml-auto text-neutral-500">{name}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
   );
 }

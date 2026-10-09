@@ -44,6 +44,54 @@ export default async function Page({ params }: Props) {
           <DocsBody>
             <MDX components={getMDXComponents()} />
           </DocsBody>
+          {page.url !== '/blog/building-beyond-hikari' && (
+            <div className="mt-12 border-t border-neutral-200 pt-6 text-sm leading-7 text-neutral-600">
+              <p>
+                Building beyond individual accounts? CoreMVP is a premium
+                startup application foundation with shared Organizations,
+                invitations and roles, persisted Projects, and lifetime payments
+                with guest checkout. Explore the{' '}
+                <a
+                  href="https://coremvp.com/en/products/nextjs"
+                  className="font-medium text-neutral-900 underline underline-offset-4"
+                >
+                  CoreMVP Next.js product
+                </a>{' '}
+                and{' '}
+                <a
+                  href="https://nextjs.coremvp.com"
+                  className="font-medium text-neutral-900 underline underline-offset-4"
+                >
+                  CoreMVP demo
+                </a>
+                , or{' '}
+                <Link
+                  href="/docs/getting-started"
+                  className="font-medium text-neutral-900 underline underline-offset-4"
+                >
+                  start building with free Hikari
+                </Link>
+                .
+              </p>
+              <p className="mt-3">
+                Read{' '}
+                <Link
+                  href="/blog/building-beyond-hikari"
+                  className="font-medium text-neutral-900 underline underline-offset-4"
+                >
+                  Building Beyond Hikari
+                </Link>{' '}
+                for the shared-workspace design, then follow{' '}
+                <Link
+                  href="/docs/coremvp"
+                  className="font-medium text-neutral-900 underline underline-offset-4"
+                >
+                  From Hikari to CoreMVP
+                </Link>{' '}
+                for the separate repository and local-start path.
+              </p>
+            </div>
+          )}
         </article>
         <aside className="sticky top-8 hidden self-start xl:block">
           <BlogToc toc={page.data.toc} />

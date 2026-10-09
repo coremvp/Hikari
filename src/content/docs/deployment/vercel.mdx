@@ -5,6 +5,8 @@ description: Publish Hikari with fresh Supabase and Vercel projects, then verify
 
 Use a fresh Supabase project and one [Vercel Next.js project](https://vercel.com/docs/frameworks/full-stack/nextjs). Have a working local account and Stripe test subscription before starting. Keep the selected Supabase project, Vercel project, and Stripe account consistent throughout setup.
 
+The main walkthrough deploys to Vercel **Production** with Stripe **test mode**. After completing it, follow [Configure a Preview deployment](#configure-a-preview-deployment) for an isolated branch candidate. The [environment reference](/docs/reference/environment) maps Local, Preview and Production settings.
+
 <Callout type="warn">
   The schema transition refuses to discard nonempty legacy Hikari tables. Back
   up an existing deployment and plan its data migration separately. Do not reset
@@ -34,10 +36,16 @@ In Supabase Authentication → URL Configuration, set **Site URL** to your final
 ```text
 https://your-app.example/auth/callback
 https://your-app.example/auth/callback?next=/reset-password
+https://your-app.example/auth/callback?next=%2Fcheckout%3Fplan%3Dstarter
+https://your-app.example/auth/callback?next=%2Fcheckout%3Fplan%3Dstarter%26interval%3Dyearly
+https://your-app.example/auth/callback?next=%2Fcheckout%3Fplan%3Dpro
+https://your-app.example/auth/callback?next=%2Fcheckout%3Fplan%3Dpro%26interval%3Dyearly
+https://your-app.example/auth/callback?next=%2Fcheckout%3Fplan%3Dbusiness
+https://your-app.example/auth/callback?next=%2Fcheckout%3Fplan%3Dbusiness%26interval%3Dyearly
 https://your-app.example/auth/confirm
 ```
 
-Turn **Confirm email** off in the Email provider settings. Signup then opens Dashboard immediately, matching local behavior. Configure [Supabase custom SMTP](https://supabase.com/docs/guides/auth/auth-smtp) and verify password recovery delivery to your intended users before release. The default hosted service restricts delivery to project-team addresses. Read [Authentication](/docs/features/authentication) for the recovery-template paths.
+Turn **Confirm email** off in the Email provider settings. Signup opens Dashboard immediately unless the visitor selected a plan, in which case it returns to that Checkout. If you later enable email confirmation, preserve these callback URLs to keep the plan selection. Configure [Supabase custom SMTP](https://supabase.com/docs/guides/auth/auth-smtp) and verify password recovery delivery to your intended users before release. The default hosted service restricts delivery to project-team addresses. Read [Authentication](/docs/features/authentication) for the recovery-template paths.
 
 </Step>
 <Step>
@@ -53,7 +61,7 @@ bunx vercel link --project <your-project-name>
 
 Confirm the intended account and project; stop if they are wrong. For a team project, append `--scope <team-slug>` to both `project ls` and `link`. For a personal project, omit `--scope` and select your personal account in the link prompts. Select the listed project or create a fresh project with your chosen name. Use the Next.js preset. The checked-in `vercel.json` uses `bun install --frozen-lockfile` and `bun run build`; Next.js runs under Node.js.
 
-Add the seven values in the [environment reference](/docs/reference/environment) to **Production** in the selected project. Set `APP_URL` to your final HTTPS origin, without a path or query. Use this Supabase project’s API URL, publishable key, and TLS-enabled transaction-pooler URL. Follow the [Supabase connection guide](https://supabase.com/docs/guides/database/connecting-to-postgres); Hikari’s Drizzle connection disables prepared statements for transaction pooling.
+Add the values in the [environment reference](/docs/reference/environment) to **Production** in the selected project. Set `APP_URL` to your final HTTPS origin, without a path or query. Use this Supabase project’s API URL, publishable key, and TLS-enabled transaction-pooler URL. Follow the [Supabase connection guide](https://supabase.com/docs/guides/database/connecting-to-postgres); Hikari’s Drizzle connection disables prepared statements for transaction pooling.
 
 Use Vercel Dashboard fields or these [interactive environment prompts](https://vercel.com/docs/cli/env). Enter values only when prompted; do not put secrets in command arguments. Mark database credentials and Stripe secrets as sensitive. The only public settings are the two `NEXT_PUBLIC_SUPABASE_*` values.
 
@@ -63,12 +71,11 @@ bunx vercel env add NEXT_PUBLIC_SUPABASE_URL production
 bunx vercel env add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY production
 bunx vercel env add DATABASE_URL production --sensitive
 bunx vercel env add STRIPE_SECRET_KEY production --sensitive
-bunx vercel env add STRIPE_PRICE_ID production
 bunx vercel env add STRIPE_WEBHOOK_SECRET production --sensitive
 bunx vercel env ls production
 ```
 
-Verify that all seven names target Production in the linked project before deploying. If a value already exists, use `env update` with the same target and sensitive flag.
+Verify that every setting above targets Production in the linked project before deploying. If a value already exists, use `env update` with the same target and sensitive flag.
 
 </Step>
 <Step>
@@ -76,7 +83,7 @@ Verify that all seven names target Production in the linked project before deplo
 
 Follow [Create a hosted destination](/docs/features/payments#create-a-hosted-destination) in your selected Stripe test account. That section contains the exact five-event list and API-version check. Register `https://your-app.example/api/webhooks/stripe`, save that destination's signing secret as the Production `STRIPE_WEBHOOK_SECRET`, then redeploy to load it. The local listener's secret does not verify hosted deliveries.
 
-Complete [Customer Portal configuration](/docs/features/payments#configure-customer-portal) in the same account. Use the same approved recurring price as `STRIPE_PRICE_ID` throughout setup.
+Complete [Customer Portal configuration](/docs/features/payments#configure-customer-portal) in the same account. Deploy `src/config/pricing.config.ts` with your selected account’s Product and monthly/yearly Price IDs for Starter, Pro, and Business. Catalog IDs and display amounts are source configuration, not Vercel environment values. Follow [Create your recurring prices](/docs/features/payments#create-your-recurring-prices) to match the displayed amounts and understand the checks performed before test Checkout.
 
 </Step>
 <Step>
@@ -99,3 +106,58 @@ To also remove the disposable account, record its Supabase user ID and Stripe Cu
 </Steps>
 
 Release only after these checks pass for your deployment and intended email recipients. Use the [testing reference](/docs/reference/testing) for local regression coverage while building your product.
+
+## Configure a Preview deployment
+
+Complete the Production walkthrough above first, then use that Vercel project connected to your Git repository. [Vercel's first deployment](https://vercel.com/docs/deployments/environments#first-deployment) is always Production, even from another branch. Select a branch other than the project's Production Branch for this Preview setup.
+
+Use a stable Preview origin and a separate Supabase project to test a candidate without writing to your Production database. Preview uses Vercel's **Preview** variables; it does not inherit the Production setup above.
+
+<Steps>
+<Step>
+### Choose a stable Preview origin
+
+Choose the HTTPS origin before starting a Preview build: Hikari requires `APP_URL` while generating page metadata during the build. For a branch's first Preview deployment, [assign a domain to that Git branch](https://vercel.com/docs/domains/working-with-domains/assign-domain-to-a-git-branch), using a subdomain you control such as `preview.your-app.example`. Configure its DNS as instructed by Vercel. Keep your Production domain assigned to Production.
+
+If the branch already has a deployment, you can instead copy its stable **Git branch URL** from Vercel's deployment overview. This URL follows the latest deployment on that branch; the unique deployment URL identifies only one build. See [Vercel's generated URLs](https://vercel.com/docs/deployments/generated-urls#why-deployments-have-multiple-urls).
+
+Use your chosen origin throughout the steps below. Save the Preview settings before deploying or redeploying the branch, following [Vercel's branch setup order](https://vercel.com/docs/git#multiple-preview-phases). Hikari does not configure a different callback origin for every generated deployment URL.
+
+</Step>
+<Step>
+### Configure the Preview Supabase project
+
+Create a separate hosted Supabase project. Repeat [Apply the schema](#apply-the-schema-to-supabase) for that exact project, checking the linked project reference before `db push`.
+
+In that project's Auth settings, repeat [Configure hosted Auth](#configure-hosted-auth), replacing every hostname with the stable Preview hostname. Set **Site URL** to the same Preview origin and add all listed callback and confirmation URLs to **Redirect URLs**. The supplied recovery template uses **Site URL**, so it must also return to Preview. Configure SMTP for this project; verify recovery after deploying Preview below. See [Supabase's redirect configuration](https://supabase.com/docs/guides/auth/redirect-urls).
+
+</Step>
+<Step>
+### Save Preview variables and its webhook secret
+
+In Vercel Project Settings → Environment Variables, add the six names in the [environment reference](/docs/reference/environment) to **Preview**, selecting the branch you are testing. Set `APP_URL` to its stable HTTPS origin and the Supabase/database values to the Preview project. Keep server credentials sensitive. [Branch-specific Preview variables](https://vercel.com/docs/environment-variables#preview-environment-variables) override shared Preview values.
+
+Use the test key matching your source pricing catalog. Register a separate [hosted Stripe destination](/docs/features/payments#create-a-hosted-destination) at the Preview origin's `/api/webhooks/stripe`, with the same five subscription events. Save that destination's signing secret as **Preview** `STRIPE_WEBHOOK_SECRET`. The local listener and Production endpoint secrets do not verify its deliveries.
+
+Stripe must reach this endpoint without a Vercel login screen. If Deployment Protection blocks it, configure a supported [Vercel webhook-access method](https://vercel.com/docs/deployment-protection/methods-to-bypass-deployment-protection) privately. Keep any bypass secret out of Git and support reports. A login redirect or HTTP 401 from Vercel is not a successful webhook delivery.
+
+Check the configured variable names and Preview targets:
+
+```bash
+bunx vercel env ls preview
+```
+
+Confirm the selected branch in the Dashboard before continuing; stop if the origin or provider project belongs to Production.
+
+</Step>
+<Step>
+### Deploy and verify Preview
+
+After saving the Preview settings and configuring Auth and its webhook destination, push a commit to the selected branch to create a new Preview deployment. Confirm Vercel labels it **Preview** and assigns your chosen origin before testing the application.
+
+After a successful build, open the chosen Preview origin and repeat [Deploy and verify](#deploy-and-verify)'s account, recovery, test Checkout, webhook, access and Portal checks there. The existing `./coremvp prod e2e smoke` command also accepts a Preview HTTPS origin; its name does not select Vercel Production, and it still proves only liveness and anonymous rejection.
+
+Expect recovery links and Checkout/Portal returns to stay on Preview. Confirm that the account and subscription rows belong to the Preview Supabase project. A green Vercel build alone does not prove these paths.
+
+</Step>
+</Steps>

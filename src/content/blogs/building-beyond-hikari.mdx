@@ -1,0 +1,73 @@
+---
+title: Building Beyond Hikari
+description: Shared workspaces need membership, server permissions and persisted ownership. See the foundation CoreMVP provides when your product needs them.
+date: 2026-10-08
+author: CoreMVP
+cover: /blog/building-beyond-hikari.svg
+index: true
+---
+
+import { BuildingBeyondHikariFigure } from '@/components/blog-figures/building-beyond-hikari';
+
+<figure className="not-prose mb-10">
+  <div className="overflow-hidden rounded-xl border border-neutral-200">
+    <BuildingBeyondHikariFigure />
+  </div>
+  <figcaption className="mt-3 text-sm leading-6 text-neutral-600">
+    {
+      'The top half of CoreMVP’s public Dashboard demo. Charts and account examples use sample data. '
+    }
+    <a
+      href="https://nextjs.coremvp.com/demo/dashboard"
+      className="underline underline-offset-4"
+    >
+      {'Explore the interactive demo'}
+    </a>
+    {'.'}
+  </figcaption>
+</figure>
+
+Your first application may give each person an account and a subscription. A client workspace changes the question: who can see a Project, who can change it, and what happens when someone leaves the team?
+
+Hikari gives you the individual-account path. When your product needs shared work, CoreMVP’s premium startup application foundation connects Organizations, member roles and persisted Projects. You can build the feature unique to your product on that ownership model instead of designing the shared-access path from the beginning.
+
+## A workspace selector is the beginning
+
+Hikari’s interactive Dashboard lets you switch example Organizations and Projects. It demonstrates the interface; the selections and example records are not saved. The [Project Structure guide](/docs/getting-started/project-structure) identifies that boundary and the real account/subscription readers.
+
+A shared workspace needs a durable answer to three questions: which Organization owns the record, whether the current user belongs to it, and whether their role permits the requested action. A workspace name in a dropdown cannot answer those questions. The browser can change its selection, and a saved link can outlive someone’s membership.
+
+In the CoreMVP foundation, every Project belongs to an Organization. The private Personal Organization gives an individual user the same ownership shape as a shared workspace. When people collaborate, Organization membership grants access to its Projects. You do not need a second personal-Project ownership model alongside the shared one. The [Projects documentation](https://coremvp.com/en/docs/projects) shows the included create, rename, archive and restore flow.
+
+## Check the action where the data changes
+
+CoreMVP’s Projects service checks the Supabase Auth user, reloads their Organization role and checks the requested action before returning or changing a Project. This excerpt from `src/services/projects/service.ts` is the permission decision:
+
+```ts
+const role = await OrganizationRepository.findRole(userId, organizationId);
+if (!role) throw new ProjectNotFoundError();
+if (!canPerformOrganizationAction(role, action))
+  throw new ProjectForbiddenError();
+```
+
+The included role model lets owners and admins change Projects; members can view them. A nonmember does not get access. A removed member fails this check on their next request. The [Organizations guide](https://coremvp.com/en/docs/organizations) explains invitations and the role model, including actions reserved for the owner.
+
+That check belongs on each server request. Hiding a button helps the interface communicate permission, but it cannot make a direct request safe. Switching the selected Organization also cannot grant membership. The stored relationship decides what the user can do.
+
+The repository carries the Organization boundary into the write. Renaming or archiving a Project uses both its ID and its Organization. An archived Project cannot be renamed until it is restored. Those decisions keep shared ownership and record behavior together rather than asking each new screen to invent them again.
+
+## Extend the ownership model with your product
+
+Suppose your client workspace adds review notes. Give each note a clear Organization owner, verify the author’s current membership and restrict reads and writes to that Organization. A Project link alone does not make a new notes table safe.
+
+The included Projects domain gives you a working example of that path, with migrations, models, repositories, service checks, routes and interface already connected. You still design your product’s fields and decide which role can perform each new action. CoreMVP’s [Members and Permissions guide](https://coremvp.com/en/docs/organizations/members-and-permissions) and [Projects extension points](https://coremvp.com/en/docs/projects#extend-the-included-domain) show where to make those decisions.
+
+Server checks add a current membership lookup to the request. That is a deliberate tradeoff: a role stored in browser state can become stale, while the next server request needs to respect the membership that exists now. When you extend the product, test both the allowed action and a request from another Organization. A successful owner request alone cannot demonstrate isolation.
+
+## Choose the foundation before the cutover
+
+Shared work is one reason to build further. Another is a product where a one-time purchase starts onboarding before an account exists. CoreMVP’s [Guest Checkout and Access guide](https://coremvp.com/en/docs/billing/lifetime/guest-checkout) follows that payment-to-account path. Hikari’s example subscriptions remain recurring billing for signed-in accounts; selecting a plan does not acquire CoreMVP source.
+
+Adopting CoreMVP means starting with a separate licensed source-code foundation. It does not automatically move Hikari users, custom tables, subscriptions or provider settings. Evaluate the new local clone first, then map your existing product work to its interfaces and ownership model. Keep your current application intact until a migration and cutover are designed for your data.
+
+Follow [From Hikari to CoreMVP](/docs/coremvp) for the repository and local-start path. Inspect the [CoreMVP Next.js product](https://coremvp.com/en/products/nextjs) and [try the demo](https://nextjs.coremvp.com) to see what you would build on. When individual accounts and recurring subscriptions fit your application, keep building from [Hikari’s existing source boundaries](/docs/getting-started/project-structure).

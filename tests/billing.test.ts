@@ -12,6 +12,15 @@ import {
   type BillingProvider,
 } from '@/providers/stripe';
 import Stripe from 'stripe';
+import { createBillingRoutes } from '@/api/billing';
+import { Hono } from 'hono';
+import { AppError } from '@/lib/errors';
+import {
+  configuredSubscriptionPrices,
+  type PlanId,
+  billingIntervals,
+} from '@/lib/subscription-plans';
+import { subscriptionTiers } from '@/config/pricing.config';
 const approved = 'price_approved';
 const state = (
   status: SubscriptionStatus = 'active',
@@ -35,29 +44,31 @@ for (const status of [
   'canceled',
 ] as const)
   test(status + ' is checked against the persisted access rule', () => {
-    expect(hasSubscriptionAccess([state(status)], approved)).toBe(
+    expect(hasSubscriptionAccess([state(status)], [approved])).toBe(
       ['active', 'trialing'].includes(status),
     );
   });
 for (const status of ['active', 'trialing'] as const) {
   test(status + ' on an unapproved or ambiguous price denies access', () => {
     expect(
-      hasSubscriptionAccess([state(status, 'price_other')], approved),
+      hasSubscriptionAccess([state(status, 'price_other')], [approved]),
     ).toBe(false);
-    expect(hasSubscriptionAccess([state(status, null)], approved)).toBe(false);
+    expect(hasSubscriptionAccess([state(status, null)], [approved])).toBe(
+      false,
+    );
   });
   test(status + ' cancellation at period end keeps access', () =>
     expect(
       hasSubscriptionAccess(
         [{ ...state(status), cancelAtPeriodEnd: true }],
-        approved,
+        [approved],
       ),
     ).toBe(true),
   );
 }
 test('missing approved configuration and no subscription never grant access', () => {
-  expect(hasSubscriptionAccess([state()], '')).toBe(false);
-  expect(hasSubscriptionAccess([], approved)).toBe(false);
+  expect(hasSubscriptionAccess([state()], [])).toBe(false);
+  expect(hasSubscriptionAccess([], [approved])).toBe(false);
 });
 class MemoryStore implements BillingStore {
   customer: Customer | null = {
@@ -107,7 +118,15 @@ function fixture() {
     async currentSubscription() {
       return current;
     },
-    async recurringPrice() {},
+    async recurringPrice(id) {
+      return {
+        currency: 'usd',
+        amount: 1500,
+        interval: id.endsWith('_yearly') ? 'year' : 'month',
+        intervalCount: 1,
+        livemode: false,
+      } as const;
+    },
     async openCheckout() {
       return open;
     },
@@ -134,7 +153,14 @@ function fixture() {
     service: new BillingService(
       store,
       provider,
-      () => approved,
+      () => ({
+        starter: { monthly: approved, yearly: 'price_starter_yearly' },
+        pro: { monthly: 'price_pro', yearly: 'price_pro_yearly' },
+        business: {
+          monthly: 'price_business',
+          yearly: 'price_business_yearly',
+        },
+      }),
       () => 'https://app.example',
     ),
     setCurrent: (s: SubscriptionState) => {
@@ -150,6 +176,254 @@ const event = (id: string) =>
     subscriptionId: 'sub_contract',
     status: 'active',
   });
+const user = { id: 'user_contract', email: 'fixture@example.test' };
+
+for (const tier of subscriptionTiers)
+  for (const interval of billingIntervals)
+    test(
+      tier.name +
+        ' ' +
+        interval +
+        ' uses the source catalog for Checkout and access',
+      async () => {
+        const f = fixture();
+        const expectedPrice =
+          interval === 'monthly' ? tier.priceIdMonthly : tier.priceIdYearly;
+        const service = new BillingService(
+          f.store,
+          f.provider,
+          () => configuredSubscriptionPrices,
+          () => 'https://app.example',
+        );
+        let selected: string | undefined;
+        f.provider.recurringPrice = async () => ({
+          currency: 'usd',
+          amount: 1500,
+          interval: interval === 'monthly' ? 'month' : 'year',
+          intervalCount: 1,
+          livemode: false,
+        });
+        f.provider.checkout = async (_customer, priceId) => {
+          selected = priceId;
+          return 'https://checkout.stripe.com/fixture';
+        };
+        await service.checkout(
+          user,
+          tier.id.replace(/^tier-/, '') as PlanId,
+          true,
+          interval,
+        );
+        expect(selected).toBe(expectedPrice);
+        f.setCurrent(state('active', expectedPrice));
+        await service.webhook(event('evt_catalog'), 'fixture');
+        expect(f.store.rows.get('sub_contract')?.priceId).toBe(expectedPrice);
+        expect((await service.view(user.id)).access).toBe(true);
+        f.store.rows.set('sub_contract', state('active', 'price_other'));
+        expect((await service.view(user.id)).access).toBe(false);
+      },
+    );
+
+for (const [plan, price] of Object.entries({
+  starter: approved,
+  pro: 'price_pro',
+  business: 'price_business',
+}))
+  for (const interval of billingIntervals) {
+    const selectedPrice =
+      interval === 'monthly' ? price : 'price_' + plan + '_yearly';
+    test(
+      plan +
+        ' ' +
+        interval +
+        ' resolves a server-owned price for Checkout and persisted access',
+      async () => {
+        const f = fixture();
+        let selected: string | undefined;
+        f.provider.checkout = async (_customer, priceId) => {
+          selected = priceId;
+          return 'https://checkout.stripe.com/fixture';
+        };
+        await f.service.checkout(user, plan as PlanId, true, interval);
+        expect(selected).toBe(selectedPrice);
+        f.setCurrent(state('active', selectedPrice));
+        await f.service.webhook(event('evt_plan'), 'fixture');
+        expect(f.store.rows.get('sub_contract')?.priceId).toBe(selectedPrice);
+        expect((await f.service.view(user.id)).access).toBe(true);
+      },
+    );
+  }
+
+test('missing plans stay unavailable and never create a provider customer', async () => {
+  const f = fixture();
+  const service = new BillingService(
+    f.store,
+    f.provider,
+    () => ({ starter: { monthly: approved } }),
+    () => 'https://app.example',
+  );
+  f.store.customer = null;
+  let created = false;
+  f.provider.createCustomer = async () => {
+    created = true;
+    return 'cus_new';
+  };
+  await expect(service.checkout(user, 'pro', true)).rejects.toThrow(
+    'not configured',
+  );
+  expect(created).toBe(false);
+});
+
+test('a stale pricing card cannot create a customer or session after a price switches to live mode', async () => {
+  const f = fixture();
+  f.store.customer = null;
+  let created = false;
+  f.provider.createCustomer = async () => {
+    created = true;
+    return 'cus_new';
+  };
+  f.provider.recurringPrice = async () => ({
+    currency: 'usd',
+    amount: 6500,
+    interval: 'month',
+    intervalCount: 1,
+    livemode: true,
+  });
+  await expect(f.service.checkout(user, 'pro', true)).rejects.toThrow(
+    'Test checkout is unavailable',
+  );
+  expect(created).toBe(false);
+  expect(f.store.customer).toBeNull();
+  expect(f.count()).toBe(0);
+});
+
+test('an archived purchase price does not block existing Account billing management', async () => {
+  const f = fixture();
+  f.store.rows.set('sub_contract', state());
+  f.provider.recurringPrice = async () => {
+    throw new Error('Archived price');
+  };
+  expect((await f.service.checkout(user)).destination).toBe('portal');
+  expect(f.count()).toBe(0);
+});
+
+test('a yearly selection cannot fall back to a monthly or multi-year price', async () => {
+  const f = fixture();
+  f.store.customer = null;
+  for (const intervalCount of [1, 2]) {
+    f.provider.recurringPrice = async () => ({
+      currency: 'usd',
+      amount: 9900,
+      interval: intervalCount === 1 ? 'month' : 'year',
+      intervalCount,
+      livemode: false,
+    });
+    await expect(
+      f.service.checkout(user, 'pro', true, 'yearly'),
+    ).rejects.toThrow('does not match');
+    expect(f.store.customer).toBeNull();
+    expect(f.count()).toBe(0);
+  }
+});
+
+test('missing yearly configuration stays unavailable while monthly keeps working', async () => {
+  const f = fixture();
+  const service = new BillingService(
+    f.store,
+    f.provider,
+    () => ({ starter: { monthly: approved } }),
+    () => 'https://app.example',
+  );
+  await expect(
+    service.checkout(user, 'starter', true, 'yearly'),
+  ).rejects.toThrow('not configured');
+  expect(f.count()).toBe(0);
+  expect((await service.checkout(user)).destination).toBe('checkout');
+});
+
+test('Checkout API rejects arbitrary prices and plan identifiers, and requires a verified user', async () => {
+  const f = fixture();
+  const api = new Hono().route(
+    '/api',
+    createBillingRoutes(f.service, async () => user),
+  );
+  const post = (body: unknown) =>
+    api.request('/api/billing/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+  for (const body of [
+    { plan: 'enterprise' },
+    { plan: 'pro', interval: 'weekly' },
+    { plan: 'pro', priceId: 'price_attacker' },
+    { demo: 'true' },
+  ]) {
+    expect((await post(body)).status).toBe(400);
+  }
+  expect(f.count()).toBe(0);
+  expect((await post({ plan: 'pro', demo: true })).status).toBe(200);
+  const anonymous = new Hono()
+    .route(
+      '/api',
+      createBillingRoutes(f.service, async () => {
+        throw new AppError(401, 'Sign in to continue.');
+      }),
+    )
+    .onError((error, c) =>
+      c.json(
+        { error: error.message },
+        error instanceof AppError ? error.status : 503,
+      ),
+    );
+  expect(
+    (
+      await anonymous.request('/api/billing/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: 'business', demo: true }),
+      })
+    ).status,
+  ).toBe(401);
+});
+
+test('Stripe price validation retains quoted fields and rejects unsupported or inactive products', async () => {
+  const raw = {
+    active: true,
+    type: 'recurring',
+    currency: 'eur',
+    unit_amount: 1234,
+    recurring: { interval: 'week', interval_count: 3, usage_type: 'licensed' },
+    billing_scheme: 'per_unit',
+    transform_quantity: null,
+    livemode: false,
+    product: { active: true, livemode: false },
+  };
+  let price = raw;
+  const provider = new StripeProvider(
+    () => ({ prices: { retrieve: async () => price } }) as unknown as Stripe,
+  );
+  expect(await provider.recurringPrice('price_fixture')).toEqual({
+    currency: 'eur',
+    amount: 1234,
+    interval: 'week',
+    intervalCount: 3,
+    livemode: false,
+  });
+  for (const changed of [
+    { active: false },
+    { unit_amount: null },
+    { billing_scheme: 'tiered' },
+    { transform_quantity: { divide_by: 10, round: 'up' } },
+    { product: { active: false, livemode: false } },
+    { product: { active: true, livemode: true } },
+    { recurring: { ...raw.recurring, usage_type: 'metered' } },
+  ]) {
+    price = { ...raw, ...changed } as typeof raw;
+    await expect(provider.recurringPrice('price_fixture')).rejects.toThrow(
+      'not configured correctly',
+    );
+  }
+});
 test('duplicates and an older event use current provider truth through the final reader', async () => {
   const f = fixture();
   await f.service.webhook(event('evt_new'), 'fixture');
@@ -290,7 +564,7 @@ test('subscription items must describe one recurring item to grant access', () =
     expect(mapped.currentPeriodEnd?.toISOString()).toBe(
       '2030-01-02T00:00:00.000Z',
     );
-    expect(hasSubscriptionAccess([mapped], approved)).toBe(true);
+    expect(hasSubscriptionAccess([mapped], [approved])).toBe(true);
   }
   expect(mapSubscription(raw).cancelAtPeriodEnd).toBe(true);
   expect(

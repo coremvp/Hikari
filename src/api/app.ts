@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { appUrl } from '@/lib/config';
 import { AppError } from '@/lib/errors';
 import * as auth from '@/services/auth';
+import { checkoutNextSchema } from '@/lib/subscription-plans';
 import { createFromSource } from 'fumadocs-core/search/server';
 import { source } from '@/lib/source';
 const search = createFromSource(source, { language: 'english' });
@@ -35,10 +36,17 @@ api.onError((error, c) => {
 });
 api.get('/health', (c) => c.json({ status: 'ok' }));
 api.get('/search', (c) => search.GET(c.req.raw));
-api.post('/auth/signup', zValidator('json', credentials), async (c) => {
-  const { email, password } = c.req.valid('json');
-  return c.json(await auth.signUp(email, password));
-});
+api.post(
+  '/auth/signup',
+  zValidator(
+    'json',
+    credentials.extend({ next: checkoutNextSchema.optional() }),
+  ),
+  async (c) => {
+    const { email, password, next } = c.req.valid('json');
+    return c.json(await auth.signUp(email, password, next));
+  },
+);
 api.post('/auth/signin', zValidator('json', credentials), async (c) => {
   const { email, password } = c.req.valid('json');
   await auth.signIn(email, password);

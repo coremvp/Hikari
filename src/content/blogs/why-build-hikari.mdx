@@ -29,4 +29,6 @@ The tests follow these boundaries: unit tests use controlled provider/store stat
 
 The UI and API ship together. A change to either produces one application release, and they share its runtime capacity. If your product later needs an independently scaled service or a separate release lifecycle, that is a reason to introduce another deployable boundary.
 
+CoreMVP’s [Next.js Route Handlers vs Hono article](https://coremvp.com/en/blog/nextjs-api-routes-vs-hono-saas) examines API ownership and the tradeoffs of a separate service. Read it when deciding whether your API needs its own release or scaling boundary.
+
 For the supported Hikari application, we keep the operational path together and the code responsibilities explicit. Choose a new service when its independent job requires one. Start your feature at the [source boundary that owns its behavior](/docs/getting-started/project-structure).

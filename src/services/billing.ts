@@ -1,5 +1,4 @@
 import 'server-only';
-import { z } from 'zod';
 import { BillingRepository, type BillingStore } from '@/repositories/billing';
 import { StripeProvider, type BillingProvider } from '@/providers/stripe';
 import {
@@ -9,6 +8,12 @@ import {
 } from '@/lib/billing-contract';
 import { appUrl } from '@/lib/config';
 import { AppError } from '@/lib/errors';
+import {
+  configuredSubscriptionPrices,
+  type PlanId,
+  type PlanPrices,
+  type BillingInterval,
+} from '@/lib/subscription-plans';
 const lifecycleEvents = new Set([
   'customer.subscription.created',
   'customer.subscription.updated',
@@ -20,7 +25,7 @@ export class BillingService {
   constructor(
     private store: BillingStore,
     private provider: BillingProvider,
-    private priceId: () => string,
+    private prices: () => PlanPrices,
     private origin: () => string,
   ) {}
   async view(userId: string): Promise<BillingView> {
@@ -29,7 +34,10 @@ export class BillingService {
       ? await this.store.subscriptions(customer.stripeCustomerId)
       : [];
     return {
-      access: hasSubscriptionAccess(states, this.priceId()),
+      access: hasSubscriptionAccess(
+        states,
+        Object.values(this.prices()).flatMap((prices) => Object.values(prices)),
+      ),
       canManage: !!customer,
       subscriptions: states.map((s) => ({
         status: s.status,
@@ -42,9 +50,40 @@ export class BillingService {
     if (!(await this.view(userId)).access)
       throw new AppError(403, 'An active subscription is required.');
   }
-  async checkout(user: { id: string; email: string }) {
+  private async quote(priceId: string, interval: BillingInterval) {
+    const price = await this.provider.recurringPrice(priceId);
+    if (
+      price.interval !== (interval === 'monthly' ? 'month' : 'year') ||
+      price.intervalCount !== 1
+    )
+      throw new AppError(
+        503,
+        'The subscription price does not match the selected billing interval.',
+      );
+    return price;
+  }
+  async checkout(
+    user: { id: string; email: string },
+    plan: PlanId = 'starter',
+    demo = false,
+    interval: BillingInterval = 'monthly',
+  ) {
     return this.store.withLock('hikari:checkout:' + user.id, async (store) => {
-      const approvedPrice = this.priceId();
+      const approvedPrice = this.prices()[plan]?.[interval];
+      if (!approvedPrice)
+        throw new AppError(
+          503,
+          'This subscription plan is not configured yet.',
+        );
+      // Read fresh provider truth before any mutation, even if the pricing card is cached.
+      if (demo) {
+        const price = await this.quote(approvedPrice, interval);
+        if (price.livemode)
+          throw new AppError(
+            409,
+            'Test checkout is unavailable. No subscription was created.',
+          );
+      }
       let customer = await store.customerForUser(user.id);
       if (!customer) {
         const stripeCustomerId = await this.provider.createCustomer(
@@ -68,7 +107,7 @@ export class BillingService {
           ),
           destination: 'portal' as const,
         };
-      await this.provider.recurringPrice(approvedPrice);
+      if (!demo) await this.quote(approvedPrice, interval);
       const url =
         (await this.provider.openCheckout(
           customer.stripeCustomerId,
@@ -128,10 +167,6 @@ export class BillingService {
 export const billing = new BillingService(
   new BillingRepository(),
   new StripeProvider(),
-  () =>
-    z
-      .string()
-      .regex(/^price_[A-Za-z0-9]+$/)
-      .parse(process.env.STRIPE_PRICE_ID),
+  () => configuredSubscriptionPrices,
   appUrl,
 );

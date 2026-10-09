@@ -11,6 +11,8 @@
     "---Deploy and verify---",
     "deployment/vercel",
     "reference/environment",
-    "reference/testing"
+    "reference/testing",
+    "---Build further---",
+    "coremvp"
   ]
 }

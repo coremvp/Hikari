@@ -1,24 +1,39 @@
 ---
 title: Subscriptions
-description: Connect one recurring Stripe price to Checkout, persisted access, and Customer Portal.
+description: Connect recurring Stripe plans to Checkout, persisted access, and Customer Portal.
 ---
 
 import { ImageZoom } from 'fumadocs-ui/components/image-zoom';
 
-Connect one recurring Stripe price to your running [local application](/docs/getting-started). Account already starts Checkout and opens Customer Portal; verified subscription events keep access current after payment, renewal, and cancellation.
+Connect recurring Stripe plans to your running [local application](/docs/getting-started). The homepage offers Starter, Pro, and Business; Account starts Starter Checkout and opens Customer Portal; verified subscription events keep access current after payment, renewal, and cancellation.
+
+Install the [Stripe CLI](https://docs.stripe.com/cli/install) for your OS before running the commands below. Check the installation with `stripe --version`. Local signup works without Stripe; this guide adds billing with your selected Stripe test account.
 
 <Steps>
 <Step>
-## Create your recurring price
+## Create your recurring prices
 
-In the [Stripe test Dashboard](https://dashboard.stripe.com/test/products), create one active, fixed-amount recurring price. Add these server-only values to ignored `.env.local`:
+In the [Stripe test Dashboard](https://dashboard.stripe.com/test/products), create an active Product for each plan, with fixed-amount monthly and yearly prices (six prices total). Use an interval count of one for both cadences. Each price must use standard per-unit billing with quantity one, without metered usage, tiers, or quantity transformations.
 
-| Variable            | Value                                    |
-| ------------------- | ---------------------------------------- |
-| `STRIPE_SECRET_KEY` | Secret test key from this Stripe account |
-| `STRIPE_PRICE_ID`   | Your approved recurring price ID         |
+In `src/config/pricing.config.ts`, replace each subscription tier’s example catalog IDs with the IDs from your account. Set its displayed amounts to match those Stripe prices:
 
-Use the same Stripe account for your price, test key, listener, and Customer Portal. Stop if any of them belongs to another account or live mode.
+```ts title="src/config/pricing.config.ts (subscription tier fields)"
+productId: 'prod_...',
+priceIdMonthly: 'price_...',
+priceIdYearly: 'price_...',
+priceMonthly: '$15',
+priceYearly: '$150',
+```
+
+Hikari uses this configuration to approve Checkout prices and subscriber access. Product and Price IDs belong in this file; keep only the test API key in ignored `.env.local` as `STRIPE_SECRET_KEY`. The listener’s signing secret is added in the next step.
+
+The public pricing section reads the displayed amounts from this configuration. Yearly billing shows the monthly equivalent and full annual charge; the toggle's savings label compares the annual charge with twelve monthly payments. Stripe charges the selected Price's amount. Hikari does not compare that amount with the display fields automatically, so update both when changing your catalog.
+
+Before test Checkout, the server retrieves the configured Price and checks that it and its Product are active, that it uses fixed, licensed per-unit recurring billing, and that its interval matches your monthly/yearly selection with an interval count of one. An unavailable price, unsupported price shape, wrong interval or live-mode price cannot start test Checkout. Yearly billing never falls back to a monthly price. Local signup works without billing credentials.
+
+Use the same Stripe account for your prices, test key, listener, and Customer Portal. Stop if any of them belongs to another account or live mode.
+
+Local, Preview and Production use the same source catalog; changing a Vercel scope or API key does not replace its IDs. Each environment uses its own webhook signing secret. See [Environment variables](/docs/reference/environment#pricing-configuration) for where to save credentials and how deployment scope differs from Stripe mode.
 
 </Step>
 <Step>
@@ -39,8 +54,8 @@ Open [Customer Portal settings](https://dashboard.stripe.com/test/settings/billi
 
 - **Payment methods:** enable updates so users can replace their card.
 - **Invoices:** enable invoice history for receipts and downloads.
-- **Cancellations:** enable cancellation and choose **Cancel at end of billing period** to preserve the remaining paid period.
-- **Plan changes and quantities:** leave these disabled for the included one-price setup.
+- **Cancellations:** enable cancellation and choose **Cancel at end of billing period** to preserve the remaining subscription period.
+- **Plan changes and quantities:** leave these disabled until you deliberately configure upgrades in Customer Portal.
 
 Save the test-mode configuration and preview it. The app creates each Portal session for the signed-in user's stored Stripe Customer and supplies the return URL. Stripe's [Portal settings guide](https://docs.stripe.com/customer-management/configure-portal) explains additional policies.
 
@@ -57,13 +72,13 @@ Save the test-mode configuration and preview it. The app creates each Portal ses
   </figcaption>
 </figure>
 
-You can choose immediate cancellation instead. Hikari supports one approved recurring price; switching to another price removes subscriber access.
+You can choose immediate cancellation instead. Subscriber access accepts your configured monthly and yearly Starter, Pro, and Business prices. Switching to an unconfigured price removes access. Plan labels do not add separate entitlements; customize them for your application.
 
 </Step>
 <Step>
 ## Complete a test subscription
 
-Sign in, open Account, and select **Start subscription**. Use Stripe’s `4242 4242 4242 4242` test card, a future expiry, and any three-digit CVC. After returning, select **Refresh subscription**. Account should show **Your subscription access is active.** and the subscription status; Dashboard should also show subscriber access.
+Open **Pricing** on the homepage and select Monthly or Yearly, then choose **Try Starter**, **Try Pro**, or **Try Business**. An anonymous visitor first reaches Sign in; the **Sign up** link keeps the same selected plan and billing interval. After sign-in or signup, Checkout opens automatically. If email confirmation is enabled, the confirmation callback keeps the plan and interval too. Without a selected plan, signup still opens Dashboard. Account’s **Start subscription** starts monthly Starter Checkout. Use Stripe’s `4242 4242 4242 4242` test card, a future expiry, and any three-digit CVC. After returning, select **Refresh subscription**. Account should show **Your subscription access is active.** and the subscription status; Dashboard should also show subscriber access.
 
 Select **Billing portal** to open Customer Portal. Cancel the disposable subscription there, keep the listener running, and refresh Account after Stripe delivers the change. Immediate cancellation should remove access. A scheduled cancellation keeps access while the subscription remains `active` or `trialing`.
 
@@ -182,7 +197,7 @@ A successful delivery alone does not prove subscriber access. Complete a real te
 | Scheduled cancellation while still `active` or `trialing` | Granted until status changes |
 | Other status, other price, or an unsupported item layout  | Denied                       |
 
-Hikari supports one recurring item on the configured price. Checkout starts with quantity one; quantity alone does not change access for an otherwise eligible subscription. Existing subscriptions that still need management open Portal instead of another Checkout. If only `canceled` or `incomplete_expired` subscriptions remain, you can start a new Checkout. Repeated requests reuse an open Checkout session.
+Hikari supports one recurring item on any configured Starter, Pro, or Business price. Checkout starts with quantity one; quantity alone does not change access for an otherwise eligible subscription. Existing subscriptions that still need management open Portal instead of another Checkout. If only `canceled` or `incomplete_expired` subscriptions remain, you can start a new Checkout. Repeated requests reuse an open Checkout session.
 
 ## Extend subscriber features
 
@@ -195,7 +210,7 @@ Use the included access endpoint as the pattern for your own subscriber-only ope
 })
 ```
 
-The route checks the signed-in user before `BillingService.requireAccess()` reads the persisted subscription. An anonymous request returns HTTP 401; a signed-in account without eligible access receives HTTP 403. Put this check before returning subscriber-only data or performing a paid operation. A Checkout return URL cannot grant access.
+The route checks the signed-in user before `BillingService.requireAccess()` reads the persisted subscription. An anonymous request returns HTTP 401; a signed-in account without eligible access receives HTTP 403. Put this check before returning subscriber-only data or performing a subscriber-only operation. A Checkout return URL cannot grant access.
 
 ## Keep subscription state current
 
