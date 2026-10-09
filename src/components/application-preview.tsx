@@ -221,7 +221,7 @@ export function ApplicationPreview() {
             No active subscription
           </p>
           <Link href="/account" className="button mt-5 rounded-lg py-2">
-            Explore billing · sign in required{' '}
+            Explore billing{' '}
             <span className="ml-3" aria-hidden="true">
               →
             </span>
@@ -232,12 +232,12 @@ export function ApplicationPreview() {
         </section>
       </div>
       <div className="hikari-preview-caption">
-        <p>Included interfaces · static examples</p>
+        <p>Included interfaces · example account</p>
         <Link
           href="/dashboard"
           className="font-medium text-neutral-900 underline underline-offset-4"
         >
-          Open Dashboard · sign in required <span aria-hidden="true">→</span>
+          Try the working application <span aria-hidden="true">→</span>
         </Link>
       </div>
     </div>

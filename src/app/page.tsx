@@ -78,8 +78,8 @@ export default function Home() {
             </span>
           </h1>
           <p className="mt-5 max-w-xl text-balance text-lg leading-7 text-neutral-600">
-            Accounts, subscriptions, Docs and Blog. Your Next.js app starts
-            here.
+            Accounts, subscriptions, and content. Connected in one open-source
+            Next.js application, ready for your ideas.
           </p>
           <div className="mt-7 flex flex-wrap justify-center gap-3">
             <Link
