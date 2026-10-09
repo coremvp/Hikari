@@ -318,89 +318,98 @@ function FoundationShowcase() {
   const pro = subscriptionPlans.find((plan) => plan.id === 'pro')!;
   const price = getSubscriptionPriceDisplay(pro, 'monthly');
   const sceneClass =
-    'flex min-h-[360px] flex-col items-center justify-center bg-neutral-50 px-5 py-8 sm:min-h-[400px] sm:px-8 md:h-[440px] lg:h-[400px]';
-  const windowClass =
-    'w-full max-w-[400px] shrink-0 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-[0_12px_24px_-20px_rgba(23,23,23,0.4)]';
+    'relative order-2 flex min-h-[360px] items-center justify-center px-2 py-9 md:min-h-[390px] md:px-5';
+  const planeClass =
+    'relative min-w-0 rounded-xl border border-neutral-200 bg-white shadow-[0_12px_30px_-12px_rgba(23,23,23,0.15)] group-hover/feature:border-[#d7baa8] group-hover/feature:shadow-[0_20px_36px_-16px_rgba(23,23,23,0.22)] group-focus-within/feature:border-[#d7baa8] group-focus-within/feature:shadow-[0_20px_36px_-16px_rgba(23,23,23,0.22)] motion-safe:transition-[transform,box-shadow,border-color] motion-safe:duration-[240ms] motion-safe:ease-out';
+  const mainMotion =
+    ' motion-safe:group-hover/feature:-translate-y-1.5 motion-safe:group-focus-within/feature:-translate-y-1.5';
   const statusClass =
-    'inline-flex items-center gap-1 rounded bg-orange-50 px-2 py-1 text-[11px] text-orange-800';
+    'inline-flex items-center gap-1 text-[11px] font-medium text-orange-700';
   return (
     <section aria-labelledby="foundation-title" className="hikari-section">
-      <div className="mb-10 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+      <div className="mb-9 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
         <SectionHeading
           id="foundation-title"
           title="Accounts included."
           subtitle="Subscriptions connected."
         />
-        <p className="text-base leading-7 text-neutral-600">
-          A home for your users. A foundation for your product.
+        <p className="text-base leading-7 text-neutral-600 lg:max-w-[230px]">
+          <span className="block">A home for your users.</span>
+          <span className="block">A foundation for your product.</span>
         </p>
       </div>
-      <div className="grid overflow-clip rounded-xl border border-neutral-200 md:grid-cols-2">
-        <article className="flex min-w-0 flex-col border-b border-neutral-200 md:border-b-0 md:border-r">
-          <div className={sceneClass}>
+      <div>
+        <article className="group/feature grid min-w-0 items-center gap-2 pb-8 md:grid-cols-[1.2fr_0.8fr] md:gap-8">
+          <div className={sceneClass + ' md:order-first'}>
             <div
               role="img"
               aria-label="Illustrative account with email, signed-in state, protected pages and recovery"
-              className="flex w-full flex-col items-center"
+              className="w-full max-w-[420px]"
             >
-              <div className={windowClass}>
-                <div className="flex items-center justify-between gap-4 border-b border-neutral-100 px-5 py-3 text-xs">
-                  <span className="flex items-center gap-2 font-medium">
-                    <Image src="/icon.svg" alt="" width={18} height={18} />
-                    Hikari
-                  </span>
-                  <span className="text-neutral-500">Account</span>
+              <div className={planeClass + mainMotion + ' overflow-hidden'}>
+                <div className="flex items-center gap-1.5 border-b border-neutral-200 px-4 py-3 text-[11px] text-neutral-500">
+                  <span className="size-1.5 rounded-full bg-neutral-300" />
+                  <span className="size-1.5 rounded-full bg-neutral-300" />
+                  <span className="size-1.5 rounded-full bg-neutral-300" />
+                  <span className="ml-auto">Hikari · Account</span>
                 </div>
-                <div className="flex flex-wrap items-center gap-3 px-5 pt-6 pb-4">
-                  <span className="grid size-9 shrink-0 place-items-center rounded-full border border-neutral-200 bg-neutral-50">
-                    <UserRound className="size-4" />
-                  </span>
-                  <div>
-                    <p className="text-sm font-medium">Your account</p>
-                    <p className="mt-1 text-xs text-neutral-500">
-                      Your signed-in account.
-                    </p>
+                <div className="px-5 pt-6 pb-5">
+                  <div className="flex items-center gap-3">
+                    <span className="grid size-10 shrink-0 place-items-center rounded-full bg-orange-50 text-orange-700">
+                      <UserRound className="size-5" />
+                    </span>
+                    <div>
+                      <p className="text-lg font-medium tracking-tight">
+                        Your account
+                      </p>
+                      <p className="mt-0.5 text-xs text-neutral-500">
+                        Your signed-in account.
+                      </p>
+                    </div>
                   </div>
-                  <span className={statusClass + ' ml-auto'}>
-                    <Check className="size-3" />
+                  <p className="mt-5 border-t border-neutral-200 py-3 text-sm wrap-anywhere">
+                    builder@example.test
+                  </p>
+                  <span className={statusClass}>
+                    <Check className="size-3.5" />
                     Signed in
                   </span>
                 </div>
-                <dl className="px-5 pb-5">
-                  <dt className="mb-1 text-xs text-neutral-500">
-                    Email address
-                  </dt>
-                  <dd className="text-sm font-medium wrap-anywhere">
-                    builder@example.test
-                  </dd>
-                </dl>
-                <div className="flex flex-wrap items-center gap-2 border-t border-neutral-100 bg-neutral-50 px-5 py-3 text-[11px] text-neutral-600">
+                <div className="flex flex-wrap items-center gap-2 border-t border-neutral-200 bg-neutral-50 px-4 py-3 text-[11px] text-neutral-600">
                   <LockKeyhole className="size-3.5" />
                   <span>Protected pages</span>
                   <code>/dashboard</code>
                   <code>/account</code>
                 </div>
               </div>
-              <div className="-mt-1 flex w-full max-w-[300px] shrink-0 -rotate-2 items-center gap-3 rounded-lg border border-neutral-200 bg-white px-4 py-3 shadow-[0_10px_20px_-16px_rgba(23,23,23,0.4)] sm:ml-7 sm:w-[84%]">
-                <span className="grid size-8 shrink-0 place-items-center rounded bg-orange-50 text-orange-800">
+              <div
+                className={
+                  planeClass +
+                  ' z-10 -mt-2 ml-auto flex w-[92%] -rotate-3 items-center gap-3 px-4 py-3.5 motion-safe:group-hover/feature:-translate-y-2 motion-safe:group-hover/feature:-rotate-1 motion-safe:group-focus-within/feature:-translate-y-2 motion-safe:group-focus-within/feature:-rotate-1'
+                }
+              >
+                <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-orange-50 text-orange-700">
                   <Mail className="size-4" />
                 </span>
                 <div>
                   <p className="text-xs font-medium">Password recovery</p>
-                  <p className="mt-1 text-[11px] text-neutral-500">
+                  <p className="mt-0.5 text-[11px] text-neutral-500">
                     Back to your account.
                   </p>
                 </div>
                 <ArrowUpRight className="ml-auto size-4 shrink-0 text-neutral-500" />
               </div>
             </div>
-            <p className="mt-5 text-center text-[11px] leading-5 text-neutral-500">
+            <p className="absolute inset-x-2 bottom-0 text-center text-[11px] text-neutral-500">
               Illustrative account interface
             </p>
           </div>
-          <div className="flex-1 px-6 py-7 sm:px-9 sm:py-8">
-            <p className="mb-2 text-xs text-neutral-500">Accounts</p>
-            <h3 className="text-xl font-medium tracking-tight sm:text-2xl">
+          <div className="max-w-sm py-5 md:py-6">
+            <p className="mb-2 flex items-center gap-2 text-xs font-medium text-orange-700">
+              <UserRound aria-hidden="true" className="size-4" />
+              Accounts
+            </p>
+            <h3 className="text-[28px] font-medium leading-tight tracking-tight">
               Give users a home.
             </h3>
             <p className="mt-3 text-sm leading-6 text-neutral-600">
@@ -408,68 +417,73 @@ function FoundationShowcase() {
             </p>
             <Link
               href="/docs/features/authentication"
-              className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-medium hover:underline underline-offset-4"
+              className="mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-medium underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-700"
             >
-              Explore authentication{' '}
+              Explore authentication
               <ArrowUpRight aria-hidden="true" className="size-4" />
             </Link>
-          </div>
-          <div className="flex flex-wrap gap-x-5 gap-y-3 border-t border-neutral-200 px-6 py-4 text-xs text-neutral-600 sm:px-9">
-            {[
-              { title: 'Email & password', icon: UserRound },
-              { title: 'Recovery flow', icon: KeyRound },
-              { title: 'Server checks', icon: ShieldCheck },
-            ].map(({ title, icon: Icon }) => (
-              <span key={title} className="flex items-center gap-2">
-                <Icon aria-hidden="true" className="size-3.5" />
-                {title}
-              </span>
-            ))}
+            <ul className="mt-5 flex flex-col gap-3 text-xs text-neutral-600">
+              {[
+                { title: 'Email & password', icon: UserRound },
+                { title: 'Recovery flow', icon: KeyRound },
+                { title: 'Server checks', icon: ShieldCheck },
+              ].map(({ title, icon: Icon }) => (
+                <li key={title} className="flex items-center gap-2">
+                  <Icon aria-hidden="true" className="size-4 text-orange-700" />
+                  {title}
+                </li>
+              ))}
+            </ul>
           </div>
         </article>
-        <article className="flex min-w-0 flex-col">
-          <div className={sceneClass}>
+        <article className="group/feature grid min-w-0 items-center gap-2 py-8 md:grid-cols-[0.8fr_1.2fr] md:gap-8">
+          <div className={sceneClass + ' md:order-last'}>
             <div
               role="img"
               aria-label="Illustrative Pro subscription with active status, customer portal and verified access"
-              className="flex w-full flex-col items-center"
+              className="w-full max-w-[420px]"
             >
-              <div className={windowClass}>
-                <div className="flex items-center justify-between gap-4 border-b border-neutral-100 px-5 py-3 text-xs">
-                  <span className="flex items-center gap-2 font-medium">
-                    <CreditCard className="size-4" />
-                    Subscription
-                  </span>
-                  <span className="text-neutral-500">Account</span>
-                </div>
-                <div className="flex flex-wrap items-center justify-between gap-4 p-5">
-                  <div>
-                    <p className="text-xs text-neutral-500">Example plan</p>
-                    <p className="mt-1 text-2xl font-medium">{pro.name}</p>
-                  </div>
-                  <p className="text-3xl font-medium tracking-tight">
-                    {price.amount}
-                    <span className="ml-1 text-[11px] font-normal tracking-normal text-neutral-500">
-                      {price.interval}
-                    </span>
+              <div className={planeClass + mainMotion}>
+                <div className="flex items-center justify-between gap-3 px-5 pt-5">
+                  <p className="text-base font-medium">
+                    {pro.name} subscription
                   </p>
-                </div>
-                <div className="flex items-center justify-between gap-3 border-t border-neutral-100 px-5 py-3 text-xs">
-                  <span className="text-neutral-600">Subscription status</span>
                   <span className={statusClass}>
-                    <Check className="size-3" />
+                    <Check className="size-3.5" />
                     Active
                   </span>
                 </div>
-                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-100 px-5 py-4 text-xs">
-                  <span className="text-neutral-600">Customer Portal</span>
-                  <span className="flex items-center gap-1">
-                    Manage billing
-                    <ArrowUpRight className="size-3.5" />
+                <p className="flex items-baseline gap-1.5 px-5 pt-2 pb-5">
+                  <span className="text-[56px] font-medium leading-tight tracking-[-0.05em]">
+                    {price.amount}
                   </span>
+                  <span className="text-xs text-neutral-500">
+                    {price.interval}
+                  </span>
+                </p>
+                <div className="flex items-center justify-between gap-3 border-t border-neutral-200 px-5 py-3 text-xs">
+                  <span className="text-neutral-600">Example plan</span>
+                  <span>Monthly billing</span>
                 </div>
               </div>
-              <ol className="mt-6 grid w-full max-w-[380px] grid-cols-3 gap-2 text-[11px]">
+              <div
+                className={
+                  planeClass +
+                  ' z-10 -mt-1 w-[90%] rotate-3 px-4 py-4 motion-safe:group-hover/feature:-translate-y-2 motion-safe:group-hover/feature:rotate-1 motion-safe:group-focus-within/feature:-translate-y-2 motion-safe:group-focus-within/feature:rotate-1'
+                }
+              >
+                <p className="flex items-center gap-2 text-xs font-medium">
+                  <CreditCard className="size-4 text-orange-700" />
+                  Customer Portal
+                  <ArrowUpRight className="ml-auto size-4 text-neutral-500" />
+                </p>
+                <p className="mt-2.5 flex flex-wrap gap-3 text-[11px] text-neutral-500">
+                  <span>Invoices</span>
+                  <span>Payment method</span>
+                  <span>Cancellation</span>
+                </p>
+              </div>
+              <ol className="mt-6 grid grid-cols-3 gap-2 text-[11px]">
                 {[
                   { title: 'Checkout', icon: CreditCard },
                   { title: 'Verified event', icon: BadgeCheck },
@@ -477,24 +491,27 @@ function FoundationShowcase() {
                 ].map(({ title, icon: Icon }, index) => (
                   <li
                     key={title}
-                    className="relative flex flex-col items-center justify-center gap-1.5 sm:flex-row"
+                    className="relative flex flex-col items-center gap-1.5 sm:flex-row sm:justify-center"
                   >
                     {index > 0 && (
                       <ArrowRight className="absolute -left-2 top-0.5 size-3 text-neutral-400 sm:top-auto" />
                     )}
-                    <Icon className="size-3.5 text-orange-800" />
+                    <Icon className="size-3.5 text-orange-700" />
                     <span>{title}</span>
                   </li>
                 ))}
               </ol>
             </div>
-            <p className="mt-5 text-center text-[11px] leading-5 text-neutral-500">
-              Illustrative subscription state
+            <p className="absolute inset-x-2 bottom-0 text-center text-[11px] text-neutral-500">
+              Illustrative subscription interface
             </p>
           </div>
-          <div className="flex-1 px-6 py-7 sm:px-9 sm:py-8">
-            <p className="mb-2 text-xs text-neutral-500">Subscriptions</p>
-            <h3 className="text-xl font-medium tracking-tight sm:text-2xl">
+          <div className="max-w-sm py-5 md:py-6">
+            <p className="mb-2 flex items-center gap-2 text-xs font-medium text-orange-700">
+              <CreditCard aria-hidden="true" className="size-4" />
+              Subscriptions
+            </p>
+            <h3 className="text-[28px] font-medium leading-tight tracking-tight">
               Connect payments to access.
             </h3>
             <p className="mt-3 text-sm leading-6 text-neutral-600">
@@ -502,28 +519,30 @@ function FoundationShowcase() {
             </p>
             <Link
               href="/docs/features/payments"
-              className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-medium hover:underline underline-offset-4"
+              className="mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-medium underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-700"
             >
-              Explore subscription billing{' '}
+              Explore subscription billing
               <ArrowUpRight aria-hidden="true" className="size-4" />
             </Link>
-          </div>
-          <div className="flex flex-wrap gap-x-5 gap-y-3 border-t border-neutral-200 px-6 py-4 text-xs text-neutral-600 sm:px-9">
-            {[
-              { title: 'Monthly & yearly', icon: CalendarDays },
-              { title: 'Stored status', icon: Database },
-              { title: 'Billing portal', icon: CreditCard },
-            ].map(({ title, icon: Icon }) => (
-              <span key={title} className="flex items-center gap-2">
-                <Icon aria-hidden="true" className="size-3.5" />
-                {title}
-              </span>
-            ))}
+            <ul className="mt-5 flex flex-col gap-3 text-xs text-neutral-600">
+              {[
+                { title: 'Monthly & yearly', icon: CalendarDays },
+                { title: 'Stored status', icon: Database },
+                { title: 'Billing portal', icon: CreditCard },
+              ].map(({ title, icon: Icon }) => (
+                <li key={title} className="flex items-center gap-2">
+                  <Icon aria-hidden="true" className="size-4 text-orange-700" />
+                  {title}
+                </li>
+              ))}
+            </ul>
           </div>
         </article>
-        <div className="grid items-center gap-7 border-t border-neutral-200 px-6 py-8 sm:px-9 md:col-span-2 md:grid-cols-2 md:gap-10">
+        <div className="mt-8 grid items-center gap-7 md:grid-cols-2 md:gap-10">
           <div>
-            <p className="mb-2 text-xs text-neutral-500">Your source</p>
+            <p className="mb-2 text-xs font-medium text-orange-700">
+              Your source
+            </p>
             <h3 className="text-xl font-medium tracking-tight sm:text-2xl">
               Make it your application.
             </h3>
@@ -532,23 +551,23 @@ function FoundationShowcase() {
             </p>
             <Link
               href="/docs/getting-started/project-structure"
-              className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-medium hover:underline underline-offset-4"
+              className="mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-medium underline-offset-4 hover:underline"
             >
-              Explore the source{' '}
+              Explore the source
               <ArrowUpRight aria-hidden="true" className="size-4" />
             </Link>
           </div>
           <ul
             aria-label="Included source edit points"
-            className="space-y-4 text-xs"
+            className="divide-y divide-neutral-200 text-xs"
           >
             {[
               { path: 'src/app/', name: 'Pages', icon: Folder },
               { path: 'src/api/billing.ts', name: 'API', icon: FileCode2 },
               { path: 'src/db/schema.ts', name: 'Data', icon: Database },
             ].map(({ path, name, icon: Icon }) => (
-              <li key={path} className="flex flex-wrap items-center gap-3">
-                <Icon aria-hidden="true" className="size-4 text-neutral-500" />
+              <li key={path} className="flex flex-wrap items-center gap-3 py-3">
+                <Icon aria-hidden="true" className="size-4 text-orange-700" />
                 <code className="wrap-anywhere">{path}</code>
                 <span className="ml-auto text-neutral-500">{name}</span>
               </li>

@@ -75,8 +75,8 @@ function LaunchQuote({
     <figure
       className={
         featured
-          ? 'flex min-h-80 flex-col justify-between border-l-2 border-orange-700 bg-neutral-50 p-7 sm:p-9'
-          : 'rounded-lg border border-neutral-200 bg-white p-5'
+          ? 'flex flex-col justify-between border-l-2 border-orange-700 py-1 pl-6 sm:pl-8'
+          : 'border-t border-neutral-200 py-4'
       }
     >
       <blockquote
@@ -89,7 +89,7 @@ function LaunchQuote({
         <p>{testimonial.text}</p>
       </blockquote>
       <figcaption
-        className={'flex items-center gap-3 ' + (featured ? 'mt-10' : 'mt-5')}
+        className={'flex items-center gap-3 ' + (featured ? 'mt-8' : 'mt-3')}
       >
         <Image
           src={`/testimonials/${testimonial.avatar}`}
@@ -144,7 +144,7 @@ export function Testimonials() {
       </div>
       <div className="grid gap-7 lg:grid-cols-[1.05fr_1fr] lg:gap-10">
         <LaunchQuote testimonial={testimonials[1]} featured />
-        <div className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2">
+        <div className="grid grid-cols-1 gap-x-6 gap-y-1 min-[360px]:grid-cols-2">
           {supporting.map((index) => (
             <div
               key={testimonials[index].name}

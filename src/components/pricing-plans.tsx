@@ -68,7 +68,7 @@ export function PricingPlans({
           ))}
         </fieldset>
       </div>
-      <div className="mt-8 grid gap-5 lg:grid-cols-3 lg:items-start lg:gap-6">
+      <div className="mt-8 grid gap-5 lg:grid-cols-3 lg:items-stretch lg:gap-6">
         {plans.map((plan) => {
           const formatted = getSubscriptionPriceDisplay(plan, interval);
           const featured = plan.featured;
@@ -94,9 +94,6 @@ export function PricingPlans({
                   )}
                 </div>
                 <div className="mt-7 min-h-20">
-                  <p className="mb-2 text-xs font-medium text-stone-500">
-                    Monthly price
-                  </p>
                   <div className="flex flex-wrap items-baseline gap-x-2 gap-y-2">
                     <p className="max-w-full text-5xl font-semibold tracking-[-0.04em] text-neutral-950 wrap-anywhere">
                       {formatted.amount}

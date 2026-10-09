@@ -1,7 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import {
-  ArrowDown,
   ArrowRight,
   ArrowUpRight,
   Check,
@@ -15,47 +14,70 @@ import {
 } from 'lucide-react';
 import { SectionHeading } from '@/components/section-heading';
 
+const planeClass =
+  'relative min-w-0 rounded-xl border border-neutral-200 bg-white shadow-[0_12px_30px_-12px_rgba(23,23,23,0.15)] group-hover/feature:border-[#d7baa8] group-hover/feature:shadow-[0_20px_36px_-16px_rgba(23,23,23,0.22)] group-focus-within/feature:border-[#d7baa8] group-focus-within/feature:shadow-[0_20px_36px_-16px_rgba(23,23,23,0.22)] motion-safe:transition-[transform,box-shadow,border-color] motion-safe:duration-[240ms] motion-safe:ease-out';
+const mainMotion =
+  ' motion-safe:group-hover/feature:-translate-y-1.5 motion-safe:group-focus-within/feature:-translate-y-1.5';
+const offsetMotion =
+  ' motion-safe:group-hover/feature:-translate-y-2 motion-safe:group-hover/feature:-rotate-1 motion-safe:group-focus-within/feature:-translate-y-2 motion-safe:group-focus-within/feature:-rotate-1';
+const figureClass = 'mx-auto w-full max-w-[450px] py-6';
+
 function TeamScene() {
   return (
     <div
-      aria-hidden="true"
-      className="flex h-[250px] flex-col items-center justify-center"
+      role="img"
+      aria-label="Illustrative CoreMVP team with Owner, Admin and Member roles and an invitation link"
+      className={figureClass}
     >
-      <div className="w-full max-w-[320px] rounded-lg border border-neutral-200 bg-white shadow-[0_8px_24px_-12px_rgba(23,23,23,0.18)]">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-100 px-4 py-3 text-xs font-medium">
-          <span className="flex items-center gap-2">
-            <UsersRound className="size-4 text-neutral-500" />
-            Your team
-          </span>
-          <span className="text-[11px] font-normal text-neutral-500">
-            Organization
-          </span>
-        </div>
-        <div className="py-1">
+      <div aria-hidden="true">
+        <div className={planeClass + mainMotion + ' px-5 py-5'}>
+          <p className="mb-4 flex items-center gap-2 text-base font-medium">
+            <Image src="/blog/coremvp.svg" alt="" width={20} height={20} />
+            Your workspace
+            <span className="ml-auto text-[11px] font-normal text-neutral-500">
+              Team
+            </span>
+          </p>
           {[
-            { initial: 'Y', name: 'You', role: 'Owner' },
-            { initial: 'A', name: 'Alex', role: 'Admin' },
-            { initial: 'S', name: 'Sam', role: 'Member' },
+            { initial: 'AK', name: 'Alex Kim', role: 'Owner' },
+            { initial: 'JL', name: 'Jamie Lee', role: 'Admin' },
+            { initial: 'SW', name: 'Sam Wilson', role: 'Member' },
           ].map(({ initial, name, role }) => (
             <div
               key={role}
-              className="flex items-center gap-3 px-4 py-2.5 text-xs"
+              className="flex items-center gap-3 border-t border-neutral-200 py-3.5 text-sm"
             >
-              <span className="grid size-7 shrink-0 place-items-center rounded-full border border-neutral-200 bg-neutral-50 text-[11px]">
+              <span
+                className={
+                  'grid size-8 shrink-0 place-items-center rounded-full text-[10px] ' +
+                  (role === 'Owner'
+                    ? 'bg-orange-50 text-orange-700'
+                    : 'bg-neutral-100 text-neutral-600')
+                }
+              >
                 {initial}
               </span>
               <span>{name}</span>
-              <span className="ml-auto text-[11px] text-neutral-600">
+              <span className="ml-auto text-[11px] text-neutral-500">
                 {role}
               </span>
             </div>
           ))}
         </div>
-      </div>
-      <div className="relative -mt-1 ml-5 flex -rotate-3 items-center gap-3 rounded-md border border-neutral-200 bg-white px-4 py-2.5 text-[11px] shadow-[0_8px_16px_-10px_rgba(23,23,23,0.18)]">
-        <LinkIcon className="size-3.5 text-orange-700" />
-        Invitation link
-        <Copy className="size-3.5 text-orange-700" />
+        <div
+          className={
+            planeClass +
+            offsetMotion +
+            ' z-10 -mt-1 ml-auto flex w-[92%] -rotate-2 flex-wrap items-center gap-2.5 px-4 py-3.5 text-xs'
+          }
+        >
+          <LinkIcon className="size-4 shrink-0 text-orange-700" />
+          Invite your teammate
+          <Copy className="size-3.5 text-orange-700" />
+          <span className="ml-auto text-[11px] text-neutral-500">
+            Join workspace ↗
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -64,36 +86,45 @@ function TeamScene() {
 function ProjectScene() {
   return (
     <div
-      aria-hidden="true"
-      className="flex h-[250px] flex-col items-center justify-center"
+      role="img"
+      aria-label="Illustrative CoreMVP workspace-owned project with create, rename, archive and restore actions"
+      className={figureClass}
     >
-      <div className="w-full max-w-[320px] rotate-2 rounded-lg border border-neutral-200 bg-white p-4 shadow-[0_8px_24px_-12px_rgba(23,23,23,0.18)] sm:p-5">
-        <div className="flex flex-wrap items-center gap-2 text-[11px]">
-          <FolderOpen className="size-5 shrink-0 text-orange-700" />
-          <span>Projects</span>
-          <span className="ml-auto text-neutral-500">Workspace-owned</span>
+      <div
+        aria-hidden="true"
+        className={planeClass + mainMotion + ' p-5 sm:p-6'}
+      >
+        <div className="flex items-center justify-between gap-3 border-b border-neutral-200 pb-5">
+          <FolderOpen className="size-8 text-orange-700" />
+          <span className="text-[11px] text-neutral-500">Workspace-owned</span>
         </div>
         <p className="mt-5 text-xl font-medium leading-tight tracking-tight">
           Your next product
         </p>
-        <p className="mt-2 text-[11px] leading-relaxed text-neutral-500">
+        <p className="mt-2 text-xs leading-6 text-neutral-500">
           Your team’s work, in one place.
         </p>
-        <div className="mt-5 flex flex-wrap gap-1.5 text-[11px] text-neutral-600">
+        <div className="mt-6 flex flex-wrap gap-2 text-[11px] text-neutral-600">
           {['Create', 'Rename', 'Archive', 'Restore'].map((action) => (
             <span
               key={action}
-              className="rounded border border-neutral-100 bg-neutral-50 px-2 py-1"
+              className="rounded border border-neutral-200 bg-neutral-50 px-2.5 py-1.5"
             >
               {action}
             </span>
           ))}
         </div>
+        <div className="mt-5 flex flex-wrap items-center gap-4 border-t border-neutral-200 pt-4 text-[11px] text-neutral-500">
+          <span className="flex items-center gap-1.5">
+            <Database className="size-3.5" />
+            Persisted data
+          </span>
+          <span className="flex items-center gap-1.5">
+            <UsersRound className="size-3.5" />
+            Shared workspace
+          </span>
+        </div>
       </div>
-      <p className="mt-4 flex items-center gap-2 text-[11px] text-neutral-600">
-        <Database className="size-3.5 shrink-0" />
-        Persisted application data
-      </p>
     </div>
   );
 }
@@ -101,49 +132,99 @@ function ProjectScene() {
 function PurchaseScene() {
   return (
     <div
-      aria-hidden="true"
-      className="grid items-center justify-items-center gap-3 py-4 md:min-h-[175px] md:grid-cols-[minmax(0,1fr)_24px_minmax(0,0.88fr)_24px_minmax(0,1fr)] md:gap-4 md:py-0"
+      role="img"
+      aria-label="Illustrative one-time guest Checkout followed by verified purchase access and account setup"
+      className={figureClass}
     >
-      <div className="w-full max-w-[280px] -rotate-2 rounded-lg border border-neutral-200 bg-white px-4 py-5 shadow-[0_8px_24px_-12px_rgba(23,23,23,0.18)]">
-        <p className="flex items-center gap-2 text-xs font-medium">
-          <CreditCard className="size-4 shrink-0" />
-          One-time checkout
-        </p>
-        <p className="mt-4 rounded border border-neutral-200 px-2 py-2 text-[11px] wrap-anywhere">
-          you@example.com
-        </p>
-        <p className="mt-2.5 text-[11px] leading-relaxed text-neutral-500">
-          No account required to start
-        </p>
-      </div>
-      <span className="text-neutral-400">
-        <ArrowDown className="size-4 md:hidden" />
-        <ArrowRight className="hidden size-4 md:block" />
-      </span>
-      <div className="flex w-full max-w-[280px] flex-col items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-5 text-center shadow-[0_8px_24px_-12px_rgba(23,23,23,0.18)]">
-        <span className="grid size-7 place-items-center rounded-full border border-orange-200 bg-orange-50 text-orange-800">
-          <Check className="size-3.5" />
-        </span>
-        <p className="text-xs font-medium leading-relaxed">Purchase verified</p>
-        <p className="text-[11px] text-neutral-500">Access recorded</p>
-      </div>
-      <span className="text-neutral-400">
-        <ArrowDown className="size-4 md:hidden" />
-        <ArrowRight className="hidden size-4 md:block" />
-      </span>
-      <div className="flex w-full max-w-[280px] rotate-2 flex-col gap-3 rounded-lg border border-neutral-200 bg-white px-4 py-5 shadow-[0_8px_24px_-12px_rgba(23,23,23,0.18)]">
-        <p className="flex items-center gap-2 text-xs font-medium">
-          <Mail className="size-4 shrink-0" />
-          Welcome aboard
-        </p>
-        <p className="text-sm font-medium">Create your account</p>
-        <p className="text-[11px] leading-relaxed text-neutral-500">
-          Continue from your setup email
+      <div aria-hidden="true">
+        <div className={planeClass + mainMotion + ' px-5 py-5'}>
+          <p className="flex items-center gap-2 text-base font-medium">
+            <CreditCard className="size-4 text-orange-700" />
+            One-time checkout
+          </p>
+          <p className="mt-5 rounded-md border border-neutral-200 px-3 py-3 text-sm wrap-anywhere">
+            you@example.com
+          </p>
+          <p className="mt-3 text-xs text-neutral-500">
+            No account required to start
+          </p>
+          <div className="mt-5 rounded-md bg-neutral-900 px-4 py-3 text-center text-xs font-medium text-white">
+            Continue to Checkout
+          </div>
+        </div>
+        <div
+          className={
+            planeClass +
+            offsetMotion +
+            ' z-10 -mt-1 ml-auto flex w-[92%] -rotate-2 items-center gap-3 px-4 py-4'
+          }
+        >
+          <span className="grid size-8 shrink-0 place-items-center rounded-full bg-orange-50 text-orange-700">
+            <Check className="size-4" />
+          </span>
+          <div>
+            <p className="text-xs font-medium">Purchase verified</p>
+            <p className="mt-1 text-[11px] text-neutral-500">Access recorded</p>
+          </div>
+        </div>
+        <p className="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs text-neutral-600">
+          <Mail className="size-4 text-orange-700" />
+          Setup email
+          <ArrowRight className="size-3.5 text-neutral-400" />
+          <span>Create your account</span>
         </p>
       </div>
     </div>
   );
 }
+
+const capabilities = [
+  {
+    id: 'team',
+    label: 'Teams and roles',
+    title: 'Make room for your team.',
+    description: 'Invitations, roles and shared workspaces.',
+    points: [
+      'Owner, Admin and Member',
+      'Invitations and join flow',
+      'Shared workspace context',
+    ],
+    href: 'https://coremvp.com/en/docs/organizations',
+    action: 'Explore teams and roles',
+    icon: UsersRound,
+    scene: <TeamScene />,
+  },
+  {
+    id: 'project',
+    label: 'Projects',
+    title: 'Give your product a home.',
+    description: 'Projects that belong to your workspace.',
+    points: [
+      'Create and rename',
+      'Archive and restore',
+      'Persisted application data',
+    ],
+    href: 'https://coremvp.com/en/docs/projects',
+    action: 'Explore Projects',
+    icon: FolderOpen,
+    scene: <ProjectScene />,
+  },
+  {
+    id: 'purchase',
+    label: 'Guest checkout',
+    title: 'Let the purchase come first.',
+    description: 'Guest checkout, verified access, then account setup.',
+    points: [
+      'One-time checkout',
+      'Verified purchase access',
+      'Account setup after purchase',
+    ],
+    href: 'https://coremvp.com/en/docs/billing/lifetime/guest-checkout',
+    action: 'Explore guest checkout',
+    icon: CreditCard,
+    scene: <PurchaseScene />,
+  },
+];
 
 export function CoreMVPSection() {
   return (
@@ -168,107 +249,107 @@ export function CoreMVPSection() {
         </div>
         <SectionHeading
           id="coremvp-title"
-          title="From your first users."
-          subtitle="To a product they share."
+          title="Build further with CoreMVP."
+          subtitle="Start with more already connected."
         />
-        <p className="mt-6 text-base leading-7 text-neutral-600">
-          Teams, Projects and guest checkout. Already connected.
+        <p className="mt-5 text-base leading-7 text-neutral-600">
+          Teams, Projects and guest checkout.
         </p>
-        <div className="mt-7 flex flex-wrap justify-center gap-3">
-          <a
-            href="https://coremvp.com/en/products"
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-orange-700 px-6 py-3 text-sm font-medium text-white hover:bg-orange-800"
-          >
-            Explore CoreMVP
-            <ArrowUpRight aria-hidden="true" className="size-4" />
-          </a>
-          <a
-            href="https://coremvp.com/en#pricing"
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-neutral-200 px-6 py-3 text-sm font-medium hover:bg-neutral-50"
-          >
-            Get CoreMVP
-            <ArrowUpRight aria-hidden="true" className="size-4" />
-          </a>
-        </div>
       </div>
-
-      <div className="mt-12 grid overflow-clip rounded-xl border border-neutral-200 md:grid-cols-2">
-        <article className="border-b border-neutral-200 md:border-r">
-          <a
-            href="https://coremvp.com/en/docs/organizations"
-            aria-labelledby="coremvp-team-title"
-            className="group block h-full p-6 focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-orange-700 sm:p-8"
-          >
-            <TeamScene />
-            <h3
-              id="coremvp-team-title"
-              className="mt-5 text-xl font-medium leading-snug tracking-tight"
+      <div className="mt-9">
+        {capabilities.map(
+          (
+            {
+              id,
+              label,
+              title,
+              description,
+              points,
+              href,
+              action,
+              icon: Icon,
+              scene,
+            },
+            index,
+          ) => (
+            <article
+              key={id}
+              aria-labelledby={'coremvp-' + id + '-title'}
+              className={
+                'group/feature grid min-w-0 items-center gap-6 py-8 md:gap-12 md:py-10 ' +
+                (index === 1
+                  ? 'md:grid-cols-[1.14fr_0.86fr]'
+                  : 'md:grid-cols-[0.86fr_1.14fr]')
+              }
             >
-              Make room for your team.
-            </h3>
-            <p className="mt-3 text-sm leading-6 text-neutral-600">
-              Invitations, roles and shared workspaces.
-            </p>
-            <span className="mt-4 inline-flex min-h-11 items-center gap-1 text-sm font-medium underline-offset-4 group-hover:underline md:min-h-8">
-              Teams and roles
-              <ArrowUpRight aria-hidden="true" className="size-4 shrink-0" />
-            </span>
-          </a>
-        </article>
-        <article className="border-b border-neutral-200">
-          <a
-            href="https://coremvp.com/en/docs/projects"
-            aria-labelledby="coremvp-project-title"
-            className="group block h-full p-6 focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-orange-700 sm:p-8"
-          >
-            <ProjectScene />
-            <h3
-              id="coremvp-project-title"
-              className="mt-5 text-xl font-medium leading-snug tracking-tight"
-            >
-              Give your product a home.
-            </h3>
-            <p className="mt-3 text-sm leading-6 text-neutral-600">
-              Projects that belong to your workspace.
-            </p>
-            <span className="mt-4 inline-flex min-h-11 items-center gap-1 text-sm font-medium underline-offset-4 group-hover:underline md:min-h-8">
-              Explore Projects
-              <ArrowUpRight aria-hidden="true" className="size-4 shrink-0" />
-            </span>
-          </a>
-        </article>
-        <article className="md:col-span-2">
-          <a
-            href="https://coremvp.com/en/docs/billing/lifetime/guest-checkout"
-            aria-labelledby="coremvp-purchase-title"
-            className="group block p-6 focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-orange-700 sm:p-8"
-          >
-            <PurchaseScene />
-            <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between md:gap-6">
-              <div>
+              <div className="max-w-sm py-2">
+                <p className="mb-2 flex items-center gap-2 text-xs font-medium text-orange-700">
+                  <Icon aria-hidden="true" className="size-4" />
+                  {label}
+                </p>
                 <h3
-                  id="coremvp-purchase-title"
-                  className="text-xl font-medium leading-snug tracking-tight"
+                  id={'coremvp-' + id + '-title'}
+                  className="text-[28px] font-medium leading-tight tracking-tight"
                 >
-                  Let the purchase come first.
+                  {title}
                 </h3>
                 <p className="mt-3 text-sm leading-6 text-neutral-600">
-                  Guest checkout, verified access, then account setup.
+                  {description}
                 </p>
+                <ul className="mt-5 flex flex-col gap-3 text-xs">
+                  {points.map((point) => (
+                    <li key={point} className="flex items-center gap-2">
+                      <Check
+                        aria-hidden="true"
+                        className="size-4 shrink-0 text-orange-700"
+                      />
+                      {point}
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  href={href}
+                  className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-medium underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-700"
+                >
+                  {action}
+                  <ArrowUpRight
+                    aria-hidden="true"
+                    className="size-4 shrink-0"
+                  />
+                </a>
               </div>
-              <span className="inline-flex min-h-11 shrink-0 items-center gap-1 text-sm font-medium underline-offset-4 group-hover:underline md:min-h-8">
-                Guest checkout
-                <ArrowUpRight aria-hidden="true" className="size-4 shrink-0" />
-              </span>
-            </div>
-          </a>
-        </article>
+              <div
+                className={
+                  'min-w-0 px-2 md:px-5 ' +
+                  (index === 1 ? 'md:order-first' : '')
+                }
+              >
+                {scene}
+              </div>
+            </article>
+          ),
+        )}
       </div>
-      <p className="mt-4 text-center text-xs leading-5 text-neutral-500">
+      <p className="mt-3 text-center text-xs leading-5 text-neutral-500">
         Illustrative scenes · Included capabilities
       </p>
-
-      <div className="mt-9 flex flex-col items-center justify-center gap-x-6 gap-y-1 text-sm sm:flex-row sm:flex-wrap">
+      <div className="mt-9 flex flex-wrap justify-center gap-3">
+        <a
+          href="https://coremvp.com/en/products"
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-orange-700 px-6 py-3 text-sm font-medium text-white hover:bg-orange-800"
+        >
+          Explore CoreMVP
+          <ArrowUpRight aria-hidden="true" className="size-4" />
+        </a>
+        <a
+          href="https://coremvp.com/en#pricing"
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-neutral-200 px-6 py-3 text-sm font-medium hover:bg-neutral-50"
+        >
+          Get CoreMVP
+          <ArrowUpRight aria-hidden="true" className="size-4" />
+        </a>
+      </div>
+      <div className="mt-5 flex flex-col items-center justify-center gap-x-6 gap-y-1 text-sm sm:flex-row sm:flex-wrap">
         <Link
           href="/docs/coremvp"
           className="inline-flex min-h-11 items-center gap-1 underline-offset-4 hover:underline"
